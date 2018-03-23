@@ -13,22 +13,22 @@ with open("README.rst", "rb") as f:
 
 setup(name='outar',
       packages=['outar'],
-      version='0.1',
+      version='0.1.0',
       description='Associate outliers with rare variation',
       long_description=long_descr,
       entry_points={
         "console_scripts": ['outar=outar.outar:main']
         },
-      # scripts=['bin/outar'],
       url='http://github.com/frichter/outar',
       author='Felix Richter',
       author_email='felix.richter@icahn.mssm.edu',
       install_requires=[
-          'argparse', 'logging', 'sys',
-          'os', 'functools', 'multiprocessing', 'itertools',
-          're', 'subprocess', 'glob', 'pandas', 'pybedtools',
-          'copy', 'scipy',
-          'gzip', 'pysam'
+          # 'argparse', 'logging', 'sys',
+          # 'os', 'functools', 'multiprocessing', 'itertools',
+          # 're', 'subprocess', 'glob', 'copy', 'gzip',
+          'pandas', 'pybedtools',
+          'scipy', 'matplotlib', 'numpy',
+          'pysam'
       ],
       python_requires='>=3',
       # package_data={'sample': ['package_data.dat']},
