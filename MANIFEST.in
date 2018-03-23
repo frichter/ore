@@ -1,0 +1,11 @@
+exclude .gitignore
+exclude .coverage
+include LICENSE.txt
+include README.rst
+include setup.cfg
+# prune .cache
+# prune .git
+# prune build
+# prune dist
+# recursive-exclude *.egg-info *
+# recursive-include tests *

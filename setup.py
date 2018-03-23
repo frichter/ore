@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""Setuptools control."""
+
+
+from setuptools import setup
+
+
+with open("README.rst", "rb") as f:
+    long_descr = f.read().decode("utf-8")
+
+
+setup(name='outar',
+      packages=['outar'],
+      version='0.1',
+      description='Associate outliers with rare variation',
+      long_description=long_descr,
+      entry_points={
+        "console_scripts": ['outar=outar.outar:main']
+        },
+      # scripts=['bin/outar'],
+      url='http://github.com/frichter/outar',
+      author='Felix Richter',
+      author_email='felix.richter@icahn.mssm.edu',
+      install_requires=[
+          'argparse', 'logging', 'sys',
+          'os', 'functools', 'multiprocessing', 'itertools',
+          're', 'subprocess', 'glob', 'pandas', 'pybedtools',
+          'copy', 'scipy',
+          'gzip', 'pysam'
+      ],
+      python_requires='>=3',
+      # package_data={'sample': ['package_data.dat']},
+      # download_url = 'https://github.com/frichter/outar/archive/0.1.tar.gz',
+      keywords=['rnaseq', 'wgs', 'outliers', 'rare_variants', 'rna', 'dna'],
+      classifiers=[
+        # As from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+        # 'Development Status :: 1 - Planning',
+        # 'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
+        # 'Development Status :: 4 - Beta',
+        # 'Development Status :: 5 - Production/Stable',
+        # 'Development Status :: 6 - Mature',
+        # 'Development Status :: 7 - Inactive',
+        'Intended Audience :: Science/Research',
+        'Programming Language :: Python :: 3 :: Only',
+        'Topic :: Scientific/Engineering :: Bio-Informatics',
+        'Topic :: Scientific/Engineering :: Medical Science Apps.'],
+      # zip_safe=False,
+      # include_package_data=True,
+      license='MIT')
+
+
+"""
+Sources:
+- http://python-packaging.readthedocs.io/en/latest/minimal.html
+- http://peterdowns.com/posts/first-time-with-pypi.html
+- https://gehrcke.de/2014/02/distributing-a-python-command-line-application/
+"""
