@@ -43,13 +43,23 @@ class AnnotationError(Error):
 
 
 class Annotations(object):
-    """Handles all annotation-related features."""
+    """Handles all annotation-related features.
 
-    def __init__(self, annovar_file_loc, var_bed_loc, long012_loc):
+    Attributes:
+
+    """
+
+    def __init__(self, annovar_file_loc, var_bed_loc, long012_loc,
+                 annovar_dir, humandb_dir, genome_v):
         """Create object containing methods/attributes for annotations.
 
         Args:
-            vcf_obj (:obj:`obj`): contains the file names
+            annovar_file_loc (:obj:`str`): output file with allele freqs
+            var_bed_loc (:obj:`str`): variants in bed file
+            long012_loc (:obj:`str`): variants in long format
+            annovar_dir (:obj:`str`): annovar command location
+            humandb_dir (:obj:`str`):
+            genome_v (:obj:`str`):
 
         """
         self.long012_loc = long012_loc
@@ -60,6 +70,11 @@ class Annotations(object):
                                         self.anno_out_loc)
         self.final_var_loc = re.sub("tmp_long_012", "var",
                                     self.long012_loc)
+        # annovar info
+        self.annovar_dir, self.humandb_dir, self.genome_v = (
+            annovar_dir, humandb_dir, genome_v)
+        # make a pybedtools temp directory (monitor how much space this
+        # takes up)
 
     def run_annovar(self, current_chrom):
         """Execute ANNOVAR command.
@@ -78,12 +93,14 @@ class Annotations(object):
         if os.path.exists(annovar_out_loc + ".hg19_multianno.txt"):
             # print("ANNOVAR already done for %s" % infile)
             return "Not_rerun_" + current_chrom
-        annovar_cmd = ("time perl /sc/orga/projects/chdiTrios/WGS_tools/" +
-                       "annovar/table_annovar.pl {} /sc/orga/projects/" +
-                       "chdiTrios/whole_genome/humandb -buildver hg19 " +
+        annovar_cmd = ("time perl {}/table_annovar.pl " +
+                       "/sc/orga/projects/" +
+                       "{}/humandb -buildver {} " +
                        "-out {} --otherinfo -remove -protocol " +
-                       "refGene,ensGene,kaviar_20150923,gnomad_genome " +
-                       "-operation g,g,f,f -nastring NA").format(
+                       "refGene,ensGene,gnomad_genome " +
+                       # kaviar_20150923
+                       "-operation g,g,f -nastring NA").format(
+                       self.annovar_dir, self.humandb_dir, self.genome_v,
                        infile, annovar_out_loc)
         print(annovar_cmd)
         subprocess.call(annovar_cmd, shell=True)

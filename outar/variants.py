@@ -59,6 +59,8 @@ class Variants(object):
     """Instantiate object for processing Variants."""
 
     def __init__(self, vcf_loc, gene_pheno_loc, prefix, outlier_postfix=None,
+                 annovar_dir=__file__ + '/annovar/',
+                 humandb_dir=__file__ + '/annovar/humandb/',
                  n_processes=1):
         """Instantiate Variants class.
 
@@ -81,6 +83,8 @@ class Variants(object):
         print("VCF of interest loaded, with IDs parsed successfully")
         self.anno_obj = Annotations(self.vcf_obj.annovar_file_loc,
                                     self.vcf_obj.bed_file_loc,
+                                    annovar_dir, humandb_dir,
+                                    "hg19",
                                     current_chrom_file_loc)
         print("Annotation functions loaded...")
         self.gene_obj = Genes(gene_pheno_loc, self.vcf_obj.bed_file_loc)
