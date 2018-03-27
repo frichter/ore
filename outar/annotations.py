@@ -20,7 +20,7 @@ import pandas as pd
 import pybedtools
 from pybedtools import BedTool
 
-from utils import anno_file_locations
+# from utils import anno_file_locations
 
 
 class Error(Exception):

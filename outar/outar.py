@@ -11,11 +11,11 @@
 
 
 import argparse
-import logging
-import sys
 
-from variants import Variants
-from enrichment import Enrich
+from .utils import initialize_logger
+from .variants import Variants
+from .enrichment import Enrich
+from .outliers import Outliers
 
 """Profiling libraries:
 import cProfile
@@ -24,51 +24,34 @@ from memory_profiler import profile
 """
 
 
-def initialize_logger(log_file):
-    """Set up logging.
-
-    Returns:
-        logger (:obj:`logging object`): log with file and stream handlers
-
-    """
-    logger = logging.getLogger("OutAR_status")
-    logger.setLevel(logging.DEBUG)
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setLevel(logging.DEBUG)
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.DEBUG)
-    # create formatter and add it to the handlers
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    file_handler.setFormatter(formatter)
-    formatter = logging.Formatter(
-        "%(asctime)s - %(message)s")
-    console_handler.setFormatter(formatter)
-    # add the handlers to the logger
-    # logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
-    return(logger)
-
-
 # @profile
-def associate_outliers(vcf_loc, gene_pheno_loc, output_prefix, outlier_postfix,
-                       extrema, distribution, variant_class, enrich_loc):
+def associate_outliers(args):
     """Prepare and associate variants and outliers.
 
     Args:
         vcf_loc (:obj:`str`): VCF location
-        gene_pheno_loc (:obj:`str`): gene expression (phenotype) location
+        bed (:obj:`str`): gene expression (phenotype) location
         output_prefix (:obj:`str`): file prefix for outputs
-        outlier_postfix (:obj:`str`): file prefix for outlier files
+        outlier_postfix (:obj:`str`): file ending for outlier files
         extrema (:obj:`boolean`): T/F for using most extreme outlier
         distribution (:obj:`str`): type of outlier distribution considered
         variant_class (:obj:`str`): variant functional class to test
         enrich_loc (:obj:`str`): file location of enrichment results
 
+    Attributes:
+        outlier_obj: (:obj:`Outliers`): class instance of methods and
+            states relevant to RNA expression and outlier calling
+
     """
-    logger = initialize_logger(log_file=output_prefix + "_outar_2.log")
-    variants_obj = Variants(vcf_loc, gene_pheno_loc, prefix=output_prefix,
-                            outlier_postfix=outlier_postfix, n_processes=12)
+    logger = initialize_logger(log_file=args.output + "_outar_2.log",
+                               logAppName="OutAR_status")
+    variants_obj = Variants(args.vcf, args.bed,
+                            prefix=args.output,
+                            outlier_postfix=args.outlier_output,
+                            annovar_dir=args.annovar_dir,
+                            humandb_dir=args.humandb_dir,
+                            n_processes=args.processes,
+                            clean_run=args.clean_run)
     chroms_completed = variants_obj.extract_variants_from_vcf()
     logger.info("LONG format variant abstraction done for...\n" +
                 ", ".join(chroms_completed) + "\n")
@@ -77,8 +60,11 @@ def associate_outliers(vcf_loc, gene_pheno_loc, output_prefix, outlier_postfix,
     logger.info("ANNOVAR done for...\n" +
                 ", ".join(chroms_completed) + "\n")
     # find closest gene
+    max_tss_dist = max(args.tss_dist)
     chroms_completed = variants_obj.label_with_closest_gene(
-        upstream_only=False, downstream_only=False, max_tss_dist=1e4)
+        upstream_only=args.upstream,
+        downstream_only=args.downstream,
+        max_tss_dist=max_tss_dist)
     logger.info("Closest gene found for the following chromosomes..\n" +
                 ", ".join(chroms_completed) + "\n")
     # other annotations
@@ -86,29 +72,44 @@ def associate_outliers(vcf_loc, gene_pheno_loc, output_prefix, outlier_postfix,
     logger.info("Overlaps with other bed files done for...\n" +
                 ", ".join(chroms_completed) + "\n")
     # obtain outlier dataframe (write to file)
-    variants_obj.prepare_outliers(most_extreme=extrema,
-                                  distribution=distribution,
-                                  outlier_max=1000)
+    outlier_obj = Outliers(pheno_loc=args.bed,
+                           output_prefix=args.output_prefix,
+                           outlier_postfix=args.outlier_postfix,
+                           extrema=args.extrema,
+                           distribution=args.distribution)
+    print("Outliers initialized...")
+    outlier_obj.prepare_outliers(outlier_max=args.max_outliers_per_id,
+                                 vcf_id_list=variants_obj.vcf_obj.id_list)
     logger.info("Outliers prepared")
     # finalize variants (join variants with gene expression locations)
     chroms_completed = variants_obj.finalize_variants()
     logger.info("Final set of variants done for...\n" +
                 ", ".join(chroms_completed) + "\n")
     # output final set of outliers and calculate enrichment
-    rv_outlier_loc = output_prefix + "_rv_w_outliers.txt"
+    rv_outlier_loc = args.output + "_rv_w_outliers.txt"
     enrich_obj = Enrich(variants_obj.anno_obj.final_var_loc,
-                        variants_obj.expr_outs_loc, enrich_loc, rv_outlier_loc,
-                        distribution, variant_class)
-    # enrich_obj.write_rvs_w_outs_to_file(out_cut_off=2, tss_cut_off=1e4,
-    #                                     af_cut_off=5e-2)
-    # logger.info("Printed final set of outliers with rare variants")
+                        variants_obj.expr_outs_loc,
+                        args.enrich_file,
+                        rv_outlier_loc,
+                        args.distribution,
+                        args.variant_class)
+    least_extreme_outlier = min(args.threshold)
+    enrich_obj.write_rvs_w_outs_to_file(out_cut_off=least_extreme_outlier,
+                                        tss_cut_off=max_tss_dist,
+                                        af_cut_off=max(args.af_cut_off))
+    logger.info("Printed final set of outliers with rare variants")
     enrich_obj.loop_enrichment()
-    logger.info("Completed outlier enrichment! File: " + enrich_loc)
+    logger.info("Completed outlier enrichment! File: " + args.enrich_file)
     logger.info("All done :)")
 
 
 def main():
-    """Process argparse and start program."""
+    """Process argparse and start program.
+
+    Notes:
+        None is the default value for arguments without a specified default
+
+    """
     parser = argparse.ArgumentParser(
         description="Associate outliers with rare variants.")
     optional = parser._action_groups.pop()
@@ -140,7 +141,7 @@ def main():
                               "rank. Ignored with --distribution custom",
                               type=float, default=2.0)
     opt_out_args.add_argument("--max_outliers_per_id", help="Maximum number " +
-                              "of outliers per ID", type=int, default=1000)
+                              "of outliers per ID", type=int, default=None)
     # Arguments for variants
     opt_var = parser.add_argument_group('Optional variant-related arguments')
     opt_var.add_argument("--af_rare", help="AF cut-off below which a variant" +
@@ -149,8 +150,12 @@ def main():
     opt_var.add_argument("--tss_dist", help="Variants within this distance " +
                          "of the TSS are considered", type=int, nargs="*",
                          default=1e4)
-    opt_var.add_argument("--upstream", help="Only variants UPstream of TSS")
-    opt_var.add_argument("--downstream", help="Only vars DOWNstream of TSS")
+    opt_var.add_argument("--upstream", default=False,
+                         action="store_true",
+                         help="Only variants UPstream of TSS")
+    opt_var.add_argument("--downstream", default=False,
+                         action="store_true",
+                         help="Only vars DOWNstream of TSS")
     opt_var.add_argument("--variant_class", help="Only variants in these " +
                          "classes will be considered", default=None,
                          choices=["intronic", "intergenic", "exonic", "UTR5",
@@ -158,22 +163,35 @@ def main():
     opt_var.add_argument("--annotations", help="Annotation file locations " +
                          "passed as a comma-separated list. Only " +
                          "variants in these annotations will be considered")
-    opt_var.add_argument("--af_population", help="Space-separated " +
-                         "list of populations used " +
-                         "for determining the maximum observed allele " +
-                         "frequency. Currently using populations with " +
-                         "N>1000 on GnomAD: Non-Finnish European - NFE, " +
-                         "Finnish - FIN, African/African-American - AFR, " +
-                         "and global - ALL\nOther options are Latino - AMR, " +
-                         "Ashkenazi Jewish - ASJ, East Asian - EAS, " +
-                         "other - OTH", nargs="*",
-                         default="ALL NFE FIN AFR",
-                         choices=["ALL", "NFE", "FIN", "AFR",
-                                  "AMR", "ASJ", "EAS", "OTH"])
+    opt_var.add_argument("--annovar_dir", help="Directory of the  " +
+                         "table_annovar.pl script",
+                         default=__file__ + '/annovar/')
+    opt_var.add_argument("--humandb_dir", help="Directory of ANNOVAR " +
+                         "data (refGene, ensGene, and gnomad_genome)",
+                         default=__file__ + '/annovar/humandb_dir/')
+    # opt_var.add_argument("--af_population", help="Space-separated " +
+    #                      "list of populations used " +
+    #                      "for determining the maximum observed allele " +
+    #                      "frequency. Currently using populations with " +
+    #                      "N>1000 on GnomAD: Non-Finnish European - NFE, " +
+    #                      "Finnish - FIN, African/African-American - AFR, " +
+    #                      "and global - ALL\nOther options are " +
+    #                      "Latino - AMR, Ashkenazi Jewish - ASJ, " +
+    #                      "East Asian - EAS, other - OTH", nargs="*",
+    #                      default=["ALL", "NFE", "FIN", "AFR"],
+    #                      const=["ALL", "NFE", "FIN", "AFR"],
+    #                      # default="ALL NFE FIN AFR",
+    #                      # const="ALL NFE FIN AFR",
+    #                      # choices=["ALL NFE FIN AFR AMR ASJ EAS OTH"])
+    #                      choices=["ALL", "NFE", "FIN", "AFR",
+    #                               "AMR", "ASJ", "EAS", "OTH"])
     # other/utilities
     # oth_args = parser.add_argument_group('Other optional arguments')
     optional.add_argument("--processes", help="Number of CPU processes",
                           type=int, default=1)
+    optional.add_argument("--clean_run", help="Delete temporary " +
+                          "files from the previous run",
+                          default=False, action="store_true",)
     parser._action_groups.append(optional)
     args = parser.parse_args()
     # cprof_cmd = ('associate_outliers(args.vcf, args.bed, args.output, ' +
@@ -184,9 +202,7 @@ def main():
     # cProfile.run(cprof_cmd, OUT_FILE)
     # time_profile = pstats.Stats(OUT_FILE)
     # time_profile.strip_dirs().sort_stats('cumulative').print_stats(10)
-    associate_outliers(args.vcf, args.bed, args.output, args.outlier_output,
-                       args.extrema, args.distribution, args.variant_class,
-                       args.enrich_file)
+    associate_outliers(args)
 
 
 if __name__ == "__main__":

@@ -10,45 +10,47 @@
 """
 
 import os
-import re
 
 from functools import partial
 import multiprocessing as mp
 import itertools
 
-from vcf import VCF
-from annotations import Annotations
-from genes import Genes
-from outliers import Outliers
+from .vcf import VCF
+from .annotations import Annotations
+from .genes import Genes
 
 
-def prepare_per_chrom_directory(chrom_dir, vcf_obj):
+def prepare_per_chrom_directory(temp_dir):
     """Prepare per chromosome directory FOR NEW RUN.
 
+    Args:
+        temp_dir (:obj:`str`): Location of the directory for all
+            intermediate files
+
     Create a per_chrom directory if it does not exist. If it does exist,
-        remove previously generated per_chrom files (bc code appends)
+        ask the user if the directory should be cleaned for
+        a new run.
 
     """
     print("Working in this directory:", os.getcwd())
-    if not os.path.exists(chrom_dir):
-        print("Creating", chrom_dir)
-        os.makedirs(chrom_dir)
-    os.chdir(chrom_dir)
+    if not os.path.exists(temp_dir):
+        print("Creating", temp_dir)
+        os.makedirs(temp_dir)
+    os.chdir(temp_dir)
     if not os.path.exists("pybedtools_temp_dir/"):
-        print("Creating pybedtools_temp_dir/")
+        print("Creating {}/pybedtools_temp_dir/".format(temp_dir))
         os.makedirs("pybedtools_temp_dir/")
 
 
 def multiprocess_by_chrom_cmd(n_processes, mp_function):
     """Loop over chromosomes (by sending to multiple processes).
 
-    TODO:
+    Args:
         Non-human chromosomes (brainstorm how to obtain from file. tabix?)
 
     """
     chrom_iter = itertools.chain([str(i) for i in range(1, 23)], ["X"])
     # , "Y"
-    # chrom_iter = itertools.chain([str(i) for i in range(1, 2)])
     pool = mp.Pool(processes=n_processes)
     # print("Total available cores: " + str(mp.cpu_count()))
     chroms_completed = pool.map(mp_function, chrom_iter)
@@ -58,25 +60,41 @@ def multiprocess_by_chrom_cmd(n_processes, mp_function):
 class Variants(object):
     """Instantiate object for processing Variants."""
 
-    def __init__(self, vcf_loc, gene_pheno_loc, prefix, outlier_postfix=None,
-                 annovar_dir=__file__ + '/annovar/',
-                 humandb_dir=__file__ + '/annovar/humandb/',
-                 n_processes=1):
+    def __init__(self, vcf_loc, gene_pheno_loc,
+                 output_prefix,
+                 outlier_postfix,
+                 annovar_dir,
+                 humandb_dir,
+                 n_processes,
+                 clean_run):
         """Instantiate Variants class.
 
         Args:
             vcf_loc (:obj:`str`): VCF location
+            gene_pheno_loc (:obj:`str`): Expression file location
+            output_prefix (:obj:`str`): file prefix for outputs
+            outlier_postfix (:obj:`str`): file ending for outlier files
             n_processes (:obj:`int`): number of processes to use
+            clean_run (:obj:`boolean`): if true, delete info from previous runs
+            annovar_dir (:obj:`str`): ANNOVAR table_annovar.pl script directory
+            humandb_dir (:obj:`str`): ANNOVAR data directory
 
         Attributes:
+            vcf_loc (:obj:`str`): VCF location
             vcf_obj: (:obj:`VCF`): VCF instance to maintain file locations
+            anno_obj: (:obj:`Annotations`): class instance of all
+                annotation relevant methods and states
+            gene_obj: (:obj:`Genes`): class instance of methods and
+                states relevant to gene positions
+            n_processes (:obj:`int`): number of processes to use
 
         """
         self.n_processes = n_processes
+        self.clean_run = clean_run
         self.vcf_loc = vcf_loc
-        self.vcf_obj = VCF(self.vcf_loc, prefix=prefix)
+        self.vcf_obj = VCF(self.vcf_loc, prefix=output_prefix)
         # make a common temporary directory
-        self.per_chrom_dir = self.vcf_obj.prefix + "_per_chrom/"
+        self.per_chrom_dir = output_prefix + "_per_chrom/"
         current_chrom_file_loc = (self.per_chrom_dir +
                                   "tmp_long_012_%s.txt")
         self.vcf_obj.declare_output_file_names(current_chrom_file_loc)
@@ -89,12 +107,9 @@ class Variants(object):
         print("Annotation functions loaded...")
         self.gene_obj = Genes(gene_pheno_loc, self.vcf_obj.bed_file_loc)
         print("Gene object loaded...")
-        self.outlier_obj = Outliers(gene_pheno_loc)
-        print("Outliers initialized...")
-        self.expr_outs_loc = (self.vcf_obj.prefix + "_outliers.txt")
-        if outlier_postfix:
-            self.expr_outs_loc = (self.vcf_obj.prefix + "_" + outlier_postfix)
-        # self.expr_outs_loc = "wgs_singletons_n83_outs_norm_ext_rm1500.txt"
+        # self.outlier_obj = Outliers(gene_pheno_loc, output_prefix,
+        #                             outlier_postfix)
+        # print("Outliers initialized...")
 
     def extract_variants_from_vcf(self):
         """Obtain allele-ID pairs from VCF in long format.
@@ -107,7 +122,7 @@ class Variants(object):
 
         """
         # alternatively: check to see if files are complete (and don't delete)
-        prepare_per_chrom_directory(self.per_chrom_dir, self.vcf_obj)
+        prepare_per_chrom_directory(self.per_chrom_dir)
         # assign the constant variables to `prepare_vcf_per_chrom` in
         # preparation for multiprocessing
         partial_prepare_vcf_per_chrom = partial(
@@ -148,31 +163,3 @@ class Variants(object):
         chroms_completed = multiprocess_by_chrom_cmd(
             self.n_processes, self.anno_obj.get_final_set_of_variants)
         return chroms_completed
-
-    def prepare_outliers(self, most_extreme, distribution, outlier_max=None):
-        """Obtain gene expression outliers."""
-        if os.path.exists(self.expr_outs_loc):
-            return "Already made outlier file " + self.expr_outs_loc
-        # confirm IDs in WGS match RNAseq
-        self.vcf_obj.load_vcf()
-        ids_to_keep = self.vcf_obj.id_list
-        expr_outlier_df = self.outlier_obj.get_outliers(
-            ids_to_keep, distribution=distribution, most_extreme=most_extreme,
-            expr_cut_off=2)
-        outs_per_id_file = re.sub('.txt', '_outliers_per_id_ALL',
-                                  self.expr_outs_loc)
-        self.outlier_obj.plot_out_per_id(expr_outlier_df, outs_per_id_file)
-        # determine which IDs have too many outliers (and remove these)
-        if outlier_max:
-            ids_to_keep = self.outlier_obj.get_ids_w_low_out_ct(
-                expr_outlier_df, outlier_max=outlier_max)
-            # call outliers with these IDs
-            expr_outlier_df = self.outlier_obj.get_outliers(
-                ids_to_keep, distribution=distribution,
-                most_extreme=most_extreme, expr_cut_off=2)
-            outs_per_id_file = re.sub('.txt', '_outliers_per_id_final',
-                                      self.expr_outs_loc)
-            self.outlier_obj.plot_out_per_id(expr_outlier_df, outs_per_id_file)
-        # write expr_outlier_df to file
-        print("Saving outlier status dataframe to", self.expr_outs_loc)
-        expr_outlier_df.to_csv(self.expr_outs_loc, sep="\t", index=False)
