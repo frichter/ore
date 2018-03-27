@@ -51,7 +51,8 @@ def associate_outliers(args):
                             annovar_dir=args.annovar_dir,
                             humandb_dir=args.humandb_dir,
                             n_processes=args.processes,
-                            clean_run=args.clean_run)
+                            clean_run=args.clean_run,
+                            logger=logger)
     chroms_completed = variants_obj.extract_variants_from_vcf()
     logger.info("LONG format variant abstraction done for...\n" +
                 ", ".join(chroms_completed) + "\n")

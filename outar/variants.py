@@ -18,28 +18,29 @@ import itertools
 from .vcf import VCF
 from .annotations import Annotations
 from .genes import Genes
+from .utils import prepare_directory
 
 
-def prepare_per_chrom_directory(temp_dir):
-    """Prepare per chromosome directory FOR NEW RUN.
-
-    Args:
-        temp_dir (:obj:`str`): Location of the directory for all
-            intermediate files
-
-    Create a per_chrom directory if it does not exist. If it does exist,
-        ask the user if the directory should be cleaned for
-        a new run.
-
-    """
-    print("Working in this directory:", os.getcwd())
-    if not os.path.exists(temp_dir):
-        print("Creating", temp_dir)
-        os.makedirs(temp_dir)
-    os.chdir(temp_dir)
-    if not os.path.exists("pybedtools_temp_dir/"):
-        print("Creating {}/pybedtools_temp_dir/".format(temp_dir))
-        os.makedirs("pybedtools_temp_dir/")
+# def prepare_per_chrom_directory(temp_dir):
+#     """Prepare per chromosome directory FOR NEW RUN.
+#
+#     Args:
+#         temp_dir (:obj:`str`): Location of the directory for all
+#             intermediate files
+#
+#     Create a per_chrom directory if it does not exist. If it does exist,
+#         ask the user if the directory should be cleaned for
+#         a new run.
+#
+#     """
+#     print("Working in this directory:", os.getcwd())
+#     if not os.path.exists(temp_dir):
+#         print("Creating", temp_dir)
+#         os.makedirs(temp_dir)
+#     os.chdir(temp_dir)
+#     if not os.path.exists("pybedtools_temp_dir/"):
+#         print("Creating {}/pybedtools_temp_dir/".format(temp_dir))
+#         os.makedirs("pybedtools_temp_dir/")
 
 
 def multiprocess_by_chrom_cmd(n_processes, mp_function):
@@ -66,7 +67,8 @@ class Variants(object):
                  annovar_dir,
                  humandb_dir,
                  n_processes,
-                 clean_run):
+                 clean_run,
+                 logger):
         """Instantiate Variants class.
 
         Args:
@@ -74,10 +76,11 @@ class Variants(object):
             gene_pheno_loc (:obj:`str`): Expression file location
             output_prefix (:obj:`str`): file prefix for outputs
             outlier_postfix (:obj:`str`): file ending for outlier files
-            n_processes (:obj:`int`): number of processes to use
-            clean_run (:obj:`boolean`): if true, delete info from previous runs
             annovar_dir (:obj:`str`): ANNOVAR table_annovar.pl script directory
             humandb_dir (:obj:`str`): ANNOVAR data directory
+            n_processes (:obj:`int`): number of processes to use
+            clean_run (:obj:`boolean`): if true, delete info from previous runs
+            logger (:obj:`logging object`): Current logger
 
         Attributes:
             vcf_loc (:obj:`str`): VCF location
@@ -98,15 +101,15 @@ class Variants(object):
         current_chrom_file_loc = (self.per_chrom_dir +
                                   "tmp_long_012_%s.txt")
         self.vcf_obj.declare_output_file_names(current_chrom_file_loc)
-        print("VCF of interest loaded, with IDs parsed successfully")
+        logger.info("VCF of interest loaded, with IDs parsed successfully")
         self.anno_obj = Annotations(self.vcf_obj.annovar_file_loc,
                                     self.vcf_obj.bed_file_loc,
                                     annovar_dir, humandb_dir,
                                     "hg19",
                                     current_chrom_file_loc)
-        print("Annotation functions loaded...")
+        logger.info("Annotation functions loaded...")
         self.gene_obj = Genes(gene_pheno_loc, self.vcf_obj.bed_file_loc)
-        print("Gene object loaded...")
+        logger.info("Gene object loaded...")
         # self.outlier_obj = Outliers(gene_pheno_loc, output_prefix,
         #                             outlier_postfix)
         # print("Outliers initialized...")
@@ -122,7 +125,9 @@ class Variants(object):
 
         """
         # alternatively: check to see if files are complete (and don't delete)
-        prepare_per_chrom_directory(self.per_chrom_dir)
+        prepare_directory(self.per_chrom_dir, self.clean_run)
+        os.chdir(self.per_chrom_dir)
+        prepare_directory("pybedtools_temp_dir/")
         # assign the constant variables to `prepare_vcf_per_chrom` in
         # preparation for multiprocessing
         partial_prepare_vcf_per_chrom = partial(
