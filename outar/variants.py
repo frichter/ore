@@ -64,6 +64,7 @@ class Variants(object):
     def __init__(self, vcf_loc, gene_pheno_loc,
                  output_prefix,
                  outlier_postfix,
+                 use_annovar,
                  annovar_dir,
                  humandb_dir,
                  n_processes,
@@ -102,11 +103,13 @@ class Variants(object):
                                   "tmp_long_012_%s.txt")
         self.vcf_obj.declare_output_file_names(current_chrom_file_loc)
         logger.info("VCF of interest loaded, with IDs parsed successfully")
-        self.anno_obj = Annotations(self.vcf_obj.annovar_file_loc,
+        self.anno_obj = Annotations(use_annovar,
+                                    self.vcf_obj.annovar_file_loc,
                                     self.vcf_obj.bed_file_loc,
                                     annovar_dir, humandb_dir,
                                     "hg19",
-                                    current_chrom_file_loc)
+                                    current_chrom_file_loc,
+                                    logger)
         logger.info("Annotation functions loaded...")
         self.gene_obj = Genes(gene_pheno_loc, self.vcf_obj.bed_file_loc)
         logger.info("Gene object loaded...")
@@ -121,7 +124,7 @@ class Variants(object):
 
         Returns:
             chroms_completed (:obj:`list`): chromosomes converted to
-            long format (or failed)
+                long format (or failed)
 
         """
         # alternatively: check to see if files are complete (and don't delete)
@@ -137,19 +140,38 @@ class Variants(object):
             self.n_processes, partial_prepare_vcf_per_chrom)
         return chroms_completed
 
-    def get_allele_frequencies(self):
+    def run_annovar_wrapper(self):
         """Run the corresponding ANNOVAR command.
 
         Decide if you want run_annovar_function to be a static method
+        Attributes:
+
+        Returns:
+            chroms_completed (:obj:`list`): chromosomes converted to
+                long format (or failed)
 
         """
         chroms_completed = multiprocess_by_chrom_cmd(
-            self.n_processes, self.anno_obj.run_annovar)
+            self.n_processes, self.anno_obj.run_annovar_cmd)
         return chroms_completed
 
     def label_with_closest_gene(self, upstream_only, downstream_only,
                                 max_tss_dist):
-        """Find the closest gene."""
+        """Find the closest gene.
+
+        Args:
+            upstream_only (:obj:`bool`): If true, only considering variants
+                upstream of the transcription start site (TSS)
+            downstream_only (:obj:`bool`): If true, only considering variants
+                DOWNstream of the TSS
+            max_tss_dist (:obj:`int`): only consider variants within this
+                distance of the TSS
+
+        Returns:
+            chroms_completed (:obj:`list`): chromosomes converted to
+                long format (or failed)
+
+        """
         partial_assign_genes = partial(
             self.gene_obj.assign_genes, upstream_only=upstream_only,
             downstream_only=downstream_only, max_tss_dist=max_tss_dist)
@@ -157,14 +179,26 @@ class Variants(object):
             self.n_processes, partial_assign_genes)
         return chroms_completed
 
-    def overlap_w_annotations(self):
-        """Overlap variants with noncoding annotations."""
+    def overlap_w_annotations_wrapper(self):
+        """Overlap variants with noncoding annotations.
+
+        Returns:
+            chroms_completed (:obj:`list`): chromosomes converted to
+                long format (or failed)
+
+        """
         chroms_completed = multiprocess_by_chrom_cmd(
-            self.n_processes, self.anno_obj.overlap_vars_w_annotations)
+            self.n_processes, self.anno_obj.overlap_w_annotations)
         return chroms_completed
 
     def finalize_variants(self):
-        """Get the final set of variants."""
+        """Get the final set of variants.
+
+        Returns:
+            chroms_completed (:obj:`list`): chromosomes converted to
+                long format (or failed)
+
+        """
         chroms_completed = multiprocess_by_chrom_cmd(
             self.n_processes, self.anno_obj.get_final_set_of_variants)
         return chroms_completed

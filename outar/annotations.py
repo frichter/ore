@@ -20,7 +20,7 @@ import pandas as pd
 import pybedtools
 from pybedtools import BedTool
 
-# from utils import anno_file_locations
+from .utils import anno_file_locations
 
 
 class Error(Exception):
@@ -33,7 +33,7 @@ class AnnotationError(Error):
     """Exception raised for errors in this module.
 
     Attributes:
-        message -- explanation of the error
+        message (:obj:`str`): explanation of the error
 
     """
 
@@ -46,24 +46,48 @@ class Annotations(object):
     """Handles all annotation-related features.
 
     Attributes:
+        use_annovar (:obj:`boolean`): T/F for whether or not ANNOVAR should
+            be used to obtain allele frequencies and variant
+            functional classes
+        annovar_file_loc (:obj:`str`): ANNOVAR outputs with allele freqs
+        var_bed_loc (:obj:`str`): variants in bed file
+        long012_loc (:obj:`str`): variants in long format
+        nearTSS_loc (:obj:`str`): variants within the maximum specified
+            distance of any gene's TSS
+        anno_out_loc (:obj:`str`): variants overlapped with annotations
+        anno_out_list_loc (:obj:`str`): list of annotations that were
+            overlapped with the variants
+        final_var_loc (:obj:`str`): final set of variants (in 0/1/2 and long
+            format) that will be used for association study, which are
+            annotated with intra-cohort and GnomAD allele frequencies,
+            variant functional class, and the closest gene
+        annovar_dir (:obj:`str`): annovar command location
+        humandb_dir (:obj:`str`): annovar database location
+        genome_v (:obj:`str`): genome version for annovar (currently
+            only hg19 or hg38)
 
     """
 
-    def __init__(self, annovar_file_loc, var_bed_loc, long012_loc,
+    def __init__(self, use_annovar, annovar_file_loc, var_bed_loc, long012_loc,
                  annovar_dir, humandb_dir, genome_v):
         """Create object containing methods/attributes for annotations.
 
         Args:
+            use_annovar (:obj:`boolean`): T/F for whether or not ANNOVAR should
+                be used to obtain allele frequencies and variant
+                functional classes
             annovar_file_loc (:obj:`str`): output file with allele freqs
             var_bed_loc (:obj:`str`): variants in bed file
             long012_loc (:obj:`str`): variants in long format
             annovar_dir (:obj:`str`): annovar command location
-            humandb_dir (:obj:`str`):
-            genome_v (:obj:`str`):
+            humandb_dir (:obj:`str`): annovar database location
+            genome_v (:obj:`str`): genome version for annovar (currently
+                only accepting hg19 or hg38, with automatic conversion
+                of b37/hGRC38 to UCSC formats)
 
         """
-        self.long012_loc = long012_loc
-        self.annovar_file_loc = annovar_file_loc
+        # intermediate file locations
+        self.long012_loc, self.annovar_file_loc = long012_loc, annovar_file_loc
         self.nearTSS_loc = re.sub("bed$", "nearTSS.bed", var_bed_loc)
         self.anno_out_loc = re.sub("bed$", "anno.bed", var_bed_loc)
         self.anno_out_list_loc = re.sub(".bed$", "_list.txt",
@@ -71,31 +95,39 @@ class Annotations(object):
         self.final_var_loc = re.sub("tmp_long_012", "var",
                                     self.long012_loc)
         # annovar info
+        self.use_annovar = use_annovar
         self.annovar_dir, self.humandb_dir, self.genome_v = (
             annovar_dir, humandb_dir, genome_v)
-        # make a pybedtools temp directory (monitor how much space this
-        # takes up)
 
-    def run_annovar(self, current_chrom):
+    def run_annovar_cmd(self, current_chrom):
         """Execute ANNOVAR command.
 
-        input file prepared in vcf.py
+        Input file prepared in vcf.py. Checks if annovar command has
+            previously been run, checks if annovar should NOT be
+            run, specifies the ANNOVAR command for 3 databases
+            (refGene, ensGene, and gnomad_genome), and uses subprocess
+            to execute the annovar command in the shell.
 
-        TODO:
-            un-hardcode annovar command
-            Add ensGene protocol/operation
-            confirm that input chromosome is always hg19/hg38
+        Args:
+            current_chrom (:obj:`str`): region of genome completed (b37 format)
+
+        Returns:
+            current_chrom (:obj:`str`): region of genome completed (b37 format)
+
+        Raises:
+            :obj:`AnnotationError`: if ANNOVAR command fails to execute
+
         """
-        # if self.vcf_obj.ucsc_ref_genome:
-        # I think I converted all to UCSC version in vcf.py for consistency
         infile = self.annovar_file_loc % ("chr" + current_chrom)
         annovar_out_loc = re.sub(".txt", "", infile)
         if os.path.exists(annovar_out_loc + ".hg19_multianno.txt"):
             # print("ANNOVAR already done for %s" % infile)
             return "Not_rerun_" + current_chrom
+        if not self.use_annovar:
+            # print("ANNOVAR already done for %s" % infile)
+            return "Not_run_" + current_chrom
         annovar_cmd = ("time perl {}/table_annovar.pl " +
-                       "/sc/orga/projects/" +
-                       "{}/humandb -buildver {} " +
+                       "{} -buildver {} " +
                        "-out {} --otherinfo -remove -protocol " +
                        "refGene,ensGene,gnomad_genome " +
                        # kaviar_20150923
@@ -106,20 +138,19 @@ class Annotations(object):
         subprocess.call(annovar_cmd, shell=True)
         return current_chrom
 
-    def overlap_vars_w_annotations(self, current_chrom):
-        """Overlap variants with all annotations.
+    def overlap_w_annotations(self, current_chrom):
+        """Overlap variants with annotations.
 
-        (locations of annos in utils.py)
-        input file prepared in vcf.py
-        use tbx_tmp_bed_%s.nearTSS.bed
+        Args:
+            current_chrom (:obj:`str`): region of genome for overlap
 
-        2 outputs:
-        1 with all variants all annotations within 1 Mb of TSS (closest gene)
-        1 with only variants in enhancers within 10 kb UPSTREAM
-            not in repeats/segdups
+        Returns:
+            current_chrom (:obj:`str`): region of genome completed (b37 format)
 
-        TODO
-            un-hardcode pybedtools temp directory (and clean temp directory)
+        Raises:
+            :obj:`bed_error`: raised if bedtools errors out (most likely
+                because of too little disk space for intermediate files)
+
         """
         current_chrom = "chr" + current_chrom
         anno_out_loc = self.anno_out_loc % current_chrom
@@ -127,7 +158,7 @@ class Annotations(object):
         if os.path.exists(anno_out_loc):
             # print("Overlap w annotations already done for", current_chrom)
             return "Not_rerun_" + current_chrom
-        file_loc_list = anno_file_locations(rmsk_segdup_enh=True)
+        file_loc_list = anno_file_locations()
         self.confirm_annotation_locations(file_loc_list, current_chrom)
         count = 0
         pybedtools.set_tempdir('pybedtools_temp_dir/')
@@ -153,8 +184,20 @@ class Annotations(object):
             f.write("\n".join(overlap_list) + "\n")
         return current_chrom
 
-    def confirm_annotation_locations(self, file_loc_list, chrom):
-        """Confirm that all files exist, count the number of files."""
+    def confirm_annotation_locations(self, file_loc_list, current_chrom):
+        """Confirm that all files exist, count the number of files.
+
+        Args:
+            file_loc_list (:obj:`list`): list of files to overlap with variants
+            current_chrom (:obj:`str`): region of genome for overlap
+
+        Raises:
+            :obj:`AnnotationError`: if the annotation files do not exist
+            :obj:`bed_error`: raised if bedtools errors out while loading
+                the annotation (most likely the annotation is not in correct
+                bed format)
+
+        """
         count = 0
         for file_loc in file_loc_list:
             file_iterable = glob.iglob(file_loc)
@@ -164,26 +207,45 @@ class Annotations(object):
                 else:
                     raise AnnotationError("{} does not exist!".
                                           format(file_name))
-        print("Applying {} annotation files to {}".format(count, chrom))
+                try:
+                    BedTool(file_name)
+                except pybedtools.helpers.BEDToolsError as bed_error:
+                    print("Check that {} is in correct BED format".format(
+                          file_name))
+                    raise bed_error
+        print("Overlapping {} annotation files with variants on {}".format(
+              count, current_chrom))
 
     def get_final_set_of_variants(self, current_chrom):
-        """Process ANNOVAR, annotation overlap, and 012 results."""
+        """Process ANNOVAR, annotation overlap, and 012 results.
+
+        Args:
+            current_chrom (:obj:`str`): region of genome being considered
+
+        Returns:
+            current_chrom (:obj:`str`): region of genome completed (b37 format)
+
+        """
         current_chrom = "chr" + current_chrom
         if os.path.exists(self.final_var_loc % current_chrom):
             # print("Final variants already prepared for %s" % current_chrom)
             return "Not_rerun_" + current_chrom
-        print("Cleaning ANNOVAR results for", current_chrom)
-        annovar_df = self.clean_annovar_results(current_chrom)
         print("Cleaning Annotations for", current_chrom)
         anno_df = self.import_vars_close_to_gene(current_chrom)
-        print("Joining ANNOVAR with annotations for", current_chrom)
-        joined_anno_df = annovar_df.set_index('var_id').join(
-            anno_df.set_index('var_id'), how='inner')
-        clean_df = self.remove_vars_in_unwanted_cols(joined_anno_df)
+        anno_df = anno_df.set_index('var_id')
+        if self.use_annovar:
+            print("Cleaning ANNOVAR results for", current_chrom)
+            annovar_df = self.clean_annovar_results(current_chrom)
+            print("Joining ANNOVAR with annotations for", current_chrom)
+            anno_df = annovar_df.set_index('var_id').join(anno_df, how='inner')
+        clean_df = self.remove_vars_in_unwanted_cols(anno_df)
         print("Loading long 012 matrix for", current_chrom)
         long012_df = self.load_long_012_df(current_chrom)
         print("Joining long 012 with annotations", current_chrom)
         final_df = clean_df.join(long012_df.set_index('var_id'), how='inner')
+        print("Getting intra-cohort variant counts/frequency")
+        final_df['var_id_freq'] = final_df.groupby(
+            'var_id')['var_id'].transform('count')
         print("Writing to", self.final_var_loc % current_chrom)
         final_df.to_csv(self.final_var_loc % current_chrom, sep="\t")
         print("Done writing to", self.final_var_loc % current_chrom)
@@ -205,6 +267,12 @@ class Annotations(object):
             rows in anno_df.shape is == joined_anno_df.shape
             if the latter is not true, run this command:
             anno_df[~anno_df.var_id.isin(annovar_df.var_id)]
+
+        Args:
+            current_chrom (:obj:`str`): region of genome being considered
+
+        Returns:
+            current_chrom (:obj:`str`): region of genome completed (b37 format)
 
         """
         annovar_out_loc = re.sub("txt$", "hg19_multianno.txt",
@@ -241,6 +309,12 @@ class Annotations(object):
         """Import variants that are close to the TSS.
 
         Import and clean column names, then import the actual bed file.
+
+        Args:
+            current_chrom (:obj:`str`): region of genome being considered
+
+        Returns:
+            current_chrom (:obj:`str`): region of genome completed (b37 format)
 
         TODO:
             Generalize filter to other annotations (i.e., not just enhancers)
@@ -281,6 +355,12 @@ class Annotations(object):
     def load_long_012_df(self, current_chrom):
         """Load matrix containing genotype status per variant per person.
 
+        Args:
+            current_chrom (:obj:`str`): region of genome being considered
+
+        Returns:
+            current_chrom (:obj:`str`): region of genome completed (b37 format)
+
         TODO:
             Generalize if keeping heterozygous/homozgyous or both.
 
@@ -294,11 +374,3 @@ class Annotations(object):
         long012_df.drop(['Ref', 'Alt', 'loc_id'], axis=1, inplace=True)
         # long012_df = long012_df[long012_df.GT == 1]
         return long012_df
-
-
-#
-#
-#
-#
-#
-#

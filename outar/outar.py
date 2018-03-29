@@ -48,6 +48,7 @@ def associate_outliers(args):
     variants_obj = Variants(args.vcf, args.bed,
                             prefix=args.output,
                             outlier_postfix=args.outlier_output,
+                            use_annovar=args.annovar,
                             annovar_dir=args.annovar_dir,
                             humandb_dir=args.humandb_dir,
                             n_processes=args.processes,
@@ -57,9 +58,10 @@ def associate_outliers(args):
     logger.info("LONG format variant abstraction done for...\n" +
                 ", ".join(chroms_completed) + "\n")
     # annovar
-    chroms_completed = variants_obj.get_allele_frequencies()
-    logger.info("ANNOVAR done for...\n" +
-                ", ".join(chroms_completed) + "\n")
+    if args.clean_run:
+        chroms_completed = variants_obj.run_annovar_wrapper()
+        logger.info("Executed ANNOVAR for...\n" +
+                    ", ".join(chroms_completed) + "\n")
     # find closest gene
     max_tss_dist = max(args.tss_dist)
     chroms_completed = variants_obj.label_with_closest_gene(
@@ -69,8 +71,12 @@ def associate_outliers(args):
     logger.info("Closest gene found for the following chromosomes..\n" +
                 ", ".join(chroms_completed) + "\n")
     # other annotations
-    chroms_completed = variants_obj.overlap_w_annotations()
+    chroms_completed = variants_obj.overlap_w_annotations_wrapper()
     logger.info("Overlaps with other bed files done for...\n" +
+                ", ".join(chroms_completed) + "\n")
+    # finalize variants (join variants with gene expression locations)
+    chroms_completed = variants_obj.finalize_variants()
+    logger.info("Final set of variants done for...\n" +
                 ", ".join(chroms_completed) + "\n")
     # obtain outlier dataframe (write to file)
     outlier_obj = Outliers(pheno_loc=args.bed,
@@ -82,10 +88,6 @@ def associate_outliers(args):
     outlier_obj.prepare_outliers(outlier_max=args.max_outliers_per_id,
                                  vcf_id_list=variants_obj.vcf_obj.id_list)
     logger.info("Outliers prepared")
-    # finalize variants (join variants with gene expression locations)
-    chroms_completed = variants_obj.finalize_variants()
-    logger.info("Final set of variants done for...\n" +
-                ", ".join(chroms_completed) + "\n")
     # output final set of outliers and calculate enrichment
     rv_outlier_loc = args.output + "_rv_w_outliers.txt"
     enrich_obj = Enrich(variants_obj.anno_obj.final_var_loc,
@@ -151,25 +153,34 @@ def main():
     opt_var.add_argument("--tss_dist", help="Variants within this distance " +
                          "of the TSS are considered", type=int, nargs="*",
                          default=1e4)
-    opt_var.add_argument("--upstream", default=False,
-                         action="store_true",
+    opt_var.add_argument("--upstream", default=False, action="store_true",
                          help="Only variants UPstream of TSS")
-    opt_var.add_argument("--downstream", default=False,
-                         action="store_true",
+    opt_var.add_argument("--downstream", default=False, action="store_true",
                          help="Only vars DOWNstream of TSS")
-    opt_var.add_argument("--variant_class", help="Only variants in these " +
-                         "classes will be considered", default=None,
-                         choices=["intronic", "intergenic", "exonic", "UTR5",
-                                  "UTR3", "splicing", "upstream", "ncRNA"])
+    # opt_var.add_argument("--rm_low_mapping", default=False,
+    #                      action="store_true", help="Remove variants in " +
+    #                      "repeats, segmental duplications, low " +
+    #                      "mappability regions, and Mucin/HLA genes.")
     opt_var.add_argument("--annotations", help="Annotation file locations " +
                          "passed as a comma-separated list. Only " +
                          "variants in these annotations will be considered")
-    opt_var.add_argument("--annovar_dir", help="Directory of the  " +
-                         "table_annovar.pl script",
-                         default=__file__ + '/annovar/')
-    opt_var.add_argument("--humandb_dir", help="Directory of ANNOVAR " +
-                         "data (refGene, ensGene, and gnomad_genome)",
-                         default=__file__ + '/annovar/humandb_dir/')
+    # Variant-related arguments for ANNOVAR
+    opt_annovar = parser.add_argument_group(
+        'Optional arguments for using ANNOVAR')
+    opt_annovar.add_argument("--annovar", default=False, action="store_true",
+                             help="Use ANNOVAR to specify allele " +
+                             "frequencies and functional class")
+    opt_annovar.add_argument("--variant_class", help="Only variants in " +
+                             "these classes will be considered", default=None,
+                             choices=["intronic", "intergenic", "exonic",
+                                      "UTR5", "UTR3", "splicing", "upstream",
+                                      "ncRNA"])
+    opt_annovar.add_argument("--annovar_dir", help="Directory of the  " +
+                             "table_annovar.pl script",
+                             default=__file__ + '/annovar/')
+    opt_annovar.add_argument("--humandb_dir", help="Directory of ANNOVAR " +
+                             "data (refGene, ensGene, and gnomad_genome)",
+                             default=__file__ + '/annovar/humandb_dir/')
     # opt_var.add_argument("--af_population", help="Space-separated " +
     #                      "list of populations used " +
     #                      "for determining the maximum observed allele " +
