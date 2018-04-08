@@ -13,6 +13,8 @@ import logging
 import sys
 import os
 import glob
+import multiprocessing as mp
+import itertools
 
 import pandas as pd
 
@@ -62,24 +64,62 @@ def prepare_directory(new_dir, clean_run=False):
         [os.remove(f) for f in glob.iglob(new_dir + "/*")]
 
 
+def multiprocess_by_chrom_cmd(n_processes, mp_function):
+    """Loop over chromosomes (by sending to multiple processes).
+
+    Args:
+        n_processes (:obj:`int`): number of workers/cores to run at a time
+        mp_function (:obj:`function`): function being processed across
+            multiple genomic regions
+        Non-human chromosomes (brainstorm how to obtain from file. tabix?)
+
+    Returns:
+        chroms_completed (:obj:`list`): genomic regions that were
+            processed by `mp_function`
+
+    """
+    chrom_iter = itertools.chain([str(i) for i in range(1, 23)], ["X"])
+    # , "Y"
+    pool = mp.Pool(processes=n_processes)
+    # print("Total available cores: " + str(mp.cpu_count()))
+    chroms_completed = pool.map(mp_function, chrom_iter)
+    return chroms_completed
+
+
 def applyParallel(dfGrouped, func):
     """Parallelize the pandas apply function.
 
-    SOURCE
+    Source:
         https://stackoverflow.com/questions/26187759/parallelize-apply-after-pandas-groupby
 
-    TODO
-        handle ValueError: No objects to concatenate
+    Args:
+        dfGrouped (:obj:`DataFrame`): grouped dataframe, where
+            `func` is to be applied to each group separately
+        func (:obj:`int`):
+
+    Returns:
+        pd.concat(ret_list) (:obj:`DataFrame`): `dfGrouped` with function
+            applied to every group
+
     """
     from multiprocessing import Pool, cpu_count
     print("Using all {} cores".format(cpu_count()))
     with Pool(cpu_count()) as p:
         ret_list = p.map(func, [group for name, group in dfGrouped])
-    return pd.concat(ret_list)
+    try:
+        return pd.concat(ret_list)
+    except ValueError:
+        print("Was the dataframe being passed empty?", dfGrouped.head())
+        raise ValueError
 
 
 def anno_file_locations():
-    """Import hardcoded annotation locations."""
+    """Import hardcoded annotation locations.
+
+    Returns:
+        file_loc_list (:obj:`list`): list of BED file annotations
+
+    """
     data_dir = __file__ + "/data/"
     # mappability annotations
     rmsk = data_dir + "rmsk/rmsk.merged.sorted.bed"

@@ -101,7 +101,7 @@ def associate_outliers(args):
                                         tss_cut_off=max_tss_dist,
                                         af_cut_off=max(args.af_cut_off))
     logger.info("Printed final set of outliers with rare variants")
-    enrich_obj.loop_enrichment()
+    enrich_obj.loop_enrichment(n_processes=args.processes)
     logger.info("Completed outlier enrichment! File: " + args.enrich_file)
     logger.info("All done :)")
 
@@ -169,7 +169,11 @@ def main():
         'Optional arguments for using ANNOVAR')
     opt_annovar.add_argument("--annovar", default=False, action="store_true",
                              help="Use ANNOVAR to specify allele " +
-                             "frequencies and functional class")
+                             "frequencies and functional class ()")
+    # opt_annovar.add_argument("--ignore_intracohort_af", default=False,
+    #                          action="store_true", help="Ignore intra-" +
+    #                          "cohort AF (i.e., only " +
+    #                          "use population databases for AF)")
     opt_annovar.add_argument("--variant_class", help="Only variants in " +
                              "these classes will be considered", default=None,
                              choices=["intronic", "intergenic", "exonic",

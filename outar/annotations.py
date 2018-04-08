@@ -244,8 +244,15 @@ class Annotations(object):
         print("Joining long 012 with annotations", current_chrom)
         final_df = clean_df.join(long012_df.set_index('var_id'), how='inner')
         print("Getting intra-cohort variant counts/frequency")
-        final_df['var_id_freq'] = final_df.groupby(
+        final_df['var_id_count'] = final_df.groupby(
             'var_id')['var_id'].transform('count')
+        id_ct = len(set(final_df.blinded_id))
+        final_df['var_id_freq'] = final_df.var_id_count/id_ct
+        if not self.use_annovar:
+            print("Setting popmax AF to 1 and annovar_func to NAs" +
+                  "(because not using ANNOVAR)")
+            final_df['popmax_af'] = 1
+            final_df["annovar_func"] = "NA"
         print("Writing to", self.final_var_loc % current_chrom)
         final_df.to_csv(self.final_var_loc % current_chrom, sep="\t")
         print("Done writing to", self.final_var_loc % current_chrom)

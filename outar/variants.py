@@ -12,50 +12,11 @@
 import os
 
 from functools import partial
-import multiprocessing as mp
-import itertools
 
 from .vcf import VCF
 from .annotations import Annotations
 from .genes import Genes
-from .utils import prepare_directory
-
-
-# def prepare_per_chrom_directory(temp_dir):
-#     """Prepare per chromosome directory FOR NEW RUN.
-#
-#     Args:
-#         temp_dir (:obj:`str`): Location of the directory for all
-#             intermediate files
-#
-#     Create a per_chrom directory if it does not exist. If it does exist,
-#         ask the user if the directory should be cleaned for
-#         a new run.
-#
-#     """
-#     print("Working in this directory:", os.getcwd())
-#     if not os.path.exists(temp_dir):
-#         print("Creating", temp_dir)
-#         os.makedirs(temp_dir)
-#     os.chdir(temp_dir)
-#     if not os.path.exists("pybedtools_temp_dir/"):
-#         print("Creating {}/pybedtools_temp_dir/".format(temp_dir))
-#         os.makedirs("pybedtools_temp_dir/")
-
-
-def multiprocess_by_chrom_cmd(n_processes, mp_function):
-    """Loop over chromosomes (by sending to multiple processes).
-
-    Args:
-        Non-human chromosomes (brainstorm how to obtain from file. tabix?)
-
-    """
-    chrom_iter = itertools.chain([str(i) for i in range(1, 23)], ["X"])
-    # , "Y"
-    pool = mp.Pool(processes=n_processes)
-    # print("Total available cores: " + str(mp.cpu_count()))
-    chroms_completed = pool.map(mp_function, chrom_iter)
-    return chroms_completed
+from .utils import prepare_directory, multiprocess_by_chrom_cmd
 
 
 class Variants(object):
