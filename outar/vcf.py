@@ -80,10 +80,10 @@ class VCF(object):
             raise VCFError("This file does not exist: '{}'"
                            .format(vcf_file_loc))
         self.vcf_file_loc = vcf_file_loc
-        if prefix:
-            self.prefix = prefix
-        else:
-            self.prefix = re.sub("(.*/|.vcf.gz)", "", vcf_file_loc)
+        # if prefix:
+        self.prefix = prefix
+        # else:
+        #     self.prefix = re.sub("(.*/|.vcf.gz)", "", vcf_file_loc)
 
     @staticmethod
     def prepare_vcf_per_chrom(current_chrom, vcf_loc, current_chrom_file_loc):

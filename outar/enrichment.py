@@ -59,7 +59,7 @@ class Enrich(object):
         self.rv_outlier_loc = rv_outlier_loc
         self.load_vars()
         self.load_outliers()
-        print("Enrichment: joining outliers with variants...")
+        print("joining outliers with variants...")
         self.joined_df = self.var_df.join(self.expr_outlier_df, how='inner')
         self.joined_df.reset_index(inplace=True)
 
@@ -70,7 +70,7 @@ class Enrich(object):
             `var_df`: all processed variants in a single dataframe
 
         """
-        print("Enrichment: loading variants...")
+        print("Loading variants...")
         self.var_df = pd.DataFrame()
         list_ = []
         cols_to_keep = ['popmax_af', 'var_id', 'tss_dist', 'annovar_func',

@@ -11,8 +11,9 @@
 
 
 import argparse
+import re
 
-from .utils import initialize_logger
+from .utils import initialize_logger, checkCPUcount
 from .variants import Variants
 from .enrichment import Enrich
 from .outliers import Outliers
@@ -43,10 +44,15 @@ def associate_outliers(args):
             states relevant to RNA expression and outlier calling
 
     """
-    logger = initialize_logger(log_file=args.output + "_outar_2.log",
+    if args.output:
+        output_prefix = args.output
+    else:
+        output_prefix = re.sub("(.*/|.vcf.gz)", "", args.vcf)
+    logger = initialize_logger(log_file=output_prefix + "_outar.log",
                                logAppName="OutAR_status")
+    checkCPUcount(args.processes)
     variants_obj = Variants(args.vcf, args.bed,
-                            prefix=args.output,
+                            prefix=output_prefix,
                             outlier_postfix=args.outlier_output,
                             use_annovar=args.annovar,
                             annovar_dir=args.annovar_dir,
@@ -58,7 +64,7 @@ def associate_outliers(args):
     logger.info("LONG format variant abstraction done for...\n" +
                 ", ".join(chroms_completed) + "\n")
     # annovar
-    if args.clean_run:
+    if args.annovar:
         chroms_completed = variants_obj.run_annovar_wrapper()
         logger.info("Executed ANNOVAR for...\n" +
                     ", ".join(chroms_completed) + "\n")
@@ -80,7 +86,7 @@ def associate_outliers(args):
                 ", ".join(chroms_completed) + "\n")
     # obtain outlier dataframe (write to file)
     outlier_obj = Outliers(pheno_loc=args.bed,
-                           output_prefix=args.output_prefix,
+                           output_prefix=output_prefix,
                            outlier_postfix=args.outlier_postfix,
                            extrema=args.extrema,
                            distribution=args.distribution)
@@ -89,20 +95,20 @@ def associate_outliers(args):
                                  vcf_id_list=variants_obj.vcf_obj.id_list)
     logger.info("Outliers prepared")
     # output final set of outliers and calculate enrichment
-    rv_outlier_loc = args.output + "_rv_w_outliers.txt"
+    rv_outlier_loc = output_prefix + "_rv_w_outliers.txt"
     enrich_obj = Enrich(variants_obj.anno_obj.final_var_loc,
                         variants_obj.expr_outs_loc,
                         args.enrich_file,
                         rv_outlier_loc,
                         args.distribution,
                         args.variant_class)
-    least_extreme_outlier = min(args.threshold)
-    enrich_obj.write_rvs_w_outs_to_file(out_cut_off=least_extreme_outlier,
-                                        tss_cut_off=max_tss_dist,
-                                        af_cut_off=max(args.af_cut_off))
+    enrich_obj.write_rvs_w_outs_to_file(
+        out_cut_off=outlier_obj.least_extr_threshold,
+        tss_cut_off=max_tss_dist,
+        af_cut_off=max(args.af_cut_off))
     logger.info("Printed final set of outliers with rare variants")
-    enrich_obj.loop_enrichment(n_processes=args.processes)
-    logger.info("Completed outlier enrichment! File: " + args.enrich_file)
+    # enrich_obj.loop_enrichment(n_processes=args.processes)
+    # logger.info("Completed outlier enrichment! File: " + args.enrich_file)
     logger.info("All done :)")
 
 
@@ -130,14 +136,14 @@ def main():
                                 "enrichment odds ratios and p-values")
     # Arguments for expression outliers
     opt_out_args = parser.add_argument_group('Optional outlier arguments')
-    opt_out_args.add_argument("-e", "--extrema", default=False,
+    opt_out_args.add_argument("--extrema", default=False,  # "-e",
                               action="store_true",
                               help="Only the most extreme value is an outlier")
-    opt_out_args.add_argument("-d", "--distribution",
+    opt_out_args.add_argument("--distribution",  # "-d",
                               help="Outlier distribution",
                               choices=["normal", "rank", "custom"],
                               default="normal")
-    opt_out_args.add_argument("-t", "--threshold", help="Expression " +
+    opt_out_args.add_argument("--threshold", help="Expression " +  # "-t",
                               "threshold for defining outliers. Must be " +
                               "greater than 0 for --distribution normal or " +
                               "(0,0.5) non-inclusive with --distribution " +

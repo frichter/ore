@@ -67,16 +67,14 @@ class Variants(object):
         self.anno_obj = Annotations(use_annovar,
                                     self.vcf_obj.annovar_file_loc,
                                     self.vcf_obj.bed_file_loc,
-                                    annovar_dir, humandb_dir,
+                                    annovar_dir,
+                                    humandb_dir,
                                     "hg19",
                                     current_chrom_file_loc,
                                     logger)
         logger.info("Annotation functions loaded...")
         self.gene_obj = Genes(gene_pheno_loc, self.vcf_obj.bed_file_loc)
         logger.info("Gene object loaded...")
-        # self.outlier_obj = Outliers(gene_pheno_loc, output_prefix,
-        #                             outlier_postfix)
-        # print("Outliers initialized...")
 
     def extract_variants_from_vcf(self):
         """Obtain allele-ID pairs from VCF in long format.
@@ -95,7 +93,8 @@ class Variants(object):
         # assign the constant variables to `prepare_vcf_per_chrom` in
         # preparation for multiprocessing
         partial_prepare_vcf_per_chrom = partial(
-            self.vcf_obj.prepare_vcf_per_chrom, vcf_loc=self.vcf_loc,
+            self.vcf_obj.prepare_vcf_per_chrom,
+            vcf_loc=self.vcf_loc,
             current_chrom_file_loc=self.vcf_obj.current_chrom_file_loc)
         chroms_completed = multiprocess_by_chrom_cmd(
             self.n_processes, partial_prepare_vcf_per_chrom)
@@ -103,9 +102,6 @@ class Variants(object):
 
     def run_annovar_wrapper(self):
         """Run the corresponding ANNOVAR command.
-
-        Decide if you want run_annovar_function to be a static method
-        Attributes:
 
         Returns:
             chroms_completed (:obj:`list`): chromosomes converted to

@@ -45,6 +45,19 @@ def initialize_logger(log_file, logAppName):
     return(logger)
 
 
+def checkCPUcount(n_processes):
+    """Confirm CPU count input by user is less than max cores and int.
+
+    Args:
+        n_processes (:obj:`int`): number of cores that the user wants to use
+
+    """
+    if n_processes > mp.cpu_count():
+        print("Current machine only has {} cores, but input was {}".format(
+              mp.cpu_count(), n_processes))
+        raise ValueError
+
+
 def prepare_directory(new_dir, clean_run=False):
     """Prepare per chromosome directory FOR NEW RUN.
 
@@ -102,9 +115,9 @@ def applyParallel(dfGrouped, func):
             applied to every group
 
     """
-    from multiprocessing import Pool, cpu_count
-    print("Using all {} cores".format(cpu_count()))
-    with Pool(cpu_count()) as p:
+    # from multiprocessing import Pool, cpu_count
+    print("Using all {} cores".format(mp.cpu_count()))
+    with mp.Pool(mp.cpu_count()) as p:
         ret_list = p.map(func, [group for name, group in dfGrouped])
     try:
         return pd.concat(ret_list)
