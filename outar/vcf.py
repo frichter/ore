@@ -644,12 +644,3 @@ class VCF(object):
         bed_out_loc = self.bed_file_loc % self.output_chrom
         with open(bed_out_loc, 'a') as chrom_f:
             chrom_f.write(bed_out_line + "\n")  # possibly use _ =
-
-
-def main():
-    """Empty main function."""
-    pass
-
-
-if __name__ == "__main__":
-    main()

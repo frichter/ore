@@ -13,19 +13,51 @@ import unittest
 
 
 class TestOutar(unittest.TestCase):
-    """Test class for Outar."""
+    """Test class for association between RVs and outliers with mock data."""
 
-    def test_outar(self):
-        """Run test for association between RVs and outliers with mock data.
+    def test_inputs(self):
+        """Run tests for bad inputs.
 
-        Bad input tests:
-            Abnormal VCF and BED expression inputs
-            Ref genome mismatch between VCF and BED
-            Not gzipped
-            ANNOVAR humandb is not valid
+        Abnormal VCF and BED expression inputs
+        Ref genome mismatch between VCF and BED
+        Not gzipped
+        ANNOVAR humandb is not valid
+        """
+        pass
 
-        Calculation-based tests:
-            Correct number of outliers per ID
-            Correct intra-cohort AF
+    def test_calculations(self):
+        """Run tests for calculations.
+
+        Correct number of outliers per ID
+        Correct intra-cohort AF
+        """
+        pass
+
+    def test_intermediate_files(self):
+        """Test the intermediate files generated in a mock analysis.
+
+        Correct number of rows and columns
+        """
+        pass
+
+    def test_annovar(self):
+        """Test that ANNOVAR runs correctly.
+
+        Correct number of rows with NA allele frequencies
+        """
+        pass
+
+    def test_bedtools(self):
+        """Test Bedtools intersections.
+
+        Correct number of 0s and 1s in overlap
+        """
+        pass
+
+    def test_mp(self):
+        """Test multiprocessing functions.
+
+        Test that the correct number of workers were executed based on
+            the number of input processes specified
         """
         pass
