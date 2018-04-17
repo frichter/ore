@@ -62,6 +62,7 @@ class Variants(object):
         self.per_chrom_dir = output_prefix + "_per_chrom/"
         current_chrom_file_loc = (self.per_chrom_dir +
                                   "tmp_long_012_%s.txt")
+        self.vcf_obj.load_vcf()
         self.vcf_obj.declare_output_file_names(current_chrom_file_loc)
         logger.info("VCF of interest loaded, with IDs parsed successfully")
         self.anno_obj = Annotations(use_annovar,

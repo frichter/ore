@@ -49,7 +49,6 @@ class Outliers(object):
         """
         gene_expr_df = pd.read_table(pheno_loc, low_memory=False)
         gene_expr_df = gene_expr_df.iloc[:, 3:]
-        print(gene_expr_df.columns[1:].values)
         # Convert gene expression data frame from wide to long:
         self.expr_long_df = pd.melt(
             gene_expr_df,
@@ -101,11 +100,11 @@ class Outliers(object):
             raise RNASeqError("No overlapping IDs between RNAseq and VCF")
         self.expr_long_df = self.expr_long_df[lines_w_consistent_ids]
         # actually calculate the outliers
-        expr_outlier_df = self.get_outliers()
-        outs_per_id_file = re.sub('.txt', '_outliers_per_id_ALL.txt',
+        expr_outlier_df = self.get_outliers(vcf_id_list)
+        outs_per_id_file = re.sub('.txt', '_outliers_per_id_ALL',
                                   self.expr_outs_loc)
         plot_outs_per_id(expr_outlier_df, outs_per_id_file)
-        outs_per_id_file = re.sub('.txt', '_outliers_per_id.txt',
+        outs_per_id_file = re.sub('.txt', '_outliers_per_id',
                                   self.expr_outs_loc)
         # determine which IDs have too many outliers (and remove these)
         if outlier_max:
@@ -166,12 +165,18 @@ class Outliers(object):
         return expr_outlier_df
 
     def identify_outliers_from_normal(self):
-        """Identify outliers more extreme than a z-score threshold."""
+        """Identify outliers more extreme than a z-score threshold.
+
+        TODO:
+            All three lines raise a SettingWithCopyWarning when the column
+            already exists in the dataframe. Unclear why
+
+        """
         print("Calculating z-score outliers....")
-        self.expr_long_df["z_abs"] = abs(self.expr_long_df.z_expr)
-        self.expr_long_df["expr_outlier"] = (
+        self.expr_long_df.loc[:, "z_abs"] = abs(self.expr_long_df.z_expr)
+        self.expr_long_df.loc[:, "expr_outlier"] = (
             self.expr_long_df.z_abs > self.least_extr_threshold)
-        self.expr_long_df["expr_outlier_neg"] = (
+        self.expr_long_df.loc[:, "expr_outlier_neg"] = (
             (self.expr_long_df.z_expr < 0) &
             self.expr_long_df.expr_outlier)
 

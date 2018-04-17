@@ -102,18 +102,22 @@ def associate_outliers(args):
     # output final set of outliers and calculate enrichment
     rv_outlier_loc = output_prefix + "_rv_w_outliers.txt"
     enrich_obj = Enrich(variants_obj.anno_obj.final_var_loc,
-                        variants_obj.expr_outs_loc,
+                        outlier_obj.expr_outs_loc,
                         args.enrich_file,
                         rv_outlier_loc,
                         args.distribution,
-                        args.variant_class)
+                        args.variant_class,
+                        variants_obj.vcf_obj.contigs)
     enrich_obj.write_rvs_w_outs_to_file(
         out_cut_off=outlier_obj.least_extr_threshold,
         tss_cut_off=max_tss_dist,
-        af_cut_off=max(args.af_cut_off))
+        af_cut_off=max(args.af_rare))
     logger.info("Printed final set of outliers with rare variants")
-    # enrich_obj.loop_enrichment(n_processes=args.processes)
-    # logger.info("Completed outlier enrichment! File: " + args.enrich_file)
+    enrich_obj.loop_enrichment(n_processes=args.processes,
+                               expr_cut_off_vec=args.threshold,
+                               tss_cut_off_vec=args.tss_dist,
+                               af_cut_off_vec=args.af_rare)
+    logger.info("Completed outlier enrichment! File: " + args.enrich_file)
     logger.info("All done :)")
 
 

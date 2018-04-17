@@ -250,9 +250,9 @@ class Annotations(object):
         id_ct = len(set(final_df.blinded_id))
         final_df['var_id_freq'] = final_df.var_id_count/id_ct
         if not self.use_annovar:
-            print("Setting popmax AF to 1 and annovar_func to NAs" +
+            print("Setting popmax AF to 0 and annovar_func to NAs" +
                   "(because not using ANNOVAR)")
-            final_df['popmax_af'] = 1
+            final_df['popmax_af'] = 0
             final_df["annovar_func"] = "NA"
         print("Writing to", self.final_var_loc % current_chrom)
         final_df.to_csv(self.final_var_loc % current_chrom, sep="\t")

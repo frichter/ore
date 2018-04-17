@@ -23,16 +23,16 @@ class Enrich(object):
     """Methods and objects for enrichment.
 
     TODO:
-        Un-hardcode chromosome iter
+        Separate the process of joining the final dataframe and
+        calculating enrichment into different modules
 
     """
 
-    # CHROM_ITER = itertools.chain([str(i) for i in range(1, 23)])
-    CHROM_LIST = [str(i) for i in range(1, 23)]  # 23s
+    # CHROM_LIST = [str(i) for i in range(1, 23)]  # 23s
     # , ["X", "Y"]
 
     def __init__(self, var_loc, expr_outs_loc, enrich_loc, rv_outlier_loc,
-                 distribution, annovar_func):
+                 distribution, annovar_func, contigs):
         """Load and join variants and outliers.
 
         Args:
@@ -44,6 +44,7 @@ class Enrich(object):
                 outlier-variant pairs
             `distribution`: type of distribution being used for outliers
             `annovar_func`: annovar variant class to filter on (default None)
+            `contigs`: chromosomes that are in the VCF
 
         Attributes:
             `joined_df`: variants and outliers in a single dataframe
@@ -57,13 +58,13 @@ class Enrich(object):
             print("Keeping only {} variants".format(self.annovar_func))
         self.distribution = distribution
         self.rv_outlier_loc = rv_outlier_loc
-        self.load_vars()
+        self.load_vars(contigs)
         self.load_outliers()
         print("joining outliers with variants...")
         self.joined_df = self.var_df.join(self.expr_outlier_df, how='inner')
         self.joined_df.reset_index(inplace=True)
 
-    def load_vars(self):
+    def load_vars(self, contigs):
         """Load and combine variant data.
 
         Attributes:
@@ -75,7 +76,7 @@ class Enrich(object):
         list_ = []
         cols_to_keep = ['popmax_af', 'var_id', 'tss_dist', 'annovar_func',
                         'var_id_freq']
-        for chrom in self.CHROM_LIST:
+        for chrom in contigs:
             # "wgs_pcgc_singletons_per_chrom/enh_var_hets_chr" + chrom + ".txt"
             print("chr" + chrom)
             var_df_per_chrom = pd.read_table(self.var_loc % ("chr" + chrom))
@@ -91,8 +92,9 @@ class Enrich(object):
             var_df_per_chrom = var_df_per_chrom[cols_to_keep]
             list_.append(var_df_per_chrom)
         self.var_df = pd.concat(list_)
-        print("Considering variants in the following refseq categories",
-              set(self.var_df.annovar_func))
+        if self.annovar_func:
+            print("Considering variants in the following refseq categories",
+                  set(self.var_df.annovar_func))
 
     def load_outliers(self):
         """Load expression outlier dataframe.
@@ -101,50 +103,44 @@ class Enrich(object):
             `expr_outlier_df`: all gene-ID pairs with outliers labeled
 
         """
-        print("Enrichment: loading outliers...")
+        print("Loading outliers...")
         self.expr_outlier_df = pd.read_table(self.expr_outs_loc)
         self.expr_outlier_df = self.expr_outlier_df.iloc[:, 1:]
         self.expr_outlier_df.set_index(['gene', 'blinded_id'], inplace=True)
 
-    def loop_enrichment(self, n_processes):
+    def loop_enrichment(self, n_processes, expr_cut_off_vec,
+                        tss_cut_off_vec, af_cut_off_vec):
         """Loop over enrichment.
 
         Args:
             n_processes (:obj:`int`): number of processes to use
 
         """
-        run_multi_core = True
-        if self.distribution == "normal":
-            expr_cut_off_vec = [i/2 for i in range(4, 11)]  # 13
-            # [2, 2.5, 3, 3.5, 4]
-            print("Checking enrichment across", expr_cut_off_vec)
-        elif self.distribution == "rank":
-            expr_cut_off_vec = [0.01, 0.025, 0.05]
-            print("Checking enrichment across", expr_cut_off_vec)
-        else:
-            expr_cut_off_vec = [1]
-            print("Checking enrichment for custom outliers", expr_cut_off_vec)
-        # tss_cut_off_vec = [i*1e3 for i in range(1, 11, 1)]
-        tss_cut_off_vec = [1e3, 2e3, 5e3, 1e4]
-        af_cut_off_vec = [1e-5, 1e-4, 1e-3, 1e-2, 5e-2]
-        cartesian_iter = itertools.product(expr_cut_off_vec, tss_cut_off_vec,
+        if isinstance(expr_cut_off_vec, float):
+            expr_cut_off_vec = [expr_cut_off_vec]
+        if isinstance(tss_cut_off_vec, float):
+            tss_cut_off_vec = [tss_cut_off_vec]
+        if isinstance(af_cut_off_vec, float):
+            af_cut_off_vec = [af_cut_off_vec]
+        cartesian_iter = itertools.product(expr_cut_off_vec,
+                                           tss_cut_off_vec,
                                            af_cut_off_vec)
         # https://stackoverflow.com/questions/533905/get-the-cartesian-product-of-a-series-of-lists
         enrichment_per_tuple_partial = partial(
             self.enrichment_per_tuple)
         # run either multi-core or single core
-        if run_multi_core:
-            print("Using {} cores, less than all {} cores".format(
-                  n_processes, cpu_count()))
-            with Pool(n_processes) as p:
-                out_line_list = p.map(enrichment_per_tuple_partial,
-                                      cartesian_iter)
-        else:
-            print("Running on a single process/core")
-            out_line_list = []
-            for cartesian_tuple in cartesian_iter:
-                out_line_list.append(
-                    enrichment_per_tuple_partial(cartesian_tuple))
+        # if run_multi_core:
+        print("Using {} cores, less than all {} cores".format(
+              n_processes, cpu_count()))
+        with Pool(n_processes) as p:
+            out_line_list = p.map(enrichment_per_tuple_partial,
+                                  cartesian_iter)
+        # else:
+        #     print("Running on a single process/core")
+        #     out_line_list = []
+        #     for cartesian_tuple in cartesian_iter:
+        #         out_line_list.append(
+        #             enrichment_per_tuple_partial(cartesian_tuple))
         self.write_enrichment_to_file(out_line_list)
 
     def enrichment_per_tuple(self, cut_off_tuple):
@@ -154,6 +150,7 @@ class Enrich(object):
             probably enough but deepcopy just to be safe
 
         """
+        print("Calculating enrichment for", cut_off_tuple)
         enrich_df = copy.deepcopy(self.joined_df)
         max_intrapop_af = self.get_max_intra_pop_af(
             enrich_df, cut_off_tuple[2])
@@ -178,9 +175,10 @@ class Enrich(object):
         enrich_df = enrich_df.loc[
             enrich_df.near_TSS & enrich_df.gene_has_out_w_vars]
         # confirm each gene has at least 1 rare variant
-        enrich_df['gene_has_rare_vars'] = enrich_df.groupby(
-            ['gene', 'tissue'])['rare_variant_status'].transform('sum') > 0
-        enrich_df = enrich_df[enrich_df.gene_has_rare_vars]
+        # This line raises a SettingWithCopyWarning
+        enrich_df.loc[:, 'gene_has_rare_vars'] = enrich_df.groupby(
+            'gene')['rare_variant_status'].transform('sum') > 0
+        enrich_df = enrich_df.loc[enrich_df.gene_has_rare_vars]
         return enrich_df
 
     @staticmethod
@@ -192,7 +190,7 @@ class Enrich(object):
 
         """
         expr_cut_off, tss_cut_off, af_cut_off = cut_off_tuple
-        print("Calculating enrichment", expr_cut_off, tss_cut_off, af_cut_off)
+        print("Parameters", expr_cut_off, tss_cut_off, af_cut_off)
         # classify as within x kb of TSS
         joined_df["near_TSS"] = abs(joined_df.tss_dist) < tss_cut_off
         # update outliers based on more extreme cut-offs
@@ -203,21 +201,21 @@ class Enrich(object):
                                           joined_df.expr_outlier_neg)
         elif distribution == "rank":
             hi_expr_cut_off = 1 - expr_cut_off
-            joined_df["expr_outlier_neg"] = (
+            joined_df.loc[:, "expr_outlier_neg"] = (
                 (joined_df.expr_rank <= expr_cut_off) &
                 joined_df.expr_outlier_neg)
-            joined_df["expr_outlier"] = (
+            joined_df.loc[:, "expr_outlier"] = (
                 (joined_df.expr_rank >= hi_expr_cut_off) |
                 joined_df.expr_outlier_neg) & joined_df.expr_outlier
         # else: raise error
         # only keep if there is any outlier in the gene
-        joined_df['gene_has_out_w_vars'] = joined_df.groupby(
-            ['gene', 'tissue'])['expr_outlier'].transform('sum') > 0
-        joined_df['gene_has_NEG_out_w_vars'] = joined_df.groupby(
-            ['gene', 'tissue'])['expr_outlier_neg'].transform('sum') > 0
+        joined_df.loc[:, 'gene_has_out_w_vars'] = joined_df.groupby(
+            'gene')['expr_outlier'].transform('sum') > 0
+        joined_df.loc[:, 'gene_has_NEG_out_w_vars'] = joined_df.groupby(
+            'gene')['expr_outlier_neg'].transform('sum') > 0
         # classify as rare/common
-        joined_df["rare_variant_status"] = (
-            joined_df.popmax_af < af_cut_off) & (
+        joined_df.loc[:, "rare_variant_status"] = (
+            joined_df.popmax_af <= af_cut_off) & (
             joined_df.var_id_freq <= max_intrapop_af)
         # Only keep genes with at least 1 rare variant.
         # joined_df = joined_df[
@@ -335,13 +333,20 @@ class Enrich(object):
         cut_off_tuple = (out_cut_off, tss_cut_off, af_cut_off)
         enrich_df = copy.deepcopy(self.joined_df)
         max_intrapop_af = self.get_max_intra_pop_af(enrich_df, af_cut_off)
+        print("Intra-population AF cut-off for rare:", max_intrapop_af)
         outlier_df = self.identify_rows_to_keep(
             enrich_df, max_intrapop_af,
             distribution=self.distribution, cut_off_tuple=cut_off_tuple)
         outlier_df = self.subset_deepcopy_df(outlier_df)
+        # outlier_df.to_csv("test_all_joined.txt", index=False, sep="\t")
         # only keep outliers with rare variants
-        outlier_df = outlier_df[
+        outlier_df = outlier_df.loc[
             outlier_df.rare_variant_status & outlier_df.expr_outlier]
+        cols_to_keep = ["blinded_id", "gene", "z_expr", "tss_dist",
+                        "var_id", "popmax_af", "var_id_freq"]
+        outlier_df = outlier_df[cols_to_keep]
+        outlier_df.rename(columns={"var_id_freq": "intra_cohort_af"},
+                          inplace=True)
         outlier_df.to_csv(self.rv_outlier_loc, index=False, sep="\t")
 
 #

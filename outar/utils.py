@@ -70,7 +70,7 @@ def prepare_directory(new_dir, clean_run=False):
         a new run.
 
     """
-    print("Working in this directory:", os.getcwd())
+    # print("Working in this directory:", os.getcwd())
     if not os.path.exists(new_dir):
         print("Creating", new_dir)
         os.makedirs(new_dir)
