@@ -8,7 +8,7 @@ To use, confirm the following are installed:
     - module load python/3.5.0
 
 
-# example run
+Example run
     outar
     --vcf test.vcf.gz \
     --bed test.bed.gz \
@@ -16,6 +16,6 @@ To use, confirm the following are installed:
     --distribution "normal" \
     --threshold 2 \
     --max_outliers_per_id 500 \
-    --af_rare 0.01 \
-    --tss_dist 10000
+    --af_rare 0.05 \
+    --tss_dist 5000
 
