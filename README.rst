@@ -8,7 +8,8 @@ module load bcftools/1.6
 module load python/3.5.0
 
 # example run
-outar --vcf test.vcf.gz \
+    outar
+    --vcf test.vcf.gz \
     --bed test.bed.gz \
     --enrich_file enrichment.txt \
     --distribution "normal" \
