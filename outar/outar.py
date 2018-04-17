@@ -117,7 +117,7 @@ def associate_outliers(args):
                                expr_cut_off_vec=args.threshold,
                                tss_cut_off_vec=args.tss_dist,
                                af_cut_off_vec=args.af_rare)
-    logger.info("Completed outlier enrichment! File: " + args.enrich_file)
+    logger.info("Completed outlier enrichment")
     logger.info("All done :)")
 
 

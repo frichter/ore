@@ -17,9 +17,6 @@ import pandas as pd
 
 import pysam
 
-# GENE_DF_LOCATION = ("/hpc/users/richtf01/whole_genome/rare_variants_eqtl/" +
-#                     "code/package/data/gene_TSS_0b_hg19.txt")
-
 
 class Error(Exception):
     """Base class for exceptions in this module."""

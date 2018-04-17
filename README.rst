@@ -30,5 +30,5 @@ http://bedtools.readthedocs.io/en/latest/content/installation.html
 ## potential README renderer:
 https://github.com/pypa/readme_renderer
 
-
+# possibly tarball annovar files (depending on size)
 tar -zcvf annovar_files_hg19.tar.gz annovar_files_hg19/

@@ -28,9 +28,6 @@ class Enrich(object):
 
     """
 
-    # CHROM_LIST = [str(i) for i in range(1, 23)]  # 23s
-    # , ["X", "Y"]
-
     def __init__(self, var_loc, expr_outs_loc, enrich_loc, rv_outlier_loc,
                  distribution, annovar_func, contigs):
         """Load and join variants and outliers.
