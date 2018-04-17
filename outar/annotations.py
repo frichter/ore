@@ -244,6 +244,7 @@ class Annotations(object):
         print("Joining long 012 with annotations", current_chrom)
         final_df = clean_df.join(long012_df.set_index('var_id'), how='inner')
         print("Getting intra-cohort variant counts/frequency")
+        final_df['var_id'] = final_df.index
         final_df['var_id_count'] = final_df.groupby(
             'var_id')['var_id'].transform('count')
         id_ct = len(set(final_df.blinded_id))
@@ -351,9 +352,9 @@ class Annotations(object):
             Un-hardcode this/customize which columns to remove
 
         """
-        unwanted_cols = ['segdup', 'LCR-hs37d5_chr',
-                         'mappability1_300', 'genes.MUC.HLA', 'dac_blacklist',
-                         'encode_duke_blacklist']
+        unwanted_cols = ['segdup', 'LCR-hs37d5_chr']
+        # 'mappability1_300', 'genes.MUC.HLA', 'dac_blacklist',
+        # 'encode_duke_blacklist'
         # 'rmsk', , 'pseudoautosomal_XY'
         clean_df = joined_anno_df[(joined_anno_df.loc[:, unwanted_cols] == 0).
                                   all(axis=1)]

@@ -17,8 +17,8 @@ import pandas as pd
 
 import pysam
 
-GENE_DF_LOCATION = ("/hpc/users/richtf01/whole_genome/rare_variants_eqtl/" +
-                    "code/package/data/gene_TSS_0b_hg19.txt")
+# GENE_DF_LOCATION = ("/hpc/users/richtf01/whole_genome/rare_variants_eqtl/" +
+#                     "code/package/data/gene_TSS_0b_hg19.txt")
 
 
 class Error(Exception):
@@ -57,7 +57,8 @@ class Genes(object):
         self.var_bed_loc = var_bed_loc
 
     def assign_genes(self, current_chrom, upstream_only=False,
-                     downstream_only=False, max_tss_dist=1e4):
+                     downstream_only=False, max_tss_dist=1e4,
+                     gene_strand_data=None):
         """Assign variants to genes.
 
         Top level function for assigning genes
@@ -84,7 +85,7 @@ class Genes(object):
         self.current_chrom = "chr" + current_chrom
         self.check_gene_ref_genome()
         # create input files and declare file names
-        gene_bed_loc = self.create_gene_per_chrom_file()
+        gene_bed_loc = self.create_gene_per_chrom_file(gene_strand_data)
         var_bed_loc = self.var_bed_loc % self.current_chrom
         self.closest_gene_var_loc = re.sub("bed$", "closest_gene.bed",
                                            var_bed_loc)
@@ -102,7 +103,7 @@ class Genes(object):
             current_chrom = "Not_rerun_" + current_chrom
         return current_chrom
 
-    def create_gene_per_chrom_file(self):
+    def create_gene_per_chrom_file(self, gene_strand_data):
         """Create bed file containing gene location and strand.
 
         Load the gene strand information as `strand_dict` from
@@ -120,7 +121,7 @@ class Genes(object):
             Why is `line_count` necessary?
 
         """
-        gene_df = pd.read_table(GENE_DF_LOCATION)
+        gene_df = pd.read_table(gene_strand_data)
         strand_dict = dict(zip(gene_df.gene, gene_df.Strand))
         tbx_gene_handle = pysam.TabixFile(self.gene_pheno_loc)
         gene_bed_loc = re.sub(

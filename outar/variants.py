@@ -67,11 +67,10 @@ class Variants(object):
         self.anno_obj = Annotations(use_annovar,
                                     self.vcf_obj.annovar_file_loc,
                                     self.vcf_obj.bed_file_loc,
+                                    current_chrom_file_loc,
                                     annovar_dir,
                                     humandb_dir,
-                                    "hg19",
-                                    current_chrom_file_loc,
-                                    logger)
+                                    "hg19")
         logger.info("Annotation functions loaded...")
         self.gene_obj = Genes(gene_pheno_loc, self.vcf_obj.bed_file_loc)
         logger.info("Gene object loaded...")
@@ -88,7 +87,7 @@ class Variants(object):
         """
         # alternatively: check to see if files are complete (and don't delete)
         prepare_directory(self.per_chrom_dir, self.clean_run)
-        os.chdir(self.per_chrom_dir)
+        os.chdir(self.per_chrom_dir + "/..")
         prepare_directory("pybedtools_temp_dir/")
         # assign the constant variables to `prepare_vcf_per_chrom` in
         # preparation for multiprocessing
@@ -97,7 +96,9 @@ class Variants(object):
             vcf_loc=self.vcf_loc,
             current_chrom_file_loc=self.vcf_obj.current_chrom_file_loc)
         chroms_completed = multiprocess_by_chrom_cmd(
-            self.n_processes, partial_prepare_vcf_per_chrom)
+            self.n_processes,
+            self.vcf_obj.contigs,
+            partial_prepare_vcf_per_chrom)
         return chroms_completed
 
     def run_annovar_wrapper(self):
@@ -109,11 +110,13 @@ class Variants(object):
 
         """
         chroms_completed = multiprocess_by_chrom_cmd(
-            self.n_processes, self.anno_obj.run_annovar_cmd)
+            self.n_processes,
+            self.vcf_obj.contigs,
+            self.anno_obj.run_annovar_cmd)
         return chroms_completed
 
     def label_with_closest_gene(self, upstream_only, downstream_only,
-                                max_tss_dist):
+                                max_tss_dist, gene_strand_data):
         """Find the closest gene.
 
         Args:
@@ -131,9 +134,12 @@ class Variants(object):
         """
         partial_assign_genes = partial(
             self.gene_obj.assign_genes, upstream_only=upstream_only,
-            downstream_only=downstream_only, max_tss_dist=max_tss_dist)
+            downstream_only=downstream_only, max_tss_dist=max_tss_dist,
+            gene_strand_data=gene_strand_data)
         chroms_completed = multiprocess_by_chrom_cmd(
-            self.n_processes, partial_assign_genes)
+            self.n_processes,
+            self.vcf_obj.contigs,
+            partial_assign_genes)
         return chroms_completed
 
     def overlap_w_annotations_wrapper(self):
@@ -145,7 +151,9 @@ class Variants(object):
 
         """
         chroms_completed = multiprocess_by_chrom_cmd(
-            self.n_processes, self.anno_obj.overlap_w_annotations)
+            self.n_processes,
+            self.vcf_obj.contigs,
+            self.anno_obj.overlap_w_annotations)
         return chroms_completed
 
     def finalize_variants(self):
@@ -157,5 +165,7 @@ class Variants(object):
 
         """
         chroms_completed = multiprocess_by_chrom_cmd(
-            self.n_processes, self.anno_obj.get_final_set_of_variants)
+            self.n_processes,
+            self.vcf_obj.contigs,
+            self.anno_obj.get_final_set_of_variants)
         return chroms_completed

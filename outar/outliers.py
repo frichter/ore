@@ -49,10 +49,14 @@ class Outliers(object):
         """
         gene_expr_df = pd.read_table(pheno_loc, low_memory=False)
         gene_expr_df = gene_expr_df.iloc[:, 3:]
+        print(gene_expr_df.columns[1:].values)
         # Convert gene expression data frame from wide to long:
-        self.expr_long_df = pd.melt(gene_expr_df, id_vars='gene',
-                                    value_vars=gene_expr_df.columns[1:],
-                                    var_name='blinded_id', value_name='z_expr')
+        self.expr_long_df = pd.melt(
+            gene_expr_df,
+            id_vars='gene',
+            value_vars=gene_expr_df.columns[1:].tolist(),
+            var_name='blinded_id',
+            value_name='z_expr')
         # set the output file location
         self.expr_outs_loc = (output_prefix + "_outliers.txt")
         if outlier_postfix:
@@ -61,7 +65,9 @@ class Outliers(object):
         self.extrema = extrema
         self.distribution = distribution
         self.threshold = threshold
-        if self.distribution == "normal":
+        if isinstance(self.threshold, float):
+            self.least_extr_threshold = threshold
+        elif self.distribution == "normal":
             self.least_extr_threshold = min(self.threshold)
         elif self.distribution == "rank":
             self.least_extr_threshold = max(self.threshold)

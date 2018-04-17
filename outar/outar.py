@@ -13,6 +13,8 @@
 import argparse
 import re
 
+from pkg_resources import resource_filename
+
 from .utils import initialize_logger, checkCPUcount
 from .variants import Variants
 from .enrichment import Enrich
@@ -52,7 +54,7 @@ def associate_outliers(args):
                                logAppName="OutAR_status")
     checkCPUcount(args.processes)
     variants_obj = Variants(args.vcf, args.bed,
-                            prefix=output_prefix,
+                            output_prefix=output_prefix,
                             outlier_postfix=args.outlier_output,
                             use_annovar=args.annovar,
                             annovar_dir=args.annovar_dir,
@@ -61,7 +63,7 @@ def associate_outliers(args):
                             clean_run=args.clean_run,
                             logger=logger)
     chroms_completed = variants_obj.extract_variants_from_vcf()
-    logger.info("LONG format variant abstraction done for...\n" +
+    logger.info("LONG format variant abstraction done for chromosomes...\n" +
                 ", ".join(chroms_completed) + "\n")
     # annovar
     if args.annovar:
@@ -70,10 +72,12 @@ def associate_outliers(args):
                     ", ".join(chroms_completed) + "\n")
     # find closest gene
     max_tss_dist = max(args.tss_dist)
+    strand_file = resource_filename('outar', 'data/gene_TSS_0b_hg19.txt')
     chroms_completed = variants_obj.label_with_closest_gene(
         upstream_only=args.upstream,
         downstream_only=args.downstream,
-        max_tss_dist=max_tss_dist)
+        max_tss_dist=max_tss_dist,
+        gene_strand_data=strand_file)
     logger.info("Closest gene found for the following chromosomes..\n" +
                 ", ".join(chroms_completed) + "\n")
     # other annotations
@@ -87,9 +91,10 @@ def associate_outliers(args):
     # obtain outlier dataframe (write to file)
     outlier_obj = Outliers(pheno_loc=args.bed,
                            output_prefix=output_prefix,
-                           outlier_postfix=args.outlier_postfix,
+                           outlier_postfix=args.outlier_output,
                            extrema=args.extrema,
-                           distribution=args.distribution)
+                           distribution=args.distribution,
+                           threshold=args.threshold)
     print("Outliers initialized...")
     outlier_obj.prepare_outliers(outlier_max=args.max_outliers_per_id,
                                  vcf_id_list=variants_obj.vcf_obj.id_list)

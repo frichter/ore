@@ -84,6 +84,10 @@ class VCF(object):
         self.prefix = prefix
         # else:
         #     self.prefix = re.sub("(.*/|.vcf.gz)", "", vcf_file_loc)
+        # get contigs
+        tbx_handle = pysam.TabixFile(self.vcf_file_loc)
+        self.contigs = tbx_handle.contigs
+        tbx_handle.close()
 
     @staticmethod
     def prepare_vcf_per_chrom(current_chrom, vcf_loc, current_chrom_file_loc):
@@ -110,7 +114,7 @@ class VCF(object):
         """
         vcf_obj = VCF(vcf_loc)
         vcf_obj.load_vcf()
-        vcf_obj.remove_ids_wo_re_pattern(".*(-01|-02)$")
+        # remove parents: vcf_obj.remove_ids_wo_re_pattern(".*(-01|-02)$")
         if vcf_obj.ucsc_ref_genome:
             out_file = current_chrom_file_loc % current_chrom
         else:
@@ -191,31 +195,6 @@ class VCF(object):
             self.id_list = line_list[9:len(line_list)]
             self.id_index_list = [int(line_list.index(i))
                                   for i in self.id_list]
-
-    def remove_ids_wo_re_pattern(self, id_regex_str):
-        """Keep a subset of the IDs.
-
-        Use regex pattern to remove a subset of `id_list`, concurrently
-            updating the `id_index_list`
-
-        Raises:
-            :obj:`VCFError`: if there are no matching IDs
-
-        """
-        try:
-            id_regex = re.compile(id_regex_str)
-            new_id_list = [i for i in self.id_list
-                           if not re.match(id_regex, i)]
-            if len(new_id_list) == 0:
-                raise VCFError("No match with {}, so keeping all IDs"
-                               .format(id_regex_str))
-            else:
-                # print("Removing IDs matching pattern", id_regex_str)
-                self.id_index_list = [n + 9 for n, i in enumerate(self.id_list)
-                                      if not re.match(id_regex, i)]
-                self.id_list = new_id_list
-        except VCFError:
-            self.id_list, self.id_index_list = self.id_list, self.id_index_list
 
     def determine_ref_genome(self):
         """Determine which reference genome is being used.

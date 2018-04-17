@@ -16,6 +16,7 @@ import glob
 import multiprocessing as mp
 import itertools
 
+from pkg_resources import resource_filename
 import pandas as pd
 
 
@@ -40,7 +41,7 @@ def initialize_logger(log_file, logAppName):
         "%(asctime)s - %(message)s")
     console_handler.setFormatter(formatter)
     # add the handlers to the logger
-    # logger.addHandler(file_handler)
+    logger.addHandler(file_handler)
     logger.addHandler(console_handler)
     return(logger)
 
@@ -77,21 +78,22 @@ def prepare_directory(new_dir, clean_run=False):
         [os.remove(f) for f in glob.iglob(new_dir + "/*")]
 
 
-def multiprocess_by_chrom_cmd(n_processes, mp_function):
+def multiprocess_by_chrom_cmd(n_processes, contigs, mp_function):
     """Loop over chromosomes (by sending to multiple processes).
 
     Args:
         n_processes (:obj:`int`): number of workers/cores to run at a time
+        contigs (:obj:`list`): contigs present in the VCF
         mp_function (:obj:`function`): function being processed across
             multiple genomic regions
-        Non-human chromosomes (brainstorm how to obtain from file. tabix?)
 
     Returns:
         chroms_completed (:obj:`list`): genomic regions that were
             processed by `mp_function`
 
     """
-    chrom_iter = itertools.chain([str(i) for i in range(1, 23)], ["X"])
+    # chrom_iter = itertools.chain([str(i) for i in range(1, 23)], ["X"])
+    chrom_iter = itertools.chain([str(i) for i in contigs])
     # , "Y"
     pool = mp.Pool(processes=n_processes)
     # print("Total available cores: " + str(mp.cpu_count()))
@@ -133,11 +135,11 @@ def anno_file_locations():
         file_loc_list (:obj:`list`): list of BED file annotations
 
     """
-    data_dir = __file__ + "/data/"
+    data_dir = resource_filename('outar', 'data/hg19_genome_masks/')
     # mappability annotations
     rmsk = data_dir + "rmsk/rmsk.merged.sorted.bed"
-    segdup = data_dir + "segdup/segdup.merged.sorted.bed"
-    lcr = data_dir + "LCR-hs37d5_chr.bed"
+    segdup = data_dir + "segdup.merged.sorted.bed.gz"
+    lcr = data_dir + "LCR-hs37d5_chr.bed.gz"
     map300 = data_dir + "mappability300/mappability1_300.txt"
     hla_muc = data_dir + "genome/genes.MUC.HLA.bed"
     dac_blacklist = data_dir + "dac_blacklist.bed"
@@ -145,4 +147,5 @@ def anno_file_locations():
     pseudoauto_XY = data_dir + "pseudoautosomal_XY.bed"
     file_loc_list = [rmsk, segdup, lcr, map300, hla_muc, dac_blacklist,
                      duke_blacklist, pseudoauto_XY]
+    file_loc_list = [segdup, lcr]
     return file_loc_list
