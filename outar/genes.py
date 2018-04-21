@@ -71,9 +71,10 @@ class Genes(object):
             -t option: what to do with genes with the same TSS? pick the first
 
         Args:
-            upstream_only: logical
-            downstream_only: logical
-            max_tss_dist: integer
+            upstream_only (:obj:`logical`): only variants UPstream of TSS
+            downstream_only (:obj:`logical`): only variants DOWNstream of TSS
+            max_tss_dist (:obj:`int`): maximum distance from TSS (used to
+                increase efficiency by limiting size of data)
 
         TODO
             Is there a bedtools temp directory?
