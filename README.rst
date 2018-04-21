@@ -47,8 +47,9 @@ Optional file locations:
 
 Optional outlier arguments:
   --extrema             Only the most extreme value is an outlier
-  --distribution
-                        Outlier distribution {normal,rank,custom}
+  --distribution DISTRIBUTION
+                        Outlier distribution. Options:
+                        {normal,rank,custom}
   --threshold THRESHOLD
                         Expression threshold for defining outliers. Must be
                         greater than 0 for --distribution normal or (0,0.5)
@@ -64,7 +65,7 @@ Optional variant-related arguments:
                         Variants within this distance of the TSS are
                         considered
   --upstream            Only variants UPstream of TSS
-  --downstream          Only vars DOWNstream of TSS
+  --downstream          Only variants DOWNstream of TSS
   --annotations ANNOTATIONS
                         Annotation file locations passed as a comma-separated
                         list. Only variants in these annotations will be
@@ -74,7 +75,7 @@ Optional arguments for using ANNOVAR:
   --annovar             Use ANNOVAR to specify allele frequencies and
                         functional class ()
   --variant_class
-                        Only variants in these classes will be considered
+                        Only variants in these classes will be considered. Options:
                          {intronic,intergenic,exonic,UTR5,UTR3,splicing,upstream,ncRNA}
   --annovar_dir ANNOVAR_DIR
                         Directory of the table_annovar.pl script
