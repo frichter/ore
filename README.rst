@@ -20,6 +20,7 @@ Example run
     --tss_dist 5000
 
 Usage
+
 usage: ore [-h] [--version] -v VCF -b BED [-o OUTPUT]
            [--outlier_output OUTLIER_OUTPUT] [--enrich_file ENRICH_FILE]
            [--extrema] [--distribution {normal,rank,custom}]
