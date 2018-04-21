@@ -11,15 +11,15 @@ with open("README.rst", "rb") as f:
     long_descr = f.read().decode("utf-8")
 
 
-setup(name='outar',
-      packages=['outar'],
+setup(name='ore',
+      packages=['ore'],
       version='0.1.0',
       description='Associate outliers with rare variation',
       long_description=long_descr,
       entry_points={
-        "console_scripts": ['outar=outar.outar:main']
+        "console_scripts": ['ore=ore.ore:main']
         },
-      url='http://github.com/frichter/outar',
+      url='http://github.com/frichter/ore',
       author='Felix Richter',
       author_email='felix.richter@icahn.mssm.edu',
       install_requires=[
@@ -32,7 +32,7 @@ setup(name='outar',
       ],
       python_requires='>=3',
       # package_data={'sample': ['package_data.dat']},
-      # download_url = 'https://github.com/frichter/outar/archive/0.1.tar.gz',
+      # download_url = 'https://github.com/frichter/ore/archive/0.1.tar.gz',
       keywords=['rnaseq', 'wgs', 'outliers', 'rare_variants', 'rna', 'dna'],
       classifiers=[
         # As from http://pypi.python.org/pypi?%3Aaction=list_classifiers

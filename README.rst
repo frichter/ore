@@ -2,14 +2,14 @@ OutAR
 -----
 
 To use, confirm the following are installed:
-    - module load bedtools/2.27.0
-    - module load samtools/1.3
-    - module load bcftools/1.6
-    - module load python/3.5.0
+    - bedtools/2.27.0
+    - samtools/1.3
+    - bcftools/1.6
+    - python/3.5.0
 
 
 Example run
-    outar
+    ore
     --vcf test.vcf.gz \
     --bed test.bed.gz \
     --enrich_file enrichment.txt \
@@ -19,19 +19,17 @@ Example run
     --af_rare 0.05 \
     --tss_dist 5000
 
-## Usage
-
-    outar [-h] [--version] -v VCF -b BED [-o OUTPUT]
-             [--outlier_output OUTLIER_OUTPUT] [--enrich_file ENRICH_FILE]
-             [--extrema] [--distribution {normal,rank,custom}]
-             [--threshold THRESHOLD]
-             [--max_outliers_per_id MAX_OUTLIERS_PER_ID]
-             [--af_rare [AF_RARE [AF_RARE ...]]]
-             [--tss_dist [TSS_DIST [TSS_DIST ...]]] [--upstream]
-             [--downstream] [--annotations ANNOTATIONS] [--annovar]
-             [--variant_class {intronic,intergenic,exonic,UTR5,UTR3,splicing,upstream,ncRNA}]
-             [--annovar_dir ANNOVAR_DIR] [--humandb_dir HUMANDB_DIR]
-             [--processes PROCESSES] [--clean_run]
+Usage
+usage: ore [-h] [--version] -v VCF -b BED [-o OUTPUT]
+           [--outlier_output OUTLIER_OUTPUT] [--enrich_file ENRICH_FILE]
+           [--extrema] [--distribution {normal,rank,custom}]
+           [--threshold THRESHOLD] [--max_outliers_per_id MAX_OUTLIERS_PER_ID]
+           [--af_rare [AF_RARE [AF_RARE ...]]]
+           [--tss_dist [TSS_DIST [TSS_DIST ...]]] [--upstream] [--downstream]
+           [--annotations ANNOTATIONS] [--annovar]
+           [--variant_class {intronic,intergenic,exonic,UTR5,UTR3,splicing,upstream,ncRNA}]
+           [--annovar_dir ANNOVAR_DIR] [--humandb_dir HUMANDB_DIR]
+           [--processes PROCESSES] [--clean_run]
 
 Associate outliers with rare variants.
 
@@ -49,8 +47,8 @@ Optional file locations:
 
 Optional outlier arguments:
   --extrema             Only the most extreme value is an outlier
-  --distribution {normal,rank,custom}
-                        Outlier distribution
+  --distribution
+                        Outlier distribution {normal,rank,custom}
   --threshold THRESHOLD
                         Expression threshold for defining outliers. Must be
                         greater than 0 for --distribution normal or (0,0.5)
@@ -60,9 +58,9 @@ Optional outlier arguments:
                         Maximum number of outliers per ID
 
 Optional variant-related arguments:
-  --af_rare [AF_RARE [AF_RARE ...]]
+  --af_rare
                         AF cut-off below which a variantis considered rare
-  --tss_dist [TSS_DIST [TSS_DIST ...]]
+  --tss_dist
                         Variants within this distance of the TSS are
                         considered
   --upstream            Only variants UPstream of TSS
@@ -75,8 +73,9 @@ Optional variant-related arguments:
 Optional arguments for using ANNOVAR:
   --annovar             Use ANNOVAR to specify allele frequencies and
                         functional class ()
-  --variant_class {intronic,intergenic,exonic,UTR5,UTR3,splicing,upstream,ncRNA}
+  --variant_class
                         Only variants in these classes will be considered
+                         {intronic,intergenic,exonic,UTR5,UTR3,splicing,upstream,ncRNA}
   --annovar_dir ANNOVAR_DIR
                         Directory of the table_annovar.pl script
   --humandb_dir HUMANDB_DIR
