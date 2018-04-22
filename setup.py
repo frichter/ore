@@ -31,6 +31,8 @@ setup(name='ore',
           'pysam'
       ],
       python_requires='>=3',
+      # how to specify:https://packaging.python.org/specifications/
+      # core-metadata/#requires-external-multiple-use
       package_dir={'ore': 'ore'},
       package_data={'ore': ['data/gene_strand_hg*.txt.gz',
                             'data/hg19_genome_masks/hg19_*',
@@ -51,8 +53,11 @@ setup(name='ore',
         # 'Operating System :: MacOS :: MacOS X',
         # 'Operating System :: Microsoft :: Windows',
         # 'Operating System :: POSIX',
+        # possibly specify other OS
         'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3 :: Only',
+        'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Bio-Informatics',
         'Topic :: Scientific/Engineering :: Medical Science Apps.'],
       # zip_safe=False,
