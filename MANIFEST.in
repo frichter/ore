@@ -3,6 +3,7 @@ exclude .coverage
 include LICENSE.txt
 include README.rst
 include setup.cfg
+include ore/data/
 # prune .cache
 # prune .git
 # prune build

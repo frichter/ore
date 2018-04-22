@@ -31,7 +31,8 @@ setup(name='ore',
           'pysam'
       ],
       python_requires='>=3',
-      # package_data={'sample': ['package_data.dat']},
+      package_dir={'ore': 'ore'},
+      package_data={'ore': ['data/']},
       # download_url = 'https://github.com/frichter/ore/archive/0.1.tar.gz',
       keywords=['rnaseq', 'wgs', 'outliers', 'rare_variants', 'rna', 'dna'],
       classifiers=[

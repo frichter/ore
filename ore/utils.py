@@ -135,7 +135,7 @@ def anno_file_locations():
         file_loc_list (:obj:`list`): list of BED file annotations
 
     """
-    data_dir = resource_filename('outar', 'data/hg19_genome_masks/')
+    data_dir = resource_filename('ore', 'data/hg19_genome_masks/')
     # mappability annotations
     rmsk = data_dir + "rmsk/rmsk.merged.sorted.bed"
     segdup = data_dir + "segdup.merged.sorted.bed.gz"
