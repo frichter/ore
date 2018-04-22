@@ -3,7 +3,10 @@ exclude .coverage
 include LICENSE.txt
 include README.rst
 include setup.cfg
-include ore/data/
+include ore/data/gene_strand_hg*.txt.gz
+include ore/data/hg19_genome_masks/hg19_*.txt.gz
+include ore/annovar/table_annovar.pl
+# include ore/annovar/humandb/*
 # prune .cache
 # prune .git
 # prune build

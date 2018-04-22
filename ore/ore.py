@@ -72,7 +72,7 @@ def associate_outliers(args):
                     ", ".join(chroms_completed) + "\n")
     # find closest gene
     max_tss_dist = max(args.tss_dist)
-    strand_file = resource_filename('ore', 'data/gene_strand.txt.gz')
+    strand_file = resource_filename('ore', 'data/gene_strand_hg19.txt.gz')
     chroms_completed = variants_obj.label_with_closest_gene(
         upstream_only=args.upstream,
         downstream_only=args.downstream,

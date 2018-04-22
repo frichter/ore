@@ -33,7 +33,9 @@ setup(name='ore',
       python_requires='>=3',
       package_dir={'ore': 'ore'},
       package_data={'ore': ['data/gene_strand_hg*.txt.gz',
-                            'data/hg19_genome_masks/']},
+                            'data/hg19_genome_masks/hg19_*',
+                            # 'annovar/humandb/*',
+                            'annovar/table_annovar.pl']},
       # download_url = 'https://github.com/frichter/ore/archive/0.1.tar.gz',
       keywords=['rnaseq', 'wgs', 'outliers', 'rare_variants', 'rna', 'dna'],
       classifiers=[
@@ -45,17 +47,22 @@ setup(name='ore',
         # 'Development Status :: 5 - Production/Stable',
         # 'Development Status :: 6 - Mature',
         # 'Development Status :: 7 - Inactive',
+        # 'Environment :: Console',
+        # 'Operating System :: MacOS :: MacOS X',
+        # 'Operating System :: Microsoft :: Windows',
+        # 'Operating System :: POSIX',
         'Intended Audience :: Science/Research',
         'Programming Language :: Python :: 3 :: Only',
         'Topic :: Scientific/Engineering :: Bio-Informatics',
         'Topic :: Scientific/Engineering :: Medical Science Apps.'],
       # zip_safe=False,
-      # include_package_data=True,
+      include_package_data=True,
       license='MIT')
 
 
 """
 Sources:
+- https://packaging.python.org/tutorials/distributing-packages/
 - http://python-packaging.readthedocs.io/en/latest/minimal.html
 - http://peterdowns.com/posts/first-time-with-pypi.html
 - https://gehrcke.de/2014/02/distributing-a-python-command-line-application/
