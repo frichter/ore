@@ -138,8 +138,8 @@ def anno_file_locations():
     data_dir = resource_filename('ore', 'data/hg19_genome_masks/')
     # mappability annotations
     rmsk = data_dir + "rmsk/rmsk.merged.sorted.bed"
-    segdup = data_dir + "segdup.merged.sorted.bed.gz"
-    lcr = data_dir + "LCR-hs37d5_chr.bed.gz"
+    segdup = data_dir + "hg19_segdup.bed.gz"
+    lcr = data_dir + "hg19_lcr_hs37d5.bed.gz"
     map300 = data_dir + "mappability300/mappability1_300.txt"
     hla_muc = data_dir + "genome/genes.MUC.HLA.bed"
     dac_blacklist = data_dir + "dac_blacklist.bed"
