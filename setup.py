@@ -13,7 +13,7 @@ with open("README.rst", "rb") as f:
 
 setup(name='ore',
       packages=['ore'],
-      version='0.1.0',
+      version='0.1.1',
       description='Associate outliers with rare variation',
       long_description=long_descr,
       entry_points={
