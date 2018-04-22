@@ -31,7 +31,8 @@ setup(name='ore',
           'pysam'
       ],
       python_requires='>=3',
-      # how to specify:https://packaging.python.org/specifications/
+      # how to specify:
+      # https://packaging.python.org/specifications/
       # core-metadata/#requires-external-multiple-use
       package_dir={'ore': 'ore'},
       package_data={'ore': ['data/gene_strand_hg*.txt.gz',
