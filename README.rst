@@ -20,7 +20,7 @@ Example run
     --tss_dist 5000
 
 Usage
- ore [-h] [--version] -v VCF -b BED [-o OUTPUT]
+usage: ore [-h] [--version] -v VCF -b BED [-o OUTPUT]
            [--outlier_output OUTLIER_OUTPUT] [--enrich_file ENRICH_FILE]
            [--extrema] [--distribution {normal,rank,custom}]
            [--threshold THRESHOLD] [--max_outliers_per_id MAX_OUTLIERS_PER_ID]
@@ -89,5 +89,7 @@ optional arguments:
   --processes PROCESSES
                         Number of CPU processes
   --clean_run           Delete temporary files from the previous run
+
+Felix Richter <felix.richter@icahn.mssm.edu>
 
 

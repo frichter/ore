@@ -6,6 +6,7 @@
 
 from setuptools import setup
 
+from .version import __version__
 
 with open("README.rst", "rb") as f:
     long_descr = f.read().decode("utf-8")
@@ -13,7 +14,7 @@ with open("README.rst", "rb") as f:
 
 setup(name='ore',
       packages=['ore'],
-      version='0.1.1',
+      version=__version__,
       description='Associate outliers with rare variation',
       long_description=long_descr,
       entry_points={

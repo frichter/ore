@@ -19,6 +19,7 @@ from .utils import initialize_logger, checkCPUcount
 from .variants import Variants
 from .enrichment import Enrich
 from .outliers import Outliers
+from .version import __version__
 
 """Profiling libraries:
 import cProfile
@@ -129,9 +130,11 @@ def main():
 
     """
     parser = argparse.ArgumentParser(
-        description="Associate outliers with rare variants.")
+        description="Associate outliers with rare variants.",
+        epilog="Felix Richter <felix.richter@icahn.mssm.edu>")
     optional = parser._action_groups.pop()
-    parser.add_argument("--version", action="version", version="%(prog)s 0.1")
+    parser.add_argument("--version", action="version",
+                        version="%(prog)s {}".format(__version__))
     # Arguments for file locations
     required = parser.add_argument_group('Required arguments')
     required.add_argument("-v", "--vcf", help="Location of VCF file",
@@ -171,7 +174,7 @@ def main():
     opt_var.add_argument("--upstream", default=False, action="store_true",
                          help="Only variants UPstream of TSS")
     opt_var.add_argument("--downstream", default=False, action="store_true",
-                         help="Only vars DOWNstream of TSS")
+                         help="Only variants DOWNstream of TSS")
     # opt_var.add_argument("--rm_low_mapping", default=False,
     #                      action="store_true", help="Remove variants in " +
     #                      "repeats, segmental duplications, low " +
