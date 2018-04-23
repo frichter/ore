@@ -1,7 +1,7 @@
 ORE: Outlier-RV enrichment
 --------------------------
 
-To use ORE (utlier-RV enrichment), confirm the following are installed:
+To use ORE (outlier-RV enrichment), confirm the following are installed:
     - bedtools/2.27.0
     - samtools/1.3
     - bcftools/1.6
