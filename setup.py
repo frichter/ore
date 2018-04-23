@@ -6,15 +6,19 @@
 
 from setuptools import setup
 
-from .version import __version__
+# from .version import __version__
 
 with open("README.rst", "rb") as f:
     long_descr = f.read().decode("utf-8")
 
+# importing the version variable:
+version = {}
+with open("ore/version.py") as fp:
+    exec(fp.read(), version)
 
 setup(name='ore',
       packages=['ore'],
-      version=__version__,
+      version=version['__version__'],
       description='Associate outliers with rare variation',
       long_description=long_descr,
       entry_points={

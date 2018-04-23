@@ -130,7 +130,8 @@ def main():
 
     """
     parser = argparse.ArgumentParser(
-        description="Associate outliers with rare variants.",
+        description="ORE (Outlier-RV enrichment): Associate " +
+        "outliers with rare variants.",
         epilog="Felix Richter <felix.richter@icahn.mssm.edu>")
     optional = parser._action_groups.pop()
     parser.add_argument("--version", action="version",
