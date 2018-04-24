@@ -26,7 +26,7 @@ Example run
         --af_rare 0.05 0.01 1e-3 \
         --tss_dist 5000
 
-Usage (visit http://ore.readthedocs.io/en/latest/ for more details)
+Usage, visit http://ore.readthedocs.io/en/latest/ for more
 
 .. code-block::
 
