@@ -7,17 +7,24 @@ To use ORE (outlier-RV enrichment), confirm the following are installed:
     - bcftools/1.6
     - python/3.5.0
 
+Then, on the command line, install with:
+.. highlight:: none
+::
+pip install ore
 
-Example run
-    ore
-    --vcf test.vcf.gz \
-    --bed test.bed.gz \
-    --enrich_file enrichment.txt \
-    --distribution "normal" \
-    --threshold 2 \
-    --max_outliers_per_id 500 \
-    --af_rare 0.05 \
-    --tss_dist 5000
+
+Example run:
+.. highlight:: none
+::
+ore
+--vcf test.vcf.gz \
+--bed test.bed.gz \
+--enrich_file enrichment.txt \
+--distribution "normal" \
+--threshold 2 \
+--max_outliers_per_id 500 \
+--af_rare 0.05 \
+--tss_dist 5000
 
 Usage
  usage: ore [-h] [--version] -v VCF -b BED [-o OUTPUT]
