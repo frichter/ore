@@ -8,16 +8,16 @@ To use ORE (outlier-RV enrichment), confirm the following are installed:
     - python/3.5.0
 
 Then, on the command line, install with:
-.. highlight:: none
 
-::
+.. code-block::
+
     pip install ore
 
 
 Example run:
-.. highlight:: none
 
-::
+.. code-block::
+
     ore
     --vcf test.vcf.gz \
     --bed test.bed.gz \
