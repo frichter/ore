@@ -73,7 +73,7 @@ Optional variant-related arguments:
 
 Optional arguments for using ANNOVAR:
   --annovar             Use ANNOVAR to specify allele frequencies and
-                        functional class ()
+                        functional class
   --variant_class
                         Only variants in these classes will be considered. Options:
                          {intronic,intergenic,exonic,UTR5,UTR3,splicing,upstream,ncRNA}

@@ -161,7 +161,7 @@ def main():
                               "greater than 0 for --distribution normal or " +
                               "(0,0.5) non-inclusive with --distribution " +
                               "rank. Ignored with --distribution custom",
-                              type=float, default=2.0)
+                              type=float, nargs="*", default=2.0)
     opt_out_args.add_argument("--max_outliers_per_id", help="Maximum number " +
                               "of outliers per ID", type=int, default=None)
     # Arguments for variants
@@ -170,7 +170,7 @@ def main():
                          "is considered rare", type=float, nargs="*",
                          default=0.01)
     opt_var.add_argument("--tss_dist", help="Variants within this distance " +
-                         "of the TSS are considered", type=int, nargs="*",
+                         "of the TSS are considered", type=float, nargs="*",
                          default=1e4)
     opt_var.add_argument("--upstream", default=False, action="store_true",
                          help="Only variants UPstream of TSS")
@@ -188,7 +188,7 @@ def main():
         'Optional arguments for using ANNOVAR')
     opt_annovar.add_argument("--annovar", default=False, action="store_true",
                              help="Use ANNOVAR to specify allele " +
-                             "frequencies and functional class ()")
+                             "frequencies and functional class")
     # opt_annovar.add_argument("--ignore_intracohort_af", default=False,
     #                          action="store_true", help="Ignore intra-" +
     #                          "cohort AF (i.e., only " +
