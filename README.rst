@@ -13,7 +13,6 @@ Then, on the command line, install with:
 
     pip install ore
 
-
 Example run:
 
 .. code-block::
@@ -24,7 +23,7 @@ Example run:
         --distribution "normal" \
         --threshold 2 \
         --max_outliers_per_id 500 \
-        --af_rare 0.05 \
+        --af_rare 0.05 0.01 1e-3 \
         --tss_dist 5000
 
 Usage
