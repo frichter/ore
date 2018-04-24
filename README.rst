@@ -3,10 +3,10 @@ ORE: Outlier-RV enrichment
 
 To use ORE (outlier-RV enrichment), confirm the following are installed:
 
-    - bedtools >=2.27.0
-    - samtools >=1.3
-    - bcftools >=1.6
-    - python >=3.5.0
+    - `python <>` >=3.5.0
+    - `bedtools <http://bedtools.readthedocs.io/en/latest/>` >=2.27.0
+    - `samtools <http://www.htslib.org/download/>` >=1.3
+    - `bcftools <http://www.htslib.org/download/>` >=1.6
 
 Then, on the command line, install with:
 
