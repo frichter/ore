@@ -31,7 +31,7 @@ Usage
 
 .. code-block::
 
- usage: ore [-h] [--version] -v VCF -b BED [-o OUTPUT]
+ ore [-h] [--version] -v VCF -b BED [-o OUTPUT]
            [--outlier_output OUTLIER_OUTPUT] [--enrich_file ENRICH_FILE]
            [--extrema] [--distribution {normal,rank,custom}]
            [--threshold THRESHOLD] [--max_outliers_per_id MAX_OUTLIERS_PER_ID]
