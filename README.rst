@@ -19,14 +19,14 @@ Example run:
 .. code-block::
 
     ore
-    --vcf test.vcf.gz \
-    --bed test.bed.gz \
-    --enrich_file enrichment.txt \
-    --distribution "normal" \
-    --threshold 2 \
-    --max_outliers_per_id 500 \
-    --af_rare 0.05 \
-    --tss_dist 5000
+        --vcf test.vcf.gz \
+        --bed test.bed.gz \
+        --enrich_file enrichment.txt \
+        --distribution "normal" \
+        --threshold 2 \
+        --max_outliers_per_id 500 \
+        --af_rare 0.05 \
+        --tss_dist 5000
 
 Usage
  usage: ore [-h] [--version] -v VCF -b BED [-o OUTPUT]
