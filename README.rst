@@ -21,7 +21,7 @@ Example run:
         --bed test.bed.gz \
         --enrich_file enrichment.txt \
         --distribution "normal" \
-        --threshold 2 \
+        --threshold 2 3 4 \
         --max_outliers_per_id 500 \
         --af_rare 0.05 0.01 1e-3 \
         --tss_dist 5000
