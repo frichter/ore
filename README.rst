@@ -7,13 +7,13 @@ To use ORE (outlier-RV enrichment), confirm the following are installed:
     - bedtools >=2.27.0 (http://bedtools.readthedocs.io/en/latest/)
     - samtools >=1.3 and bcftools >=1.6 (both from http://www.htslib.org/download/)
 
-Then, on the command line, install with:
+Then, on the command line, install with
 
 .. code-block::
 
     pip install ore
 
-Example run:
+Example run
 
 .. code-block::
 
