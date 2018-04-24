@@ -18,8 +18,7 @@ Example run:
 
 .. code-block::
 
-    ore
-        --vcf test.vcf.gz \
+    ore --vcf test.vcf.gz \
         --bed test.bed.gz \
         --enrich_file enrichment.txt \
         --distribution "normal" \
@@ -29,6 +28,9 @@ Example run:
         --tss_dist 5000
 
 Usage
+
+.. code-block::
+
  usage: ore [-h] [--version] -v VCF -b BED [-o OUTPUT]
            [--outlier_output OUTLIER_OUTPUT] [--enrich_file ENRICH_FILE]
            [--extrema] [--distribution {normal,rank,custom}]
