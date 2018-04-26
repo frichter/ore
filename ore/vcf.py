@@ -80,17 +80,15 @@ class VCF(object):
             raise VCFError("This file does not exist: '{}'"
                            .format(vcf_file_loc))
         self.vcf_file_loc = vcf_file_loc
-        # if prefix:
         self.prefix = prefix
-        # else:
-        #     self.prefix = re.sub("(.*/|.vcf.gz)", "", vcf_file_loc)
         # get contigs
         tbx_handle = pysam.TabixFile(self.vcf_file_loc)
         self.contigs = tbx_handle.contigs
         tbx_handle.close()
 
     @staticmethod
-    def prepare_vcf_per_chrom(current_chrom, vcf_loc, current_chrom_file_loc):
+    def prepare_vcf_per_chrom(current_chrom, gq, dp, aar, vcf_loc,
+                              current_chrom_file_loc):
         """Convert VCF to allele-ID pairs in long format.
 
         Creates an instance of the encapsulating class and runs all the
@@ -124,7 +122,8 @@ class VCF(object):
             return "Not_rerun_" + current_chrom
         print("Starting chromosome", current_chrom)
         excluded_ct = vcf_obj.loop_over_vcf(current_chrom,
-                                            current_chrom_file_loc)
+                                            current_chrom_file_loc,
+                                            gq, dp, aar)
         print("Total genotypes (var x ID) excluded for", current_chrom,
               "is", excluded_ct)
         return current_chrom
@@ -227,7 +226,8 @@ class VCF(object):
             print("No genome assembly found in VCF header, defaulting to",
                   self.ref_assembly)
 
-    def loop_over_vcf(self, current_chrom, current_chrom_file_loc):
+    def loop_over_vcf(self, current_chrom, current_chrom_file_loc,
+                      gq, dp, aar):
         """Loop over vcf.
 
         Loop over vcf and run functions on each line. Closes vcf once complete.
@@ -245,22 +245,21 @@ class VCF(object):
 
         TODO:
             error handling
-            make GATK PASS filter optional
             unit test f.close
 
         """
+        self.vcf_filters = (gq, dp, aar)
         tbx_handle = pysam.TabixFile(self.vcf_file_loc)
         self.declare_output_file_names(current_chrom_file_loc)
         self.gt_excluded_count = 0
         if self.ucsc_ref_genome:
             current_chrom = "chr" + current_chrom
         # longest chrom length is less than 3e8
-        for line in tbx_handle.fetch(current_chrom, 1, 3e8):
+        for line in tbx_handle.fetch(current_chrom, 1, 5e8):
             # str(, 'utf-8')
             self.parse_line(line)
             # * indicates alt allele is structural variant (skip these)
-            if ('*' in self.line_dict["ALT"]) or \
-                    (self.line_dict["FILTER"] != "PASS"):
+            if '*' in self.line_dict["ALT"]:
                 pass
             else:
                 # process each alternate allele separately
@@ -268,12 +267,6 @@ class VCF(object):
                 for self.alt_allele in self.alt_allele_list:
                     self.parse_allele()
                     self.send_allele_ID_pair_to_file()
-            # exit loop if current_chrom has been analyzed
-            # print(self.line_count)
-            # if self.line_count > 100:
-            #     break
-            # print the fraction of the file that's been read (if full
-            # length is known)
             self.track_portion_done()
         tbx_handle.close()
         return self.gt_excluded_count
@@ -329,15 +322,9 @@ class VCF(object):
 
         """
         self.line_count += 1
-        if self.line_count % 1000 == 0:
+        if self.line_count % 5000 == 0:
             print("line of chromosome {}: {}".format(self.line_dict["#CHROM"],
                                                      self.line_count))
-            # joint eqtl vcf: 43495000 or 45206995 or GQ30: 51840000
-            # original WGS 350 vcf: 54630000
-            # GTEx vcf: 21585872, for GQ30: 22456432,
-            # GTEx GQ30 + other filters: 22450000
-            # PCGC singletons: 25720000
-            # obtained from bcftools norm output
 
     def parse_allele(self):
         """Parse one allele.
@@ -426,10 +413,6 @@ class VCF(object):
                                "and alt genotype on line " + self.line_count +
                                self.line_dict["#CHROM"] + " " +
                                self.line_dict["POS"] + " " + ft_id)
-            # except:
-            #     raise VCFError("Unknown error with line " +
-            #                    self.line_count + self.line_dict["#CHROM"] +
-            #                    " " + self.line_dict["POS"] + " " + ft_id)
 
     def calculate_depth_and_AAR(self):
         """Split up the FORMAT field into a list for easier filtering."""
@@ -478,6 +461,7 @@ class VCF(object):
 
         Attributes:
             gt_dict_12 (:obj:`dict`): IDs (keys) mapped to the final genotype
+            gq, dp, aar
 
         TODO
             errors
@@ -485,6 +469,7 @@ class VCF(object):
             UNIT TEST cases with missing GT/AAR/etc
 
         """
+        gq, dp, aar = self.vcf_filters
         # . should be gt -1
         self.gt_dict_12 = {}
         for gt_id, ft_field_dict in self.id_format_dict.items():
@@ -502,15 +487,15 @@ class VCF(object):
                 else:
                     final_gt = gt
                 # Filter for GQ >= 30
-                if int(ft_field_dict["GQ"]) < 30:
+                if int(ft_field_dict["GQ"]) < gq:
                     pass_filter = False
                 # Filter for depth >= 7; New_DP or DP
-                if int(ft_field_dict["New_DP"]) < 7:
+                if int(ft_field_dict["New_DP"]) < dp:
                     pass_filter = False
                 # Filter for heterozygous allelic ratio [0.2, 0.8]
                 if final_gt == "1":
-                    if (ft_field_dict["AAR"] > 0.8) or (ft_field_dict["AAR"] <
-                                                        0.2):
+                    if (ft_field_dict["AAR"] > aar[1]) or (ft_field_dict["AAR"]
+                                                           < aar[0]):
                         pass_filter = False
                 if not pass_filter:
                     final_gt = "-1"

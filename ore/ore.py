@@ -63,7 +63,8 @@ def associate_outliers(args):
                             n_processes=args.processes,
                             clean_run=args.clean_run,
                             logger=logger)
-    chroms_completed = variants_obj.extract_variants_from_vcf()
+    chroms_completed = variants_obj.extract_variants_from_vcf(
+         gq=args.gq, dp=args.dp, aar=args.aar)
     logger.info("LONG format variant abstraction done for chromosomes...\n" +
                 ", ".join(chroms_completed) + "\n")
     # annovar
@@ -169,6 +170,15 @@ def main():
     opt_var.add_argument("--af_rare", help="AF cut-off below which a variant" +
                          "is considered rare", type=float, nargs="*",
                          default=0.01)
+    opt_var.add_argument("--gq", help="Minimum genotype quality each " +
+                         "variant in each individual",
+                         type=float, default=30)
+    opt_var.add_argument("--dp", help="Minimum depth per variant in each " +
+                         "individual", type=float, default=7)
+    opt_var.add_argument("--aar", help="Alternate allelic ratio for " +
+                         "heterozygous variants (provide two space-" +
+                         "separated numbers between 0 and 1, e.g., 0.2 0.8)",
+                         type=float, nargs=2, default=[0.2, 0.8])
     opt_var.add_argument("--tss_dist", help="Variants within this distance " +
                          "of the TSS are considered", type=float, nargs="*",
                          default=1e4)
@@ -178,7 +188,7 @@ def main():
                          help="Only variants DOWNstream of TSS")
     # opt_var.add_argument("--rm_low_mapping", default=False,
     #                      action="store_true", help="Remove variants in " +
-    #                      "repeats, segmental duplications, low " +
+    #                      "segmental duplications, low " +
     #                      "mappability regions, and Mucin/HLA genes.")
     opt_var.add_argument("--annotations", help="Annotation file locations " +
                          "passed as a comma-separated list. Only " +

@@ -352,7 +352,7 @@ class Annotations(object):
             Un-hardcode this/customize which columns to remove
 
         """
-        unwanted_cols = ['segdup', 'LCR-hs37d5_chr']
+        unwanted_cols = ['hg19_segdup', 'hg19_lcr_hs37d5']
         # 'mappability1_300', 'genes.MUC.HLA', 'dac_blacklist',
         # 'encode_duke_blacklist'
         # 'rmsk', , 'pseudoautosomal_XY'

@@ -76,7 +76,7 @@ class Variants(object):
         self.gene_obj = Genes(gene_pheno_loc, self.vcf_obj.bed_file_loc)
         logger.info("Gene object loaded...")
 
-    def extract_variants_from_vcf(self):
+    def extract_variants_from_vcf(self, gq, dp, aar):
         """Obtain allele-ID pairs from VCF in long format.
 
         Attributes:
@@ -94,6 +94,7 @@ class Variants(object):
         # preparation for multiprocessing
         partial_prepare_vcf_per_chrom = partial(
             self.vcf_obj.prepare_vcf_per_chrom,
+            gq=gq, dp=dp, aar=aar,
             vcf_loc=self.vcf_loc,
             current_chrom_file_loc=self.vcf_obj.current_chrom_file_loc)
         chroms_completed = multiprocess_by_chrom_cmd(
