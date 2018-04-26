@@ -190,9 +190,9 @@ def main():
     #                      action="store_true", help="Remove variants in " +
     #                      "segmental duplications, low " +
     #                      "mappability regions, and Mucin/HLA genes.")
-    opt_var.add_argument("--annotations", help="Annotation file locations " +
-                         "passed as a comma-separated list. Only " +
-                         "variants in these annotations will be considered")
+    # opt_var.add_argument("--annotation", help="Annotation BED file " +
+    #                      "passed as a space-separated list. Only " +
+    #                      "variants in this annotations will be considered")
     # Variant-related arguments for ANNOVAR
     opt_annovar = parser.add_argument_group(
         'Optional arguments for using ANNOVAR')
