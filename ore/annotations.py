@@ -304,7 +304,7 @@ class Annotations(object):
         cols_to_keep = ["var_id", "func_refgene", "gene_refgene",
                         "dist_refgene", "exon_func_refgene",
                         "func_ensgene", "gene_ensgene", "dist_ensgene",
-                        "exon_func_ensgene"
+                        "exon_func_ensgene",
                         "gnomAD_genome_ALL",
                         "gnomAD_genome_AFR", "gnomAD_genome_FIN",
                         "gnomAD_genome_NFE"]
