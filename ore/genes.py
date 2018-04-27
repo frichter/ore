@@ -55,6 +55,7 @@ class Genes(object):
         tbx_handle = pysam.TabixFile(gene_pheno_loc)
         self.contigs = tbx_handle.contigs
         tbx_handle.close()
+        self.check_gene_ref_genome()
 
     def assign_genes(self, current_chrom, upstream_only=False,
                      downstream_only=False, max_tss_dist=1e4,
@@ -84,7 +85,6 @@ class Genes(object):
 
         """
         self.current_chrom = "chr" + current_chrom
-        self.check_gene_ref_genome()
         # create input files and declare file names
         gene_bed_loc = self.create_gene_per_chrom_file(gene_strand_data)
         var_bed_loc = self.var_bed_loc % self.current_chrom
