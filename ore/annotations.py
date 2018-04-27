@@ -126,7 +126,7 @@ class Annotations(object):
         if not self.use_annovar:
             # print("ANNOVAR already done for %s" % infile)
             return "Not_run_" + current_chrom
-        annovar_cmd = ("time perl {}/table_annovar.pl " +
+        annovar_cmd = ("time perl {}table_annovar.pl " +
                        "{} -buildver {} " +
                        "-out {} --otherinfo -remove -protocol " +
                        "refGene,ensGene,gnomad_genome " +

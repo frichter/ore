@@ -207,10 +207,11 @@ def main():
                                       "ncRNA"])
     opt_annovar.add_argument("--annovar_dir", help="Directory of the  " +
                              "table_annovar.pl script",
-                             default=__file__ + '/annovar/')
+                             default=resource_filename('ore', 'annovar/'))
     opt_annovar.add_argument("--humandb_dir", help="Directory of ANNOVAR " +
                              "data (refGene, ensGene, and gnomad_genome)",
-                             default=__file__ + '/annovar/humandb_dir/')
+                             default=resource_filename(
+                                'ore', 'annovar/humandb_dir/'))
     # opt_var.add_argument("--af_population", help="Space-separated " +
     #                      "list of populations used " +
     #                      "for determining the maximum observed allele " +
