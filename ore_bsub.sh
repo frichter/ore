@@ -1,6 +1,6 @@
 #BSUB -W 6:00
 #BSUB -q expressalloc
-#BUSB -n 24
+#BUSB -n 12
 #BSUB -R "rusage[mem=5000]"
 #BSUB -P acc_chdiTrios
 #BSUB -J art_valve_outliers
@@ -50,5 +50,5 @@ python -m ore.ore --vcf $VCF \
     --annovar \
     --variant_class "ncRNA" \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 24
+    --processes 12
 
