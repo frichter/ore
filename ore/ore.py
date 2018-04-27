@@ -112,6 +112,8 @@ def associate_outliers(args):
                         rv_outlier_loc,
                         args.distribution,
                         args.variant_class,
+                        args.refgene,
+                        args.ensgene,
                         variants_obj.combined_contigs)
     enrich_obj.write_rvs_w_outs_to_file(
         out_cut_off=outlier_obj.least_extr_threshold,
@@ -208,6 +210,10 @@ def main():
                              choices=["intronic", "intergenic", "exonic",
                                       "UTR5", "UTR3", "splicing", "upstream",
                                       "ncRNA"])
+    opt_annovar.add_argument("--refgene", default=False, action="store_true",
+                             help="Filter on RefGene function.")
+    opt_annovar.add_argument("--ensgene", default=False, action="store_true",
+                             help="Filter on ENSEMBL function.")
     opt_annovar.add_argument("--annovar_dir", help="Directory of the  " +
                              "table_annovar.pl script",
                              default=resource_filename('ore', 'annovar/'))

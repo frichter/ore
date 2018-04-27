@@ -29,7 +29,7 @@ class Enrich(object):
     """
 
     def __init__(self, var_loc, expr_outs_loc, enrich_loc, rv_outlier_loc,
-                 distribution, annovar_func, contigs):
+                 distribution, annovar_func, refgene, ensgene, contigs):
         """Load and join variants and outliers.
 
         Args:
@@ -50,18 +50,15 @@ class Enrich(object):
         self.var_loc = var_loc
         self.expr_outs_loc = expr_outs_loc
         self.enrich_loc = enrich_loc
-        self.annovar_func = annovar_func
-        if annovar_func:
-            print("Keeping only {} variants".format(self.annovar_func))
         self.distribution = distribution
         self.rv_outlier_loc = rv_outlier_loc
-        self.load_vars(contigs)
+        self.load_vars(contigs, annovar_func, refgene, ensgene)
         self.load_outliers()
         print("joining outliers with variants...")
         self.joined_df = self.var_df.join(self.expr_outlier_df, how='inner')
         self.joined_df.reset_index(inplace=True)
 
-    def load_vars(self, contigs):
+    def load_vars(self, contigs, annovar_func, refgene, ensgene):
         """Load and combine variant data.
 
         Attributes:
@@ -71,8 +68,17 @@ class Enrich(object):
         print("Loading variants...")
         self.var_df = pd.DataFrame()
         list_ = []
-        cols_to_keep = ['popmax_af', 'var_id', 'tss_dist', 'annovar_func',
-                        'var_id_freq']
+        cols_to_keep = ['popmax_af', 'var_id', 'tss_dist', 'func_refgene',
+                        'exon_func_refgene', 'func_ensgene',
+                        'exon_func_ensgene', 'var_id_freq']
+        if annovar_func:
+            print("Keeping only {} variants".format(self.annovar_func))
+            if refgene and ensgene:
+                print("...where ENSEMBL and RefGene match")
+            elif refgene:
+                print("...in RefGene")
+            elif ensgene:
+                print("...in ENSEMBL")
         for chrom in contigs:
             # "wgs_pcgc_singletons_per_chrom/enh_var_hets_chr" + chrom + ".txt"
             print("chr" + chrom)
@@ -81,17 +87,29 @@ class Enrich(object):
             var_df_per_chrom.set_index(['gene', 'blinded_id'], inplace=True)
             # remove regions in repeats
             # var_df_per_chrom = var_df_per_chrom[var_df_per_chrom.rmsk == 0]
-            if self.annovar_func:
-                # vars_sub = var_df_per_chrom.annovar_func == self.annovar_func
-                vars_sub = var_df_per_chrom.annovar_func.str.contains(
-                    self.annovar_func)
-                var_df_per_chrom = var_df_per_chrom[vars_sub]
+            if annovar_func:
+                var_df_per_chrom = self.filter_refgene_ensgene(
+                    var_df_per_chrom, annovar_func, refgene, ensgene)
             var_df_per_chrom = var_df_per_chrom[cols_to_keep]
             list_.append(var_df_per_chrom)
         self.var_df = pd.concat(list_)
         if self.annovar_func:
             print("Considering variants in the following refseq categories",
-                  set(self.var_df.annovar_func))
+                  set(self.var_df.func_refgene))
+
+    @staticmethod
+    def filter_refgene_ensgene(var_df_per_chrom, annovar_func,
+                               refgene, ensgene):
+        """Filter for a refgene function, ensembl function or both."""
+        if refgene:
+            vars_refgene = var_df_per_chrom.func_refgene.str.contains(
+                annovar_func)
+            var_df_per_chrom = var_df_per_chrom[vars_refgene]
+        if ensgene:
+            vars_ensgene = var_df_per_chrom.func_ensgene.str.contains(
+                annovar_func)
+            var_df_per_chrom = var_df_per_chrom[vars_ensgene]
+        return var_df_per_chrom
 
     def load_outliers(self):
         """Load expression outlier dataframe.
