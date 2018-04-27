@@ -72,7 +72,7 @@ class Enrich(object):
                         'exon_func_refgene', 'func_ensgene',
                         'exon_func_ensgene', 'var_id_freq']
         if annovar_func:
-            print("Keeping only {} variants".format(self.annovar_func))
+            print("Keeping only {} variants".format(annovar_func))
             if refgene and ensgene:
                 print("...where ENSEMBL and RefGene match")
             elif refgene:
