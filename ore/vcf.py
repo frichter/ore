@@ -322,7 +322,7 @@ class VCF(object):
 
         """
         self.line_count += 1
-        if self.line_count % 5000 == 0:
+        if self.line_count % 20000 == 0:
             print("line of chromosome {}: {}".format(self.line_dict["#CHROM"],
                                                      self.line_count))
 

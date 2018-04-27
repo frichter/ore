@@ -25,6 +25,10 @@ from .version import __version__
 import cProfile
 import pstats
 from memory_profiler import profile
+
+# then uncomment @profile as well as cProfile and pstats
+# and append this command when running tool:
+# time mprof run --include-children --multiprocess
 """
 
 
@@ -56,7 +60,6 @@ def associate_outliers(args):
     checkCPUcount(args.processes)
     variants_obj = Variants(args.vcf, args.bed,
                             output_prefix=output_prefix,
-                            outlier_postfix=args.outlier_output,
                             use_annovar=args.annovar,
                             annovar_dir=args.annovar_dir,
                             humandb_dir=args.humandb_dir,
@@ -237,9 +240,7 @@ def main():
                           default=False, action="store_true",)
     parser._action_groups.append(optional)
     args = parser.parse_args()
-    # cprof_cmd = ('associate_outliers(args.vcf, args.bed, args.output, ' +
-    #              'args.outlier_output, args.extrema, args.distribution,' +
-    #              'args.variant_class, args.enrich_file)')
+    # cprof_cmd = ('associate_outliers(args)')
     # OUT_FILE = ('/sc/orga/projects/chdiTrios/Felix/dna_rna/' +
     #             'wgs_pcgc_2018_01/stats_arterial.out')
     # cProfile.run(cprof_cmd, OUT_FILE)

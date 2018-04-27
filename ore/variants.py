@@ -24,7 +24,6 @@ class Variants(object):
 
     def __init__(self, vcf_loc, gene_pheno_loc,
                  output_prefix,
-                 outlier_postfix,
                  use_annovar,
                  annovar_dir,
                  humandb_dir,
@@ -37,7 +36,6 @@ class Variants(object):
             vcf_loc (:obj:`str`): VCF location
             gene_pheno_loc (:obj:`str`): Expression file location
             output_prefix (:obj:`str`): file prefix for outputs
-            outlier_postfix (:obj:`str`): file ending for outlier files
             annovar_dir (:obj:`str`): ANNOVAR table_annovar.pl script directory
             humandb_dir (:obj:`str`): ANNOVAR data directory
             n_processes (:obj:`int`): number of processes to use
@@ -80,7 +78,6 @@ class Variants(object):
         self.gene_obj = Genes(gene_pheno_loc, self.vcf_obj.bed_file_loc)
         self.combined_contigs = list(
             set(self.gene_obj.contigs) & set(self.vcf_obj.contigs))
-        print(self.combined_contigs)
         if self.gene_obj.ucsc_ref_genome is not self.vcf_obj.ucsc_ref_genome:
             raise RNASeqError("Genome mismatch between VCF and RNAseq")
         logger.info("Gene object loaded...")
