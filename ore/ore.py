@@ -113,7 +113,7 @@ def associate_outliers(args):
                         rv_outlier_loc,
                         args.distribution,
                         args.variant_class,
-                        variants_obj.vcf_obj.contigs)
+                        variants_obj.combined_contigs)
     enrich_obj.write_rvs_w_outs_to_file(
         out_cut_off=outlier_obj.least_extr_threshold,
         tss_cut_off=max_tss_dist,
