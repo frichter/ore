@@ -51,7 +51,6 @@ def associate_outliers(args):
             states relevant to RNA expression and outlier calling
 
     """
-    print("hello")
     if args.output:
         output_prefix = args.output
     else:
