@@ -74,6 +74,9 @@ class Variants(object):
                                     "hg19")
         logger.info("Annotation functions loaded...")
         self.gene_obj = Genes(gene_pheno_loc, self.vcf_obj.bed_file_loc)
+        self.combined_contigs = list(
+            set(self.gene_obj.contigs) & set(self.vcf_obj.contigs))
+        print(self.combined_contigs)
         logger.info("Gene object loaded...")
 
     def extract_variants_from_vcf(self, gq, dp, aar):
@@ -99,7 +102,7 @@ class Variants(object):
             current_chrom_file_loc=self.vcf_obj.current_chrom_file_loc)
         chroms_completed = multiprocess_by_chrom_cmd(
             self.n_processes,
-            self.vcf_obj.contigs,
+            self.combined_contigs,
             partial_prepare_vcf_per_chrom)
         return chroms_completed
 
@@ -113,7 +116,7 @@ class Variants(object):
         """
         chroms_completed = multiprocess_by_chrom_cmd(
             self.n_processes,
-            self.vcf_obj.contigs,
+            self.combined_contigs,
             self.anno_obj.run_annovar_cmd)
         return chroms_completed
 
@@ -140,7 +143,7 @@ class Variants(object):
             gene_strand_data=gene_strand_data)
         chroms_completed = multiprocess_by_chrom_cmd(
             self.n_processes,
-            self.vcf_obj.contigs,
+            self.combined_contigs,
             partial_assign_genes)
         return chroms_completed
 
@@ -154,7 +157,7 @@ class Variants(object):
         """
         chroms_completed = multiprocess_by_chrom_cmd(
             self.n_processes,
-            self.vcf_obj.contigs,
+            self.combined_contigs,
             self.anno_obj.overlap_w_annotations)
         return chroms_completed
 
@@ -168,6 +171,6 @@ class Variants(object):
         """
         chroms_completed = multiprocess_by_chrom_cmd(
             self.n_processes,
-            self.vcf_obj.contigs,
+            self.combined_contigs,
             self.anno_obj.get_final_set_of_variants)
         return chroms_completed

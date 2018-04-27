@@ -162,14 +162,14 @@ def main():
                               "greater than 0 for --distribution normal or " +
                               "(0,0.5) non-inclusive with --distribution " +
                               "rank. Ignored with --distribution custom",
-                              type=float, nargs="*", default=2.0)
+                              type=float, nargs="*", default=[2.0])
     opt_out_args.add_argument("--max_outliers_per_id", help="Maximum number " +
                               "of outliers per ID", type=int, default=None)
     # Arguments for variants
     opt_var = parser.add_argument_group('Optional variant-related arguments')
     opt_var.add_argument("--af_rare", help="AF cut-off below which a variant" +
                          "is considered rare", type=float, nargs="*",
-                         default=0.01)
+                         default=[0.01])
     opt_var.add_argument("--gq", help="Minimum genotype quality each " +
                          "variant in each individual",
                          type=float, default=30)
@@ -181,7 +181,7 @@ def main():
                          type=float, nargs=2, default=[0.2, 0.8])
     opt_var.add_argument("--tss_dist", help="Variants within this distance " +
                          "of the TSS are considered", type=float, nargs="*",
-                         default=1e4)
+                         default=[1e4])
     opt_var.add_argument("--upstream", default=False, action="store_true",
                          help="Only variants UPstream of TSS")
     opt_var.add_argument("--downstream", default=False, action="store_true",

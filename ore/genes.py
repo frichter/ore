@@ -52,6 +52,9 @@ class Genes(object):
                               .format(gene_pheno_loc))
         self.gene_pheno_loc = gene_pheno_loc
         self.var_bed_loc = var_bed_loc
+        tbx_handle = pysam.TabixFile(gene_pheno_loc)
+        self.contigs = tbx_handle.contigs
+        tbx_handle.close()
 
     def assign_genes(self, current_chrom, upstream_only=False,
                      downstream_only=False, max_tss_dist=1e4,
@@ -129,7 +132,7 @@ class Genes(object):
             search_chrom = self.current_chrom
             if not self.ucsc_ref_genome:
                 search_chrom = re.sub('chr', '', search_chrom)
-            for line in tbx_gene_handle.fetch(search_chrom, 1, 3e8):
+            for line in tbx_gene_handle.fetch(search_chrom, 0, 3e8):
                 line_list = line.strip().split("\t")[0:4]
                 if line_list[3] in strand_dict:
                     line_list.append(str(line_count))

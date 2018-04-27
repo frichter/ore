@@ -255,7 +255,7 @@ class VCF(object):
         if self.ucsc_ref_genome:
             current_chrom = "chr" + current_chrom
         # longest chrom length is less than 3e8
-        for line in tbx_handle.fetch(current_chrom, 1, 5e8):
+        for line in tbx_handle.fetch(current_chrom, 0, 5e8):
             # str(, 'utf-8')
             self.parse_line(line)
             # * indicates alt allele is structural variant (skip these)
