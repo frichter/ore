@@ -292,12 +292,20 @@ class Annotations(object):
                 raise pandas_import_error
         # rename and keep only some of the columns
         col_rename_dict = {"Otherinfo": "var_id",
-                           "Func.refGene": "annovar_func",
-                           "Gene.refGene": "annovar_gene",
-                           "GeneDetail.refGene": "annovar_dist"}
+                           "Func.refGene": "func_refgene",
+                           "Gene.refGene": "gene_refgene",
+                           "GeneDetail.refGene": "dist_refgene",
+                           "ExonicFunc.refGene": "exon_func_refgene",
+                           "Func.ensGene": "func_ensgene",
+                           "Gene.ensGene": "gene_ensgene",
+                           "GeneDetail.ensGene": "dist_ensgene",
+                           "ExonicFunc.ensGene": "exon_func_ensgene"}
         annovar_df = annovar_df.rename(columns=col_rename_dict)
-        cols_to_keep = ["var_id", "annovar_func", "annovar_gene",
-                        "annovar_dist", "gnomAD_genome_ALL",
+        cols_to_keep = ["var_id", "func_refgene", "gene_refgene",
+                        "dist_refgene", "exon_func_refgene",
+                        "func_ensgene", "gene_ensgene", "dist_ensgene",
+                        "exon_func_ensgene"
+                        "gnomAD_genome_ALL",
                         "gnomAD_genome_AFR", "gnomAD_genome_FIN",
                         "gnomAD_genome_NFE"]
         annovar_df = annovar_df.reindex(columns=cols_to_keep)
