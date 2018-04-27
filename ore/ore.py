@@ -245,6 +245,7 @@ def main():
     print(args)
     cprof_cmd = ('associate_outliers(args)')
     OUT_FILE = (args.output + 'stats.out')
+    print(OUT_FILE)
     cProfile.run(cprof_cmd, OUT_FILE)
     time_profile = pstats.Stats(OUT_FILE)
     time_profile.strip_dirs().sort_stats('cumulative').print_stats(10)
