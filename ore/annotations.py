@@ -127,13 +127,13 @@ class Annotations(object):
             # print("ANNOVAR already done for %s" % infile)
             return "Not_run_" + current_chrom
         annovar_cmd = ("time perl {}table_annovar.pl " +
-                       "{} -buildver {} " +
+                       "{} {} -buildver {} " +
                        "-out {} --otherinfo -remove -protocol " +
                        "refGene,ensGene,gnomad_genome " +
                        # kaviar_20150923
                        "-operation g,g,f -nastring NA").format(
-                       self.annovar_dir, self.humandb_dir, self.genome_v,
-                       infile, annovar_out_loc)
+                       self.annovar_dir, infile,  self.humandb_dir,
+                       self.genome_v, annovar_out_loc)
         print(annovar_cmd)
         subprocess.call(annovar_cmd, shell=True)
         return current_chrom
