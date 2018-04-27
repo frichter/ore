@@ -21,7 +21,7 @@ from .enrichment import Enrich
 from .outliers import Outliers
 from .version import __version__
 
-"""Profiling libraries:
+# """Profiling libraries:
 import cProfile
 import pstats
 from memory_profiler import profile
@@ -29,10 +29,10 @@ from memory_profiler import profile
 # then uncomment @profile as well as cProfile and pstats
 # and append this command when running tool:
 # time mprof run --include-children --multiprocess
-"""
+# """
 
 
-# @profile
+@profile
 def associate_outliers(args):
     """Prepare and associate variants and outliers.
 
@@ -237,16 +237,15 @@ def main():
                           type=int, default=1)
     optional.add_argument("--clean_run", help="Delete temporary " +
                           "files from the previous run",
-                          default=False, action="store_true",)
+                          default=False, action="store_true")
     parser._action_groups.append(optional)
     args = parser.parse_args()
-    # cprof_cmd = ('associate_outliers(args)')
-    # OUT_FILE = ('/sc/orga/projects/chdiTrios/Felix/dna_rna/' +
-    #             'wgs_pcgc_2018_01/stats_arterial.out')
-    # cProfile.run(cprof_cmd, OUT_FILE)
-    # time_profile = pstats.Stats(OUT_FILE)
-    # time_profile.strip_dirs().sort_stats('cumulative').print_stats(10)
-    associate_outliers(args)
+    cprof_cmd = ('associate_outliers(args)')
+    OUT_FILE = (args.output + 'stats_.out')
+    cProfile.run(cprof_cmd, OUT_FILE)
+    time_profile = pstats.Stats(OUT_FILE)
+    time_profile.strip_dirs().sort_stats('cumulative').print_stats(10)
+    # associate_outliers(args)
 
 
 if __name__ == "__main__":
