@@ -93,7 +93,7 @@ class Enrich(object):
             var_df_per_chrom = var_df_per_chrom[cols_to_keep]
             list_.append(var_df_per_chrom)
         self.var_df = pd.concat(list_)
-        if self.annovar_func:
+        if annovar_func:
             print("Considering variants in the following refseq categories",
                   set(self.var_df.func_refgene))
 
