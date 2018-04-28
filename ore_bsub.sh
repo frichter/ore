@@ -27,18 +27,6 @@ ENRICH_PREFIX="/sc/orga/projects/chdiTrios/Felix/dna_rna/rare_var_outliers/gtex_
 
 # vent_outliers
 
-
-##################### PCGC Arterial/valve ##########################
-# 
-# VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_arterial_valve_ids.norm.vcf.gz"
-# EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_art_valve_da/residual_expr_5_SVs_hg19.bed.gz"
-# OUT_PREFIX="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_04/wgs_arterial_valve"
-# ENRICH_PREFIX="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_04/enrichment_results/wgs_arterial_valve"
-
-# art_valve_outliers
-
-
-
 module load bedtools/2.27.0
 module load samtools/1.3
 module load bcftools/1.6
