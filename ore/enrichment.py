@@ -82,7 +82,8 @@ class Enrich(object):
         for chrom in contigs:
             # "wgs_pcgc_singletons_per_chrom/enh_var_hets_chr" + chrom + ".txt"
             print("chr" + chrom)
-            var_df_per_chrom = pd.read_table(self.var_loc % ("chr" + chrom))
+            var_df_per_chrom = pd.read_table(
+                self.var_loc % ("chr" + chrom), low_memory=False)
             # print("gene count:", len(var_df_per_chrom.gene.unique()))
             var_df_per_chrom.set_index(['gene', 'blinded_id'], inplace=True)
             # remove regions in repeats
@@ -357,9 +358,9 @@ class Enrich(object):
         # only keep outliers with rare variants
         outlier_df = outlier_df.loc[
             outlier_df.rare_variant_status & outlier_df.expr_outlier]
-        cols_to_keep = ["blinded_id", "gene", "z_expr", "tss_dist",
-                        "var_id", "popmax_af", "var_id_freq"]
-        outlier_df = outlier_df[cols_to_keep]
+        # cols_to_keep = ["blinded_id", "gene", "z_expr", "tss_dist",
+        #                 "var_id", "popmax_af", "var_id_freq"]
+        # outlier_df = outlier_df[cols_to_keep]
         outlier_df.rename(columns={"var_id_freq": "intra_cohort_af"},
                           inplace=True)
         outlier_df.to_csv(self.rv_outlier_loc, index=False, sep="\t")
