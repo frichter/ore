@@ -1,29 +1,29 @@
-#BSUB -W 15:00
+#BSUB -W 30:00
 #BSUB -q alloc
-#BUSB -n 24
+#BUSB -n 12
 #BSUB -R "rusage[mem=10000]"
 #BSUB -P acc_chdiTrios
-#BSUB -J vent_outliers_2
+#BSUB -J gtex_lv_2
 #BSUB -m mothra
-#BSUB -o vent_outliers_2.stdout
-#BSUB -e vent_outliers_2.stderr
+#BSUB -o gtex_lv_2.stdout
+#BSUB -e gtex_lv_2.stderr
 
 ######################### GTEX LV #########################
 
-# EXPR_F="/hpc/users/richtf01/whole_genome/rare_variants_eqtl/gtex_control/gtex_final_expr_matrix/LV_gtex_2018_02_20/residual_expr_5_SVs_hg19.bed.gz"
-# VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/rare_var_outliers/gtex_june_2017/wgs_gtex.vcf.gz"
-# OUT_PREFIX="/sc/orga/projects/chdiTrios/Felix/dna_rna/rare_var_outliers/gtex_2018_04/wgs_gtex_lv_2"
-# ENRICH_PREFIX="/sc/orga/projects/chdiTrios/Felix/dna_rna/rare_var_outliers/gtex_2018_04/enrichment_results/lv/"
+EXPR_F="/hpc/users/richtf01/whole_genome/rare_variants_eqtl/gtex_control/gtex_final_expr_matrix/LV_gtex_2018_02_20/residual_expr_5_SVs_hg19.bed.gz"
+VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/rare_var_outliers/gtex_june_2017/wgs_gtex.vcf.gz"
+OUT_PREFIX="/sc/orga/projects/chdiTrios/Felix/dna_rna/rare_var_outliers/gtex_2018_04/wgs_gtex_lv_2"
+ENRICH_PREFIX="/sc/orga/projects/chdiTrios/Felix/dna_rna/rare_var_outliers/gtex_2018_04/enrichment_results/lv/"
 
-# job name: gtex_lv
+# job name: gtex_lv_2
 
 
 ##################### PCGC Vent ##########################
 
-VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_vent_ids.norm.vcf.gz"
-EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_vent/residual_expr_5_SVs_hg19.bed.gz"
-OUT_PREFIX="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_04/wgs_vent_expressAlloc"
-ENRICH_PREFIX="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_04/enrichment_results/wgs_vent"
+# VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_vent_ids.norm.vcf.gz"
+# EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_vent/residual_expr_5_SVs_hg19.bed.gz"
+# OUT_PREFIX="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_04/wgs_vent_expressAlloc"
+# ENRICH_PREFIX="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_04/enrichment_results/wgs_vent"
 
 # vent_outliers_2
 
@@ -50,5 +50,5 @@ python -m ore.ore --vcf $VCF \
     --annovar \
     --variant_class "ncRNA" \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 24
+    --processes 12
 
