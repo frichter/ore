@@ -166,7 +166,6 @@ class Annotations(object):
         var_bed_obj = BedTool(self.nearTSS_loc % current_chrom)
         overlap_list = []
         for file_loc in file_loc_list:
-            print(file_loc)
             bed_iterable = glob.iglob(file_loc)
             for bed_name in bed_iterable:
                 overlap_list.append(bed_name)
@@ -178,6 +177,8 @@ class Annotations(object):
                           "bedtools has space".format(current_temp_dir))
                     raise bed_error
                 count += 1
+                if count % 5 == 0:
+                    print("Done with", count, bed_name)
         print("Completed overlaps for {}/{} annotations for {}".format(
             str(count), len(overlap_list), current_chrom))
         var_bed_obj.saveas(anno_out_loc)
