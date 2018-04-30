@@ -3,10 +3,10 @@
 #BUSB -n 12
 #BSUB -R "rusage[mem=10000]"
 #BSUB -P acc_chdiTrios
-#BSUB -J vent_outliers
+#BSUB -J vent_outliers_3
 #BSUB -m mothra
-#BSUB -o vent_outliers.stdout
-#BSUB -e vent_outliers.stderr
+#BSUB -o vent_outliers_3.stdout
+#BSUB -e vent_outliers_3.stderr
 
 ######################### GTEX LV #########################
 
@@ -25,7 +25,7 @@ EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/n
 OUT_PREFIX="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_04/wgs_vent"
 ENRICH_PREFIX="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_04/enrichment_results/wgs_vent"
 
-# vent_outliers
+# vent_outliers_3
 
 module load bedtools/2.27.0
 module load samtools/1.3
