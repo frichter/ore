@@ -69,7 +69,7 @@ class Annotations(object):
     """
 
     def __init__(self, use_annovar, annovar_file_loc, var_bed_loc, long012_loc,
-                 annovar_dir, humandb_dir, genome_v, logger):
+                 annovar_dir, humandb_dir, genome_v):
         """Create object containing methods/attributes for annotations.
 
         Args:
@@ -98,7 +98,6 @@ class Annotations(object):
         self.use_annovar = use_annovar
         self.annovar_dir, self.humandb_dir, self.genome_v = (
             annovar_dir, humandb_dir, genome_v)
-        self.logger = logger
 
     def run_annovar_cmd(self, current_chrom):
         """Execute ANNOVAR command.
@@ -135,7 +134,7 @@ class Annotations(object):
                        "-operation g,g,f -nastring NA").format(
                        self.annovar_dir, infile,  self.humandb_dir,
                        self.genome_v, annovar_out_loc)
-        self.logger.info(annovar_cmd)
+        print(annovar_cmd)
         subprocess.call(annovar_cmd, shell=True)
         return current_chrom
 
@@ -167,7 +166,6 @@ class Annotations(object):
         var_bed_obj = BedTool(self.nearTSS_loc % current_chrom)
         overlap_list = []
         for file_loc in file_loc_list:
-            self.logger.info(file_loc)
             print(file_loc)
             bed_iterable = glob.iglob(file_loc)
             for bed_name in bed_iterable:
@@ -176,14 +174,12 @@ class Annotations(object):
                 try:
                     var_bed_obj = var_bed_obj.intersect(bed, c=True)
                 except pybedtools.helpers.BEDToolsError as bed_error:
-                    self.logger.info("Check that the temp directory ({})" +
-                                     " used by bedtools has space".format(
-                                        current_temp_dir))
+                    print("Check that the temp directory ({}) used by " +
+                          "bedtools has space".format(current_temp_dir))
                     raise bed_error
                 count += 1
-        self.logger.info(
-            "Completed overlaps for {}/{} annotations for {}".format(
-                str(count), len(overlap_list), current_chrom))
+        print("Completed overlaps for {}/{} annotations for {}".format(
+            str(count), len(overlap_list), current_chrom))
         var_bed_obj.saveas(anno_out_loc)
         with open(anno_out_list_loc, 'w') as f:
             f.write("\n".join(overlap_list) + "\n")
@@ -216,11 +212,11 @@ class Annotations(object):
                 try:
                     BedTool(file_name)
                 except pybedtools.helpers.BEDToolsError as bed_error:
-                    self.logger.info(
+                    print(
                         "Check that {} is in correct BED format".format(
                             file_name))
                     raise bed_error
-        self.logger.info(
+        print(
             "Overlapping {} annotation files with variants on {}".format(
                 count, current_chrom))
 
@@ -238,34 +234,33 @@ class Annotations(object):
         if os.path.exists(self.final_var_loc % current_chrom):
             # print("Final variants already prepared for %s" % current_chrom)
             return "Not_rerun_" + current_chrom
-        self.logger.info("Cleaning Annotations for", current_chrom)
+        print("Cleaning Annotations for", current_chrom)
         anno_df = self.import_vars_close_to_gene(current_chrom)
         anno_df = anno_df.set_index('var_id')
         if self.use_annovar:
-            self.logger.info("Cleaning ANNOVAR results for", current_chrom)
+            print("Cleaning ANNOVAR results for", current_chrom)
             annovar_df = self.clean_annovar_results(current_chrom)
-            self.logger.info(
-                "Joining ANNOVAR with annotations for", current_chrom)
+            print("Joining ANNOVAR with annotations for", current_chrom)
             anno_df = annovar_df.set_index('var_id').join(anno_df, how='inner')
         clean_df = self.remove_vars_in_unwanted_cols(anno_df)
-        self.logger.info("Loading long 012 matrix for", current_chrom)
+        print("Loading long 012 matrix for", current_chrom)
         long012_df = self.load_long_012_df(current_chrom)
-        self.logger.info("Joining long 012 with annotations", current_chrom)
+        print("Joining long 012 with annotations", current_chrom)
         final_df = clean_df.join(long012_df.set_index('var_id'), how='inner')
-        self.logger.info("Getting intra-cohort variant counts/frequency")
+        print("Getting intra-cohort variant counts/frequency")
         final_df['var_id'] = final_df.index
         final_df['var_id_count'] = final_df.groupby(
             'var_id')['var_id'].transform('count')
         id_ct = len(set(final_df.blinded_id))
         final_df['var_id_freq'] = final_df.var_id_count/id_ct
         if not self.use_annovar:
-            self.logger.info("Setting popmax AF to 0 and annovar_func to NAs" +
-                             "(because not using ANNOVAR)")
+            print("Setting popmax AF to 0 and annovar_func to NAs" +
+                  "(because not using ANNOVAR)")
             final_df['popmax_af'] = 0
             final_df["annovar_func"] = "NA"
-        self.logger.info("Writing to", self.final_var_loc % current_chrom)
+        print("Writing to", self.final_var_loc % current_chrom)
         final_df.to_csv(self.final_var_loc % current_chrom, sep="\t")
-        self.logger.info("Done writing to", self.final_var_loc % current_chrom)
+        print("Done writing to", self.final_var_loc % current_chrom)
         return current_chrom
 
     def clean_annovar_results(self, current_chrom):
@@ -297,7 +292,7 @@ class Annotations(object):
         try:
             annovar_df = pd.read_table(annovar_out_loc, low_memory=False)
         except pd.errors.ParserError as pandas_import_error:
-                self.logger.info("")
+                print("")
                 raise pandas_import_error
         # rename and keep only some of the columns
         col_rename_dict = {"Otherinfo": "var_id",
