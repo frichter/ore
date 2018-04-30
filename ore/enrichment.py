@@ -13,10 +13,13 @@ import itertools
 import copy
 from functools import partial
 from multiprocessing import Pool, cpu_count
+import glob
 
 import pandas as pd
 import numpy as np
 from scipy.stats import fisher_exact
+
+from .utils import anno_file_locations
 
 
 class Enrich(object):
@@ -132,6 +135,8 @@ class Enrich(object):
             n_processes (:obj:`int`): number of processes to use
 
         """
+        anno_file_loc = anno_file_locations()
+        anno_vec = [i for i in glob.iglob(anno_file_loc)]
         if isinstance(expr_cut_off_vec, float):
             expr_cut_off_vec = [expr_cut_off_vec]
         if isinstance(tss_cut_off_vec, float):
@@ -140,6 +145,7 @@ class Enrich(object):
             af_cut_off_vec = [af_cut_off_vec]
         cartesian_iter = itertools.product(expr_cut_off_vec,
                                            tss_cut_off_vec,
+                                           anno_vec,
                                            af_cut_off_vec)
         # https://stackoverflow.com/questions/533905/get-the-cartesian-product-of-a-series-of-lists
         enrichment_per_tuple_partial = partial(
@@ -169,6 +175,9 @@ class Enrich(object):
         print("Calculating enrichment for", cut_off_tuple)
         enrich_df = copy.deepcopy(self.joined_df)
         # keep only a specific annotation cut_off_tuple[3]
+        enrich_df = enrich_df.loc[cut_off_tuple[3] == 1]
+        if enrich_df.shape[0] == 0:
+            return "NA_line"
         max_intrapop_af = self.get_max_intra_pop_af(
             enrich_df, cut_off_tuple[2])
         enrich_df = self.identify_rows_to_keep(
@@ -301,6 +310,7 @@ class Enrich(object):
         """Write the enrichment results to a file."""
         with open(self.enrich_loc, 'w') as enrich_f:
             header_list = ["expr_cut_off", "tss_cut_off", "af_cut_off",
+                           "annotaion",
                            # "var_or", "var_p", "var_neg_or", "var_neg_p",
                            "not_rare_not_out", "not_rare_out",
                            "rare_not_out", "rare_out",
