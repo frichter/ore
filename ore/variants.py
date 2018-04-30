@@ -73,7 +73,8 @@ class Variants(object):
                                     current_chrom_file_loc,
                                     annovar_dir,
                                     humandb_dir,
-                                    "hg19")
+                                    "hg19",
+                                    logger)
         logger.info("Annotation functions loaded...")
         self.gene_obj = Genes(gene_pheno_loc, self.vcf_obj.bed_file_loc)
         self.combined_contigs = list(
