@@ -209,7 +209,7 @@ def main():
                              "these classes will be considered", default=None,
                              choices=["intronic", "intergenic", "exonic",
                                       "UTR5", "UTR3", "splicing", "upstream",
-                                      "ncRNA"])
+                                      "ncRNA", "ncRNA_exonic"])
     opt_annovar.add_argument("--refgene", default=False, action="store_true",
                              help="Filter on RefGene function.")
     opt_annovar.add_argument("--ensgene", default=False, action="store_true",

@@ -182,6 +182,7 @@ class Annotations(object):
         var_bed_obj.saveas(anno_out_loc)
         with open(anno_out_list_loc, 'w') as f:
             f.write("\n".join(overlap_list) + "\n")
+        pybedtools.cleanup()
         return current_chrom
 
     def confirm_annotation_locations(self, file_loc_list, current_chrom):

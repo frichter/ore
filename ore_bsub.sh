@@ -36,7 +36,7 @@ module load py_packages/3.5
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 
 # upstream and downstream (together) all annovar or subset
-ENRICH_F=$ENRICH_PREFIX"/tssBi_SV5_norm_ncRNA_genes.txt"
+ENRICH_F=$ENRICH_PREFIX"/tssBi_SV5_norm_ncRNA_refgene_ensgene.txt"
 python -m ore.ore --vcf $VCF \
     --bed $EXPR_F \
     --output $OUT_PREFIX \
@@ -49,6 +49,11 @@ python -m ore.ore --vcf $VCF \
     --tss_dist 1e4 \
     --annovar \
     --variant_class "ncRNA" \
+    --ensgene \
+    --refgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
     --processes 12
+
+
+
 
