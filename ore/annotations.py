@@ -168,6 +168,7 @@ class Annotations(object):
         overlap_list = []
         for file_loc in file_loc_list:
             self.logger.info(file_loc)
+            print(file_loc)
             bed_iterable = glob.iglob(file_loc)
             for bed_name in bed_iterable:
                 overlap_list.append(bed_name)
