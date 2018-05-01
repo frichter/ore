@@ -245,17 +245,23 @@ class Annotations(object):
             # print("ANNOVAR DF size:", annovar_df.shape)
             print("Joining ANNOVAR with annotations for", current_chrom)
             anno_df = annovar_df.set_index('var_id').join(anno_df, how='inner')
-            print("ANNOVAR joined w closest gene DF size:", anno_df.shape)
+            # print("ANNOVAR joined w closest gene DF size:", anno_df.shape)
         clean_df = self.remove_vars_in_unwanted_cols(anno_df)
-        print("Repeats and segdups removed DF size:", clean_df.shape)
+        # print("Repeats and segdups removed DF size:", clean_df.shape)
         print("Loading long 012 matrix for", current_chrom)
         long012_df = self.load_long_012_df(current_chrom)
-        print("012 long DF size:", long012_df.shape)
+        # print("012 long DF size:", long012_df.shape)
         print("Joining long 012 with annotations", current_chrom)
         final_df = clean_df.join(long012_df.set_index('var_id'), how='inner')
         # print("012 long joined with annotated DF size:", final_df.shape)
         print("Getting intra-cohort variant counts/frequency")
-        final_df['var_id'] = final_df.index
+        # final_df['var_id'] = final_df.index
+        print(final_df.head())
+        final_df.reset_index(inplace=True)
+        print(final_df.head())
+        print(final_df.groupby('var_id')['var_id'].transform('count').head())
+        print(final_df.groupby('var_id').transform('count').head())
+        # find the differences between
         final_df['var_id_count'] = final_df.groupby(
             'var_id')['var_id'].transform('count')
         id_ct = len(set(final_df.blinded_id))
@@ -266,7 +272,7 @@ class Annotations(object):
             final_df['popmax_af'] = 0
             final_df["annovar_func"] = "NA"
         print("Writing to", self.final_var_loc % current_chrom)
-        print("Final DF being written size:", final_df.shape)
+        # print("Final DF being written size:", final_df.shape)
         final_df.to_csv(self.final_var_loc % current_chrom, sep="\t")
         print("Done writing to", self.final_var_loc % current_chrom)
         return current_chrom
@@ -394,10 +400,6 @@ class Annotations(object):
                 "In order to remove variants in regions, please first " +
                 "overlap the variants {}".format(", ".join(unwanted_cols)))
         else:
-            print(unwanted_vars_df.head())
-            print(joined_anno_df.loc[:, unwanted_cols].dtypes)
-            print("Repeats and segdups DF size:", unwanted_vars_df.shape)
-            print(unwanted_vars_df.all(axis=1).head())
             clean_df = joined_anno_df[unwanted_vars_df.all(axis=1)]
         return clean_df
 
