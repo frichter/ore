@@ -237,17 +237,23 @@ class Annotations(object):
             return "Not_rerun_" + current_chrom
         print("Cleaning Annotations for", current_chrom)
         anno_df = self.import_vars_close_to_gene(current_chrom)
+        print("Closest gene DF size:", anno_df.shape)
         anno_df = anno_df.set_index('var_id')
         if self.use_annovar:
             print("Cleaning ANNOVAR results for", current_chrom)
             annovar_df = self.clean_annovar_results(current_chrom)
+            print("ANNOVAR DF size:", annovar_df.shape)
             print("Joining ANNOVAR with annotations for", current_chrom)
             anno_df = annovar_df.set_index('var_id').join(anno_df, how='inner')
+            print("ANNOVAR joined w closest gene DF size:", anno_df.shape)
         clean_df = self.remove_vars_in_unwanted_cols(anno_df)
+        print("Repeats and segdups removed DF size:", clean_df.shape)
         print("Loading long 012 matrix for", current_chrom)
         long012_df = self.load_long_012_df(current_chrom)
+        print("012 long DF size:", long012_df.shape)
         print("Joining long 012 with annotations", current_chrom)
         final_df = clean_df.join(long012_df.set_index('var_id'), how='inner')
+        print("012 long joined with annotated DF size:", final_df.shape)
         print("Getting intra-cohort variant counts/frequency")
         final_df['var_id'] = final_df.index
         final_df['var_id_count'] = final_df.groupby(
@@ -260,6 +266,7 @@ class Annotations(object):
             final_df['popmax_af'] = 0
             final_df["annovar_func"] = "NA"
         print("Writing to", self.final_var_loc % current_chrom)
+        print("Final DF being written size:", final_df.shape)
         final_df.to_csv(self.final_var_loc % current_chrom, sep="\t")
         print("Done writing to", self.final_var_loc % current_chrom)
         return current_chrom
