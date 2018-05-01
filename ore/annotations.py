@@ -259,7 +259,10 @@ class Annotations(object):
         final_df.reset_index(inplace=True)
         # final_df['var_id_count'] = final_df.groupby(
         #     'var_id')['var_id'].transform('count')
-        final_df['var_id_count'] = final_df.groupby('var_id')['GT'].sum()
+        final_df['var_id_count'] = final_df.groupby(
+            'var_id')['GT'].transform('sum')
+        print(final_df.groupby(
+            'var_id')['GT'].transform('sum').shape)
         # multiply by 2 for autosomes, 1 for sex chromosomes in MALES
         # This should be reflected in the maximum genotype that can
         # be observed for a given chromosome.. however there seem
@@ -272,8 +275,8 @@ class Annotations(object):
             final_df['popmax_af'] = 0
             final_df["annovar_func"] = "NA"
         print("Writing to", self.final_var_loc % current_chrom)
-        final_df.var_id_count.head()
-        final_df.var_id_freq.head()
+        print("top var_id_count", final_df.var_id_count.head())
+        print("top var_id_freq", final_df.var_id_freq.head())
         print("var_id_freq columns:", final_df[
             ['var_id_count', 'var_id_freq']].head())
         print("Final DF being written size:", final_df.shape)
