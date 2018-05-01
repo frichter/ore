@@ -257,19 +257,14 @@ class Annotations(object):
         print("Getting intra-cohort variant counts/frequency")
         # final_df['var_id'] = final_df.index
         final_df.reset_index(inplace=True)
-        print(final_df.head())
-        # confirm you got the summing correct
-        print(final_df.groupby('var_id')['var_id'].transform('count').head())
-        print(final_df.groupby('var_id')['GT'].sum().head())
-        # find the differences between
         # final_df['var_id_count'] = final_df.groupby(
         #     'var_id')['var_id'].transform('count')
         final_df['var_id_count'] = final_df.groupby('var_id')['GT'].sum()
-        # multiply by 2 for autosomes, 1 for sex chromosomes
+        # multiply by 2 for autosomes, 1 for sex chromosomes in MALES
         # This should be reflected in the maximum genotype that can
-        # be observed for a given chromosome
-        print(current_chrom, max(final_df.GT))
-        id_ct = len(set(final_df.blinded_id)) * (max(final_df.GT))
+        # be observed for a given chromosome.. however there seem
+        # to be plenty of Y chromosome variants with GT=1 and GT=2...
+        id_ct = len(set(final_df.blinded_id)) * 2
         final_df['var_id_freq'] = final_df.var_id_count/id_ct
         if not self.use_annovar:
             print("Setting popmax AF to 0 and annovar_func to NAs" +
