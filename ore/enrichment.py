@@ -209,8 +209,11 @@ class Enrich(object):
             enrich_df.near_TSS & enrich_df.gene_has_out_w_vars]
         # confirm each gene has at least 1 rare variant
         # This line raises a SettingWithCopyWarning
+        print("genes with outliers:", enrich_df.shape)
         enrich_df.loc[:, 'gene_has_rare_vars'] = enrich_df.groupby(
             'gene')['rare_variant_status'].transform('sum') > 0
+        print("genes with rare variants:", enrich_df.shape)
+        print(enrich_df.gene_has_rare_vars.sum())
         enrich_df = enrich_df.loc[enrich_df.gene_has_rare_vars]
         return enrich_df
 
