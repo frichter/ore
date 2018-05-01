@@ -140,7 +140,7 @@ class Enrich(object):
         """
         anno_file_loc = anno_file_locations()
         print("finding enrichment for annotations here", anno_file_loc)
-        anno_vec = [i for i in glob.iglob(anno_file_loc)]
+        anno_vec = [i for i in glob.iglob(anno_file_loc[0])]
         print(anno_vec[:5])
         if isinstance(expr_cut_off_vec, float):
             expr_cut_off_vec = [expr_cut_off_vec]
