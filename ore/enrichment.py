@@ -98,6 +98,8 @@ class Enrich(object):
             var_df_per_chrom = var_df_per_chrom[cols_to_keep]
             list_.append(var_df_per_chrom)
         self.var_df = pd.concat(list_)
+        print(self.var_df.head())
+        print(self.var_df.shape)
         if annovar_func:
             print("Considering variants in the following refseq categories",
                   set(self.var_df.func_refgene))
@@ -137,7 +139,9 @@ class Enrich(object):
 
         """
         anno_file_loc = anno_file_locations()
+        print("finding enrichment for annotations here", anno_file_loc)
         anno_vec = [i for i in glob.iglob(anno_file_loc)]
+        print(anno_vec[:5])
         if isinstance(expr_cut_off_vec, float):
             expr_cut_off_vec = [expr_cut_off_vec]
         if isinstance(tss_cut_off_vec, float):
@@ -364,14 +368,22 @@ class Enrich(object):
         enrich_df = copy.deepcopy(self.joined_df)
         max_intrapop_af = self.get_max_intra_pop_af(enrich_df, af_cut_off)
         print("Intra-population AF cut-off for rare:", max_intrapop_af)
+        print(enrich_df.head())
+        print("enrichment DF size", enrich_df.shape)
         outlier_df = self.identify_rows_to_keep(
             enrich_df, max_intrapop_af,
             distribution=self.distribution, cut_off_tuple=cut_off_tuple)
+        print(outlier_df.head())
+        print("outlier DF size", outlier_df.shape)
         outlier_df = self.subset_deepcopy_df(outlier_df)
         # outlier_df.to_csv("test_all_joined.txt", index=False, sep="\t")
         # only keep outliers with rare variants
+        print(outlier_df.head())
+        print("outlier DF size post subset", outlier_df.shape)
         outlier_df = outlier_df.loc[
             outlier_df.rare_variant_status & outlier_df.expr_outlier]
+        print(outlier_df.head())
+        print("outlier DF after filtering for RVs/outliers", outlier_df.shape)
         # cols_to_keep = ["blinded_id", "gene", "z_expr", "tss_dist",
         #                 "var_id", "popmax_af", "var_id_freq"]
         # outlier_df = outlier_df[cols_to_keep]
