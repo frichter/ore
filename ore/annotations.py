@@ -265,7 +265,11 @@ class Annotations(object):
         # final_df['var_id_count'] = final_df.groupby(
         #     'var_id')['var_id'].transform('count')
         final_df['var_id_count'] = final_df.groupby('var_id')['GT'].sum()
-        id_ct = len(set(final_df.blinded_id))*2
+        # multiply by 2 for autosomes, 1 for sex chromosomes
+        # This should be reflected in the maximum genotype that can
+        # be observed for a given chromosome
+        print(current_chrom, max(final_df.GT))
+        id_ct = len(set(final_df.blinded_id)) * (max(final_df.GT))
         final_df['var_id_freq'] = final_df.var_id_count/id_ct
         if not self.use_annovar:
             print("Setting popmax AF to 0 and annovar_func to NAs" +
