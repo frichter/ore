@@ -361,16 +361,33 @@ class Annotations(object):
     def remove_vars_in_unwanted_cols(self, joined_anno_df):
         """Remove variants in repeats and segdups.
 
+        Args:
+            joined_anno_df (:obj:`DataFrame`): pandas dataframe with
+                column names that include those listed in
+                unwanted_cols
+
+        Raises:
+            :obj:`AnnotationError`: if variants have not been overlapped with
+                regions that you want to exclude
+
         TODO:
             Un-hardcode this/customize which columns to remove
 
         """
-        unwanted_cols = ['hg19_segdup', 'hg19_lcr_hs37d5']
-        # 'mappability1_300', 'genes.MUC.HLA', 'dac_blacklist',
-        # 'encode_duke_blacklist'
-        # 'rmsk', , 'pseudoautosomal_XY'
-        clean_df = joined_anno_df[(joined_anno_df.loc[:, unwanted_cols] == 0).
-                                  all(axis=1)]
+        unwanted_cols = [
+            # 'hg19_segdup', 'hg19_lcr_hs37d5']
+            'segdup', 'LCR-hs37d5_chr',
+            'mappability1_300', 'genes.MUC.HLA', 'dac_blacklist',
+            'encode_duke_blacklist'
+            'rmsk', 'pseudoautosomal_XY']
+        try:
+            unwanted_cols_df = joined_anno_df.loc[:, unwanted_cols]
+        except KeyError:
+            raise AnnotationError(
+                "In order to remove variants in regions, please first " +
+                "overlap the variants {}".format(", ".join(unwanted_cols)))
+        else:
+            clean_df = joined_anno_df[(unwanted_cols_df == 0).all(axis=1)]
         return clean_df
 
     def load_long_012_df(self, current_chrom):
@@ -380,10 +397,9 @@ class Annotations(object):
             current_chrom (:obj:`str`): region of genome being considered
 
         Returns:
-            current_chrom (:obj:`str`): region of genome completed (b37 format)
-
-        TODO:
-            Generalize if keeping heterozygous/homozgyous or both.
+            long012_df (:obj:`DataFrame`): pandas dataframe with 3 columns,
+                blinded_id, GT, and var_id (the latter being a joined string
+                of chrom.pos.ref.alt)
 
         """
         long_col_names = ['loc_id', 'blinded_id', 'GT', 'Ref', 'Alt']

@@ -95,7 +95,7 @@ class Variants(object):
         # alternatively: check to see if files are complete (and don't delete)
         prepare_directory(self.per_chrom_dir, self.clean_run)
         os.chdir(self.per_chrom_dir + "/..")
-        prepare_directory("pybedtools_temp_dir_2/")
+        prepare_directory("pybedtools_temp_dir/")
         # assign the constant variables to `prepare_vcf_per_chrom` in
         # preparation for multiprocessing
         partial_prepare_vcf_per_chrom = partial(
