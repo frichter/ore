@@ -256,14 +256,16 @@ class Annotations(object):
         # print("012 long joined with annotated DF size:", final_df.shape)
         print("Getting intra-cohort variant counts/frequency")
         # final_df['var_id'] = final_df.index
-        print(final_df.head())
         final_df.reset_index(inplace=True)
         print(final_df.head())
+        # confirm you got the summing correct
         print(final_df.groupby('var_id')['var_id'].transform('count').head())
+        print(final_df.groupby('var_id')['GT'].sum().head())
         # find the differences between
-        final_df['var_id_count'] = final_df.groupby(
-            'var_id')['var_id'].transform('count')
-        id_ct = len(set(final_df.blinded_id))
+        # final_df['var_id_count'] = final_df.groupby(
+        #     'var_id')['var_id'].transform('count')
+        final_df['var_id_count'] = final_df.groupby('var_id')['GT'].sum()
+        id_ct = len(set(final_df.blinded_id))*2
         final_df['var_id_freq'] = final_df.var_id_count/id_ct
         if not self.use_annovar:
             print("Setting popmax AF to 0 and annovar_func to NAs" +
