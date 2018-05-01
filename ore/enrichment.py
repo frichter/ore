@@ -77,7 +77,7 @@ class Enrich(object):
         if annovar_func:
             print("Keeping only {} variants".format(annovar_func))
             if refgene and ensgene:
-                print("...where ENSEMBL and RefGene match")
+                print("...where ENSEMBL and RefGene function match")
             elif refgene:
                 print("...in RefGene")
             elif ensgene:
@@ -86,7 +86,8 @@ class Enrich(object):
             # "wgs_pcgc_singletons_per_chrom/enh_var_hets_chr" + chrom + ".txt"
             print("chr" + chrom)
             var_df_per_chrom = pd.read_table(
-                self.var_loc % ("chr" + chrom), low_memory=False)
+                self.var_loc % ("chr" + chrom))  # , low_memory=False
+            # Trying withOUT low_memory=False to avoid segfault
             # print("gene count:", len(var_df_per_chrom.gene.unique()))
             var_df_per_chrom.set_index(['gene', 'blinded_id'], inplace=True)
             # remove regions in repeats
