@@ -260,7 +260,6 @@ class Annotations(object):
         final_df.reset_index(inplace=True)
         print(final_df.head())
         print(final_df.groupby('var_id')['var_id'].transform('count').head())
-        print(final_df.groupby('var_id').transform('count').head())
         # find the differences between
         final_df['var_id_count'] = final_df.groupby(
             'var_id')['var_id'].transform('count')
