@@ -237,12 +237,12 @@ class Annotations(object):
             return "Not_rerun_" + current_chrom
         print("Cleaning Annotations for", current_chrom)
         anno_df = self.import_vars_close_to_gene(current_chrom)
-        print("Closest gene DF size:", anno_df.shape)
+        # print("Closest gene DF size:", anno_df.shape)
         anno_df = anno_df.set_index('var_id')
         if self.use_annovar:
             print("Cleaning ANNOVAR results for", current_chrom)
             annovar_df = self.clean_annovar_results(current_chrom)
-            print("ANNOVAR DF size:", annovar_df.shape)
+            # print("ANNOVAR DF size:", annovar_df.shape)
             print("Joining ANNOVAR with annotations for", current_chrom)
             anno_df = annovar_df.set_index('var_id').join(anno_df, how='inner')
             print("ANNOVAR joined w closest gene DF size:", anno_df.shape)
@@ -253,7 +253,7 @@ class Annotations(object):
         print("012 long DF size:", long012_df.shape)
         print("Joining long 012 with annotations", current_chrom)
         final_df = clean_df.join(long012_df.set_index('var_id'), how='inner')
-        print("012 long joined with annotated DF size:", final_df.shape)
+        # print("012 long joined with annotated DF size:", final_df.shape)
         print("Getting intra-cohort variant counts/frequency")
         final_df['var_id'] = final_df.index
         final_df['var_id_count'] = final_df.groupby(
@@ -385,7 +385,7 @@ class Annotations(object):
             # 'hg19_segdup', 'hg19_lcr_hs37d5']
             'segdup', 'LCR-hs37d5_chr',
             'mappability1_300', 'genes.MUC.HLA', 'dac_blacklist',
-            'encode_duke_blacklist'
+            'encode_duke_blacklist',
             'rmsk', 'pseudoautosomal_XY']
         try:
             unwanted_vars_df = joined_anno_df.loc[:, unwanted_cols] == 0
