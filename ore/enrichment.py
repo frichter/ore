@@ -176,7 +176,9 @@ class Enrich(object):
         print("Calculating enrichment for", cut_off_tuple)
         enrich_df = copy.deepcopy(self.joined_df)
         # keep only a specific annotation cut_off_tuple[3]
+        print("Subsetting by", cut_off_tuple[3], "from DF w", enrich_df.shape)
         enrich_df = enrich_df.loc[cut_off_tuple[3] == 1]
+        print("new DF dimensions", enrich_df.shape)
         if enrich_df.shape[0] == 0:
             return "NA_line"
         max_intrapop_af = self.get_max_intra_pop_af(
