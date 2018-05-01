@@ -388,13 +388,15 @@ class Annotations(object):
             'encode_duke_blacklist'
             'rmsk', 'pseudoautosomal_XY']
         try:
-            unwanted_cols_df = joined_anno_df.loc[:, unwanted_cols]
+            unwanted_vars_df = joined_anno_df.loc[:, unwanted_cols] == 0
+            print("Repeats and segdups DF size:", unwanted_vars_df.shape)
         except KeyError:
             raise AnnotationError(
                 "In order to remove variants in regions, please first " +
                 "overlap the variants {}".format(", ".join(unwanted_cols)))
         else:
-            clean_df = joined_anno_df[(unwanted_cols_df == 0).all(axis=1)]
+            clean_df = joined_anno_df[(
+                joined_anno_df.loc[:, unwanted_cols] == 0).all(axis=1)]
         return clean_df
 
     def load_long_012_df(self, current_chrom):
