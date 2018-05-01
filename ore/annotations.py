@@ -272,7 +272,9 @@ class Annotations(object):
             final_df['popmax_af'] = 0
             final_df["annovar_func"] = "NA"
         print("Writing to", self.final_var_loc % current_chrom)
-        # print("Final DF being written size:", final_df.shape)
+        print("var_id_freq columns:", final_df[
+            ['var_id_count', 'var_id_freq'].head()])
+        print("Final DF being written size:", final_df.shape)
         final_df.to_csv(self.final_var_loc % current_chrom, sep="\t",
                         index=False)
         print("Done writing to", self.final_var_loc % current_chrom)

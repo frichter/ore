@@ -144,9 +144,9 @@ class Enrich(object):
         # anno_list = [re.sub(rep_w_blank, "", i) for i in anno_list]
         # anno_list = [re.sub("all_predictions", "cvdc_enhancers_dickel", i)
         #              for i in anno_list]
-        anno_list = list(self.joined_df)[19:]
+        anno_list = list(self.joined_df)[21:]
         print(anno_list[:5])
-        print(anno_list[-1])
+        print(anno_list[-8:])
         if isinstance(expr_cut_off_vec, float):
             expr_cut_off_vec = [expr_cut_off_vec]
         if isinstance(tss_cut_off_vec, float):
