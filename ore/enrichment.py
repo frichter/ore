@@ -82,7 +82,7 @@ class Enrich(object):
                 print("...in RefGene")
             elif ensgene:
                 print("...in ENSEMBL")
-        for chrom in contigs:
+        for chrom in contigs[6:8]:
             # "wgs_pcgc_singletons_per_chrom/enh_var_hets_chr" + chrom + ".txt"
             print("chr" + chrom)
             var_df_per_chrom = pd.read_table(
