@@ -89,8 +89,6 @@ class Enrich(object):
             # Trying withOUT low_memory=False to avoid segfault
             # print("gene count:", len(var_df_per_chrom.gene.unique()))
             var_df_per_chrom.set_index(['gene', 'blinded_id'], inplace=True)
-            anno_list = list(var_df_per_chrom)[17:]
-            print(anno_list[:5])
             # remove regions in repeats
             # var_df_per_chrom = var_df_per_chrom[var_df_per_chrom.rmsk == 0]
             if annovar_func:
@@ -146,8 +144,9 @@ class Enrich(object):
         # anno_list = [re.sub(rep_w_blank, "", i) for i in anno_list]
         # anno_list = [re.sub("all_predictions", "cvdc_enhancers_dickel", i)
         #              for i in anno_list]
-        anno_list = list(self.joined_df)[18:]
+        anno_list = list(self.joined_df)[19:]
         print(anno_list[:5])
+        print(anno_list[-1])
         if isinstance(expr_cut_off_vec, float):
             expr_cut_off_vec = [expr_cut_off_vec]
         if isinstance(tss_cut_off_vec, float):
@@ -252,6 +251,9 @@ class Enrich(object):
         joined_df.loc[:, "rare_variant_status"] = (
             joined_df.popmax_af <= af_cut_off) & (
             joined_df.var_id_freq <= max_intrapop_af)
+        print(joined_df.rare_variant_status.sum())
+        print(max_intrapop_af, af_cut_off)
+        print(min(joined_df.popmax_af), min(joined_df.var_id_freq))
         # Only keep genes with at least 1 rare variant.
         # joined_df = joined_df[
         #     joined_df.near_TSS & joined_df.gene_has_out_w_vars]
