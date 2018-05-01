@@ -13,13 +13,12 @@ import itertools
 import copy
 from functools import partial
 from multiprocessing import Pool, cpu_count
-import glob
 
 import pandas as pd
 import numpy as np
 from scipy.stats import fisher_exact
 
-from .utils import anno_file_locations
+# from .utils import anno_file_locations
 
 
 class Enrich(object):
@@ -71,9 +70,9 @@ class Enrich(object):
         print("Loading variants...")
         self.var_df = pd.DataFrame()
         list_ = []
-        cols_to_keep = ['popmax_af', 'var_id', 'tss_dist', 'func_refgene',
-                        'exon_func_refgene', 'func_ensgene',
-                        'exon_func_ensgene', 'var_id_freq']
+        # cols_to_keep = ['popmax_af', 'var_id', 'tss_dist', 'func_refgene',
+        #                 'exon_func_refgene', 'func_ensgene',
+        #                 'exon_func_ensgene', 'var_id_freq']
         if annovar_func:
             print("Keeping only {} variants".format(annovar_func))
             if refgene and ensgene:
@@ -90,12 +89,14 @@ class Enrich(object):
             # Trying withOUT low_memory=False to avoid segfault
             # print("gene count:", len(var_df_per_chrom.gene.unique()))
             var_df_per_chrom.set_index(['gene', 'blinded_id'], inplace=True)
+            anno_list = list(var_df_per_chrom)[17:]
+            print(anno_list[:5])
             # remove regions in repeats
             # var_df_per_chrom = var_df_per_chrom[var_df_per_chrom.rmsk == 0]
             if annovar_func:
                 var_df_per_chrom = self.filter_refgene_ensgene(
                     var_df_per_chrom, annovar_func, refgene, ensgene)
-            var_df_per_chrom = var_df_per_chrom[cols_to_keep]
+            # var_df_per_chrom = var_df_per_chrom[cols_to_keep]
             list_.append(var_df_per_chrom)
         self.var_df = pd.concat(list_)
         print(self.var_df.head())
@@ -138,10 +139,15 @@ class Enrich(object):
             n_processes (:obj:`int`): number of processes to use
 
         """
-        anno_file_loc = anno_file_locations()
-        print("finding enrichment for annotations here", anno_file_loc)
-        anno_vec = [i for i in glob.iglob(anno_file_loc[0])]
-        print(anno_vec[:5])
+        # anno_file_loc = anno_file_locations()
+        # print("finding enrichment for annotations here", anno_file_loc)
+        # anno_list = [i for i in glob.iglob(anno_file_loc[0])]
+        # rep_w_blank = ".*/|.merged.sorted|.bed$|.bed.gz$|.txt$"
+        # anno_list = [re.sub(rep_w_blank, "", i) for i in anno_list]
+        # anno_list = [re.sub("all_predictions", "cvdc_enhancers_dickel", i)
+        #              for i in anno_list]
+        anno_list = list(self.joined_df)[18:]
+        print(anno_list[:5])
         if isinstance(expr_cut_off_vec, float):
             expr_cut_off_vec = [expr_cut_off_vec]
         if isinstance(tss_cut_off_vec, float):
@@ -150,24 +156,17 @@ class Enrich(object):
             af_cut_off_vec = [af_cut_off_vec]
         cartesian_iter = itertools.product(expr_cut_off_vec,
                                            tss_cut_off_vec,
-                                           anno_vec,
+                                           anno_list,
                                            af_cut_off_vec)
         # https://stackoverflow.com/questions/533905/get-the-cartesian-product-of-a-series-of-lists
         enrichment_per_tuple_partial = partial(
             self.enrichment_per_tuple)
         # run either multi-core or single core
-        # if run_multi_core:
         print("Using {} cores, less than all {} cores".format(
               n_processes, cpu_count()))
         with Pool(n_processes) as p:
             out_line_list = p.map(enrichment_per_tuple_partial,
                                   cartesian_iter)
-        # else:
-        #     print("Running on a single process/core")
-        #     out_line_list = []
-        #     for cartesian_tuple in cartesian_iter:
-        #         out_line_list.append(
-        #             enrichment_per_tuple_partial(cartesian_tuple))
         self.write_enrichment_to_file(out_line_list)
 
     def enrichment_per_tuple(self, cut_off_tuple):
@@ -228,11 +227,11 @@ class Enrich(object):
         expr_cut_off, tss_cut_off, af_cut_off = cut_off_tuple
         print("Parameters", expr_cut_off, tss_cut_off, af_cut_off)
         # classify as within x kb of TSS
-        joined_df["near_TSS"] = abs(joined_df.tss_dist) < tss_cut_off
+        joined_df["near_TSS"] = abs(joined_df.tss_dist) <= tss_cut_off
         # update outliers based on more extreme cut-offs
         if distribution == "normal":
             joined_df.expr_outlier = (
-                joined_df.z_abs > expr_cut_off) & joined_df.expr_outlier
+                joined_df.z_abs >= expr_cut_off) & joined_df.expr_outlier
             joined_df.expr_outlier_neg = (joined_df.expr_outlier &
                                           joined_df.expr_outlier_neg)
         elif distribution == "rank":

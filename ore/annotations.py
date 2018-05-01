@@ -359,7 +359,7 @@ class Annotations(object):
         anno_out_loc = self.anno_out_loc % current_chrom
         anno_list = pd.read_table(anno_out_list_loc, squeeze=True, header=None)
         # clean column names
-        rep_w_blank = ".*/|.merged.sorted|.bed$|.bed.gz$|.txt$"
+        rep_w_blank = ".*/|.merged.sorted|.sorted|.bed$|.bed.gz$|.txt$"
         anno_list = [re.sub(rep_w_blank, "", i) for i in anno_list]
         anno_list = [re.sub("all_predictions", "cvdc_enhancers_dickel", i)
                      for i in anno_list]
