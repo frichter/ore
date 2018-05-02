@@ -274,6 +274,7 @@ class Enrich(object):
             'gene', 'blinded_id', 'expr_outlier', 'expr_outlier_neg',
             'gene_has_NEG_out_w_vars', 'gene_has_rare_var']
             ].drop_duplicates(keep='first')
+        print(enrich_df)
         out_tb = pd.crosstab(enrich_df.gene_has_rare_var,
                              enrich_df.expr_outlier)
         print(out_tb)
