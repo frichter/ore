@@ -72,8 +72,8 @@ class Enrich(object):
         #                 'exon_func_refgene', 'func_ensgene',
         #                 'exon_func_ensgene', 'var_id_freq']
         dtype_specs = {
-            'dist_refgene': 'float64', 'exon_func_refgene': 'str',
-            'dist_ensgene': 'float64', 'exon_func_ensgene': 'str'}
+            'dist_refgene': 'str', 'exon_func_refgene': 'str',
+            'dist_ensgene': 'str', 'exon_func_ensgene': 'str'}
         if annovar_func:
             print("Keeping only {} variants".format(annovar_func))
             if refgene and ensgene:
