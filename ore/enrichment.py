@@ -200,7 +200,7 @@ class Enrich(object):
         enrich_df = self.identify_rows_to_keep(
             enrich_df, max_intrapop_af,
             self.distribution, cut_off_tuple)
-        enrich_df = self.subset_deepcopy_df(enrich_df)
+        # enrich_df = self.subset_deepcopy_df(enrich_df)
         # var_list = self.calculate_var_enrichment(enrich_df)
         gene_list = self.calculate_gene_enrichment(enrich_df)
         out_list = list(cut_off_tuple)
@@ -255,6 +255,7 @@ class Enrich(object):
             'gene')['expr_outlier'].transform('sum') > 0
         joined_df.loc[:, 'gene_has_NEG_out_w_vars'] = joined_df.groupby(
             'gene')['expr_outlier_neg'].transform('sum') > 0
+        joined_df = joined_df.loc[joined_df.gene_has_out_w_vars]
         # classify as rare/common
         joined_df.loc[:, "rare_variant_status"] = (
             joined_df.popmax_af <= af_cut_off) & (
@@ -284,12 +285,10 @@ class Enrich(object):
         """
         enrich_df['gene_has_rare_var'] = enrich_df.groupby(
             ['gene', 'blinded_id'])['rare_variant_status'].transform('sum') > 0
-        print(enrich_df)
         enrich_df = enrich_df.loc[:, [
             'gene', 'blinded_id', 'expr_outlier', 'expr_outlier_neg',
             'gene_has_NEG_out_w_vars', 'gene_has_rare_var']
             ].drop_duplicates(keep='first')
-        print(enrich_df)
         out_tb = pd.crosstab(enrich_df.gene_has_rare_var,
                              enrich_df.expr_outlier)
         print(out_tb)
@@ -348,9 +347,6 @@ class Enrich(object):
                     out_list = [0] + out_list
                 else:
                     out_list.append(0)
-            # elif out_tb.columns == np.array([True]):
-            #     out_list = [0] + out_list
-            #     out_list.insert(2, 0)
             else:
                 out_list.append(0)
         return out_list
@@ -386,7 +382,7 @@ class Enrich(object):
             enrich_df, max_intrapop_af,
             distribution=self.distribution, cut_off_tuple=cut_off_tuple)
         print("outlier DF size", outlier_df.shape)
-        outlier_df = self.subset_deepcopy_df(outlier_df)
+        # outlier_df = self.subset_deepcopy_df(outlier_df)
         # outlier_df.to_csv("test_all_joined.txt", index=False, sep="\t")
         # only keep outliers with rare variants
         print("outlier DF size post subset", outlier_df.shape)
