@@ -88,7 +88,6 @@ class Enrich(object):
             # print("gene count:", len(var_df_per_chrom.gene.unique()))
             var_df_per_chrom.set_index(['gene', 'blinded_id'], inplace=True)
             # remove regions in repeats
-            # var_df_per_chrom = var_df_per_chrom[var_df_per_chrom.rmsk == 0]
             if annovar_func:
                 var_df_per_chrom = self.filter_refgene_ensgene(
                     var_df_per_chrom, annovar_func, refgene, ensgene)
@@ -144,18 +143,22 @@ class Enrich(object):
             af_cut_off_vec = [af_cut_off_vec]
         cartesian_iter = itertools.product(expr_cut_off_vec,
                                            tss_cut_off_vec,
-                                           af_cut_off_vec,
-                                           anno_list[:5])
+                                           af_cut_off_vec)
         # https://stackoverflow.com/questions/533905/get-the-cartesian-product-of-a-series-of-lists
         enrichment_per_tuple_partial = partial(
             self.enrichment_per_tuple)
         # run either multi-core or single core
         print("Using {} cores, less than all {} cores".format(
               n_processes, cpu_count()))
-        with Pool(n_processes) as p:
-            out_line_list = p.map(enrichment_per_tuple_partial,
-                                  cartesian_iter)
-        self.write_enrichment_to_file(out_line_list)
+        for anno in anno_list[:5]:
+            self.anno_df = copy.deepcopy(self.joined_df)
+            self.anno_df = self.anno_df.loc[:, anno] == 1
+            with Pool(n_processes) as p:
+                out_line_list = p.map(enrichment_per_tuple_partial,
+                                      cartesian_iter)
+            [i.extend(anno) for i in out_line_list]
+            print(out_line_list[0])
+            self.write_enrichment_to_file(out_line_list)
 
     def enrichment_per_tuple(self, cut_off_tuple):
         """Calculate enrichment for each tuple.
@@ -165,11 +168,11 @@ class Enrich(object):
 
         """
         print("Calculating enrichment for", cut_off_tuple)
-        enrich_df = copy.deepcopy(self.joined_df)
+        enrich_df = copy.deepcopy(self.anno_df)  # self.joined_df
         # keep only a specific annotation cut_off_tuple[3]
-        print("Subsetting by", cut_off_tuple[3], "from DF w", enrich_df.shape)
-        enrich_df = enrich_df.loc[cut_off_tuple[3] == 1]
-        print("new DF dimensions", enrich_df.shape)
+        # print("Subsetting by", cut_off_tuple[3], "from DF w",enrich_df.shape)
+        # enrich_df = enrich_df.loc[cut_off_tuple[3] == 1]
+        # print("new DF dimensions", enrich_df.shape)
         if enrich_df.shape[0] == 0:
             return "NA_line"
         max_intrapop_af = self.get_max_intra_pop_af(
@@ -198,9 +201,11 @@ class Enrich(object):
         # This line raises a SettingWithCopyWarning
         # enrich_df.loc[:, 'gene_has_rare_vars'] = enrich_df.groupby(
         #     'gene')['rare_variant_status'].transform('sum') > 0
-        enrich_df['gene_has_rare_vars'] = enrich_df.groupby(
-            'gene')['rare_variant_status'].transform('sum')
-        enrich_df.gene_has_rare_vars = enrich_df.gene_has_rare_vars > 0
+        genes_w_rvs = enrich_df.groupby(
+            'gene')['rare_variant_status'].transform('sum') > 0
+        print(genes_w_rvs.head())
+        enrich_df.loc[:, 'gene_has_rare_vars'] = genes_w_rvs
+        print(enrich_df.shape)
         enrich_df = enrich_df.loc[enrich_df.gene_has_rare_vars]
         return enrich_df
 
@@ -310,13 +315,13 @@ class Enrich(object):
         """Write the enrichment results to a file."""
         with open(self.enrich_loc, 'w') as enrich_f:
             header_list = ["expr_cut_off", "tss_cut_off", "af_cut_off",
-                           "annotaion",
                            # "var_or", "var_p", "var_neg_or", "var_neg_p",
                            "not_rare_not_out", "not_rare_out",
                            "rare_not_out", "rare_out",
                            "not_rare_not_out_neg", "not_rare_out_neg",
                            "rare_not_out_neg", "rare_out_neg",
-                           "gene_or", "gene_p", "gene_neg_or", "gene_neg_p"]
+                           "gene_or", "gene_p", "gene_neg_or", "gene_neg_p",
+                           "annotaion"]
             enrich_f.write("\t".join(header_list) + "\n")
             for out_line in out_line_list:
                 enrich_f.write(out_line + "\n")
