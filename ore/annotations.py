@@ -255,10 +255,7 @@ class Annotations(object):
         final_df = clean_df.join(long012_df.set_index('var_id'), how='inner')
         # print("012 long joined with annotated DF size:", final_df.shape)
         print("Getting intra-cohort variant counts/frequency")
-        # final_df['var_id'] = final_df.index
         final_df.reset_index(inplace=True)
-        # final_df['var_id_count'] = final_df.groupby(
-        #     'var_id')['var_id'].transform('count')
         final_df['var_id_count'] = final_df.groupby(
             'var_id')['GT'].transform('sum')
         # multiply by 2 for autosomes, 1 for sex chromosomes in MALES
