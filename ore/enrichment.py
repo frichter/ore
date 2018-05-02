@@ -29,7 +29,7 @@ class Enrich(object):
     """
 
     def __init__(self, var_loc, expr_outs_loc, enrich_loc, rv_outlier_loc,
-                 distribution, annovar_func, refgene, ensgene, contigs):
+                 distribution, variant_class, refgene, ensgene, contigs):
         """Load and join variants and outliers.
 
         Args:
@@ -40,7 +40,7 @@ class Enrich(object):
             `rv_outlier_loc`: file location with the final set of
                 outlier-variant pairs
             `distribution`: type of distribution being used for outliers
-            `annovar_func`: annovar variant class to filter on (default None)
+            `variant_class`: annovar variant class to filter on (default None)
             `contigs`: chromosomes that are in the VCF
 
         Attributes:
@@ -52,13 +52,13 @@ class Enrich(object):
         self.enrich_loc = enrich_loc
         self.distribution = distribution
         self.rv_outlier_loc = rv_outlier_loc
-        self.load_vars(contigs, annovar_func, refgene, ensgene)
+        self.load_vars(contigs, variant_class, refgene, ensgene)
         self.load_outliers()
         print("joining outliers with variants...")
         self.joined_df = self.var_df.join(self.expr_outlier_df, how='inner')
         self.joined_df.reset_index(inplace=True)
 
-    def load_vars(self, contigs, annovar_func, refgene, ensgene):
+    def load_vars(self, contigs, variant_class, refgene, ensgene):
         """Load and combine variant data.
 
         Attributes:
@@ -68,37 +68,32 @@ class Enrich(object):
         print("Loading variants...")
         self.var_df = pd.DataFrame()
         list_ = []
-        # cols_to_keep = ['popmax_af', 'var_id', 'tss_dist', 'func_refgene',
-        #                 'exon_func_refgene', 'func_ensgene',
-        #                 'exon_func_ensgene', 'var_id_freq']
+        cols_to_keep = ['popmax_af', 'var_id', 'tss_dist', 'func_refgene',
+                        'exon_func_refgene', 'func_ensgene',
+                        'exon_func_ensgene', 'var_id_count', 'var_id_freq']
         dtype_specs = {
             'dist_refgene': 'str', 'exon_func_refgene': 'str',
             'dist_ensgene': 'str', 'exon_func_ensgene': 'str'}
-        if annovar_func:
-            print("Keeping only {} variants".format(annovar_func))
-            if refgene and ensgene:
-                print("...where ENSEMBL and RefGene function match")
-            elif refgene:
-                print("...in RefGene")
-            elif ensgene:
-                print("...in ENSEMBL")
         for chrom in contigs:
             # "wgs_pcgc_singletons_per_chrom/enh_var_hets_chr" + chrom + ".txt"
             print("chr" + chrom)
             var_df_per_chrom = pd.read_table(
                 self.var_loc % ("chr" + chrom), dtype=dtype_specs)
-            # , low_memory=False
-            # Trying withOUT low_memory=False to avoid segfault
-            # print("gene count:", len(var_df_per_chrom.gene.unique()))
             var_df_per_chrom.set_index(['gene', 'blinded_id'], inplace=True)
             # remove regions in repeats
-            if annovar_func:
+            if variant_class:
                 var_df_per_chrom = self.filter_refgene_ensgene(
-                    var_df_per_chrom, annovar_func, refgene, ensgene)
-            # var_df_per_chrom = var_df_per_chrom[cols_to_keep]
+                    var_df_per_chrom, variant_class, refgene, ensgene)
+            print(list(var_df_per_chrom)[15:20])
+            cols_to_keep.extend(list(var_df_per_chrom)[20:100])
+            print(cols_to_keep)
+            var_df_per_chrom = var_df_per_chrom[cols_to_keep]
+            print(var_df_per_chrom.shape)
             list_.append(var_df_per_chrom)
+        print("All contigs/chromosomes loaded")
         self.var_df = pd.concat(list_)
-        if annovar_func:
+        print(self.var_df.shape)
+        if variant_class:
             print("Considering variants in the following categories",
                   set(self.var_df.func_refgene))
         # if exon_class:
@@ -106,16 +101,16 @@ class Enrich(object):
         #           set(self.var_df.exon_func_refgene))
 
     @staticmethod
-    def filter_refgene_ensgene(var_df_per_chrom, annovar_func,
+    def filter_refgene_ensgene(var_df_per_chrom, variant_class,
                                refgene, ensgene):
         """Filter for a refgene function, ensembl function or both."""
         if refgene:
             vars_refgene = var_df_per_chrom.func_refgene.str.contains(
-                annovar_func)
+                variant_class)
             var_df_per_chrom = var_df_per_chrom[vars_refgene]
         if ensgene:
             vars_ensgene = var_df_per_chrom.func_ensgene.str.contains(
-                annovar_func)
+                variant_class)
             var_df_per_chrom = var_df_per_chrom[vars_ensgene]
         return var_df_per_chrom
 
@@ -139,7 +134,7 @@ class Enrich(object):
             n_processes (:obj:`int`): number of processes to use
 
         """
-        anno_list = [i for i in range(20, 350)]
+        anno_list = [i for i in range(20, 50)]
         if isinstance(expr_cut_off_vec, float):
             expr_cut_off_vec = [expr_cut_off_vec]
         if isinstance(tss_cut_off_vec, float):
