@@ -74,7 +74,7 @@ class Enrich(object):
         dtype_specs = {
             'dist_refgene': 'str', 'exon_func_refgene': 'str',
             'dist_ensgene': 'str', 'exon_func_ensgene': 'str'}
-        for chrom in ["21", "22"]:  # contigs:  # for testing:
+        for chrom in contigs:  # ["21", "22"]:  #
             # "wgs_pcgc_singletons_per_chrom/enh_var_hets_chr" + chrom + ".txt"
             print("chr" + chrom)
             var_df_per_chrom = pd.read_table(
@@ -155,11 +155,10 @@ class Enrich(object):
             tss_cut_off_vec = [tss_cut_off_vec]
         if isinstance(af_cut_off_vec, float):
             af_cut_off_vec = [af_cut_off_vec]
-        print(anno_list[:3])
         cartesian_iter = itertools.product(expr_cut_off_vec,
                                            tss_cut_off_vec,
                                            af_cut_off_vec,
-                                           [73])  # anno_list
+                                           anno_list)
         # https://stackoverflow.com/questions/533905/get-the-cartesian-product-of-a-series-of-lists
         enrichment_per_tuple_partial = partial(
             self.enrichment_per_tuple)
