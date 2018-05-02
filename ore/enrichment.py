@@ -155,9 +155,12 @@ class Enrich(object):
             self.enrichment_per_tuple)
         print("Using {} cores, less than all {} cores".format(
               n_processes, cpu_count()))
-        with Pool(n_processes) as p:
-            out_line_list = p.map(enrichment_per_tuple_partial,
-                                  cartesian_iter)
+        # with Pool(n_processes) as p:
+        #     out_line_list = p.map(enrichment_per_tuple_partial,
+        #                           cartesian_iter)
+        out_line_list = []
+        for cut_off_tuple in cartesian_iter:
+            out_line_list.append(enrichment_per_tuple_partial(cut_off_tuple))
         # print(out_line_list[0])
         # [i + "\t" + anno for i in out_line_list]
         print(out_line_list[0])
