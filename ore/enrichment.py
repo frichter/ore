@@ -219,6 +219,7 @@ class Enrich(object):
         # classify as within x kb of TSS
         joined_df["near_TSS"] = abs(joined_df.tss_dist) <= tss_cut_off
         joined_df = joined_df.loc[joined_df.near_TSS]
+        print("filtered by TSS:", joined_df.shape)
         # update outliers based on more extreme cut-offs
         if distribution == "normal":
             joined_df.expr_outlier = (
@@ -240,6 +241,7 @@ class Enrich(object):
         joined_df.loc[:, 'gene_has_NEG_out_w_vars'] = joined_df.groupby(
             'gene')['expr_outlier_neg'].transform('sum') > 0
         joined_df = joined_df.loc[joined_df.gene_has_out_w_vars]
+        print("filtered by if gene has outlier:", joined_df.shape)
         # classify as rare/common
         joined_df.loc[:, "rare_variant_status"] = (
             joined_df.popmax_af <= af_cut_off) & (
@@ -377,17 +379,12 @@ class Enrich(object):
         cut_off_tuple = (out_cut_off, tss_cut_off, af_cut_off)
         enrich_df = copy.deepcopy(self.joined_df)
         max_intrapop_af = self.get_max_intra_pop_af(enrich_df, af_cut_off)
-        print("Intra-population AF cut-off for rare:", max_intrapop_af)
-        print("enrichment DF size", enrich_df.shape)
         outlier_df = self.identify_rows_to_keep(
             enrich_df, max_intrapop_af,
             distribution=self.distribution, cut_off_tuple=cut_off_tuple)
-        print("outlier DF size", outlier_df.shape)
         # only keep outliers with rare variants
-        print("outlier DF size post subset", outlier_df.shape)
         outlier_df = outlier_df.loc[
             outlier_df.rare_variant_status & outlier_df.expr_outlier]
-        print("outlier DF after filtering for RVs/outliers", outlier_df.shape)
         # cols_to_keep = ["blinded_id", "gene", "z_expr", "tss_dist",
         #                 "var_id", "popmax_af", "var_id_freq"]
         # outlier_df = outlier_df[cols_to_keep]
