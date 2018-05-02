@@ -211,9 +211,9 @@ class Enrich(object):
         genes_w_rvs = enrich_df.groupby(
             'gene')['rare_variant_status'].transform('sum') > 0
         print(genes_w_rvs.head())
-        print(genes_w_rvs.rare_variant_status.head())
+        print(genes_w_rvs.head())
         print(genes_w_rvs.values.head())
-        enrich_df.loc[:, 'gene_has_rare_vars'] = genes_w_rvs
+        enrich_df.loc[:, 'gene_has_rare_vars'] = genes_w_rvs.values
         print(enrich_df.shape)
         enrich_df = enrich_df.loc[enrich_df.gene_has_rare_vars]
         return enrich_df
