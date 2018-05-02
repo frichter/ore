@@ -87,7 +87,6 @@ class Enrich(object):
             # [18:118] [118:218] [218:-2]
             if len(cols_to_keep) == 9:
                 cols_to_keep.extend(list(var_df_per_chrom)[18:118])
-            print(cols_to_keep)
             var_df_per_chrom = var_df_per_chrom[cols_to_keep]
             list_.append(var_df_per_chrom)
         print("All contigs/chromosomes loaded")
