@@ -152,7 +152,8 @@ class Enrich(object):
               n_processes, cpu_count()))
         for anno in anno_list[:5]:
             self.anno_df = copy.deepcopy(self.joined_df)
-            self.anno_df = self.anno_df.loc[:, anno] == 1
+            self.anno_df = self.anno_df[self.anno_df[anno] == 1]
+            print(self.anno_df.shape)
             with Pool(n_processes) as p:
                 out_line_list = p.map(enrichment_per_tuple_partial,
                                       cartesian_iter)
