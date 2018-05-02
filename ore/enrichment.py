@@ -150,6 +150,11 @@ class Enrich(object):
                                            tss_cut_off_vec,
                                            af_cut_off_vec,
                                            anno_list[1:3])
+        print([i for i in cartesian_iter])
+        cartesian_iter = itertools.product(expr_cut_off_vec,
+                                           tss_cut_off_vec,
+                                           af_cut_off_vec,
+                                           anno_list[1:3])
         # https://stackoverflow.com/questions/533905/get-the-cartesian-product-of-a-series-of-lists
         enrichment_per_tuple_partial = partial(
             self.enrichment_per_tuple)
