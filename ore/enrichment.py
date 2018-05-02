@@ -74,7 +74,7 @@ class Enrich(object):
         dtype_specs = {
             'dist_refgene': 'str', 'exon_func_refgene': 'str',
             'dist_ensgene': 'str', 'exon_func_ensgene': 'str'}
-        for chrom in contigs[6:8]:
+        for chrom in ["21", "22"]:  # contigs[6:8]:
             # "wgs_pcgc_singletons_per_chrom/enh_var_hets_chr" + chrom + ".txt"
             print("chr" + chrom)
             var_df_per_chrom = pd.read_table(
@@ -85,7 +85,8 @@ class Enrich(object):
                 var_df_per_chrom = self.filter_refgene_ensgene(
                     var_df_per_chrom, variant_class, refgene, ensgene)
             # [18:118] [118:218] [218:-2]
-            cols_to_keep.extend(list(var_df_per_chrom)[18:40])
+            if len(cols_to_keep) == 9:
+                cols_to_keep.extend(list(var_df_per_chrom)[18:40])
             print(cols_to_keep)
             var_df_per_chrom = var_df_per_chrom[cols_to_keep]
             list_.append(var_df_per_chrom)
