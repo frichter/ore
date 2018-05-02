@@ -187,8 +187,8 @@ class Enrich(object):
         """
         print("Calculating enrichment for", cut_off_tuple)
         enrich_df = copy.deepcopy(self.joined_df)
-        print(enrich_df[cut_off_tuple.ix[:, 3]].head())
-        in_anno = enrich_df[cut_off_tuple.ix[:, 3]] == 1
+        print(enrich_df.ix[:, cut_off_tuple[3]].head())
+        in_anno = enrich_df.ix[:, cut_off_tuple[3]] == 1
         # keep only a specific annotation cut_off_tuple[3]
         print("Subsetting by", cut_off_tuple[3], "from DF w", enrich_df.shape)
         enrich_df = enrich_df.loc[in_anno]
