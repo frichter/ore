@@ -84,8 +84,9 @@ class Enrich(object):
             if variant_class:
                 var_df_per_chrom = self.filter_refgene_ensgene(
                     var_df_per_chrom, variant_class, refgene, ensgene)
-            # [18:118] [118:218] [218:]
-            cols_to_keep.extend(list(var_df_per_chrom)[18:118])
+            # [18:118] [118:218] [218:-2]
+            cols_to_keep.extend(list(var_df_per_chrom)[18:40])
+            print(cols_to_keep)
             var_df_per_chrom = var_df_per_chrom[cols_to_keep]
             list_.append(var_df_per_chrom)
         print("All contigs/chromosomes loaded")
