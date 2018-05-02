@@ -180,6 +180,7 @@ class Enrich(object):
         print("current column:", current_anno)
         in_anno = enrich_df.loc[:, current_anno] == 1
         del cut_off_tuple[-1]
+        cut_off_tuple = tuple(list(cut_off_tuple)[:-1])
         print("new cut-off tuple:", cut_off_tuple)
         # keep only a specific annotation cut_off_tuple[3]
         enrich_df = enrich_df.loc[in_anno]
