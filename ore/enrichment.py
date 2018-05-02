@@ -155,17 +155,18 @@ class Enrich(object):
         # run either multi-core or single core
         print("Using {} cores, less than all {} cores".format(
               n_processes, cpu_count()))
-        # for anno in anno_list[:5]:
-        anno = anno_list[0]
-        self.anno_df = copy.deepcopy(self.joined_df)
-        self.anno_df = self.anno_df[self.anno_df[anno] == 1]
-        print(self.anno_df.shape)
-        with Pool(n_processes) as p:
-            out_line_list = p.map(enrichment_per_tuple_partial,
-                                  cartesian_iter)
-        [i.extend(anno) for i in out_line_list]
-        print(out_line_list[0])
-        self.write_enrichment_to_file(out_line_list)
+        for anno in anno_list[1:3]:
+            # anno = anno_list[0]
+            self.anno_df = copy.deepcopy(self.joined_df)
+            self.anno_df = self.anno_df[self.anno_df[anno] == 1]
+            print(self.anno_df.shape)
+            with Pool(n_processes) as p:
+                out_line_list = p.map(enrichment_per_tuple_partial,
+                                      cartesian_iter)
+            print(out_line_list[0])
+            [i + "\t" + anno for i in out_line_list]
+            print(out_line_list[0])
+            self.write_enrichment_to_file(out_line_list)
 
     def enrichment_per_tuple(self, cut_off_tuple):
         """Calculate enrichment for each tuple.
