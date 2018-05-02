@@ -46,6 +46,10 @@ class Outliers(object):
             :obj:`RNASeqError`: if `distribution` is not valid, i.e., not in
                 ["normal", "rank", "custom"]
 
+        TODO:
+            low_memory is deprecated so instead specify any ambiguous dtypes
+            https://stackoverflow.com/questions/24251219/pandas-read-csv-low-memory-and-dtype-options
+
         """
         gene_expr_df = pd.read_table(pheno_loc, low_memory=False)
         gene_expr_df = gene_expr_df.iloc[:, 3:]

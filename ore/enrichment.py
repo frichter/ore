@@ -139,9 +139,6 @@ class Enrich(object):
             n_processes (:obj:`int`): number of processes to use
 
         """
-        # anno_list = list(self.joined_df)[20:-9]
-        # print(anno_list[:5])
-        # print(anno_list[-5:])
         anno_list = [i for i in range(20, 25)]
         if isinstance(expr_cut_off_vec, float):
             expr_cut_off_vec = [expr_cut_off_vec]
@@ -149,12 +146,6 @@ class Enrich(object):
             tss_cut_off_vec = [tss_cut_off_vec]
         if isinstance(af_cut_off_vec, float):
             af_cut_off_vec = [af_cut_off_vec]
-        print(expr_cut_off_vec, tss_cut_off_vec, af_cut_off_vec)
-        cartesian_iter = itertools.product(expr_cut_off_vec,
-                                           tss_cut_off_vec,
-                                           af_cut_off_vec,
-                                           anno_list[:3])
-        print([i for i in cartesian_iter])
         cartesian_iter = itertools.product(expr_cut_off_vec,
                                            tss_cut_off_vec,
                                            af_cut_off_vec,
@@ -162,14 +153,8 @@ class Enrich(object):
         # https://stackoverflow.com/questions/533905/get-the-cartesian-product-of-a-series-of-lists
         enrichment_per_tuple_partial = partial(
             self.enrichment_per_tuple)
-        # run either multi-core or single core
         print("Using {} cores, less than all {} cores".format(
               n_processes, cpu_count()))
-        # for anno in anno_list[1:3]:
-        # anno = anno_list[0]
-        # self.anno_df = copy.deepcopy(self.joined_df)
-        # self.anno_df = self.anno_df[self.anno_df[anno] == 1]
-        # print(self.anno_df.shape)
         with Pool(n_processes) as p:
             out_line_list = p.map(enrichment_per_tuple_partial,
                                   cartesian_iter)
@@ -188,6 +173,8 @@ class Enrich(object):
         print("Calculating enrichment for", cut_off_tuple)
         enrich_df = copy.deepcopy(self.joined_df)
         print(enrich_df.ix[:, cut_off_tuple[3]].head())
+        current_anno = list(enrich_df)[cut_off_tuple[3]]
+        print("current column:", current_anno)
         in_anno = enrich_df.ix[:, cut_off_tuple[3]] == 1
         # keep only a specific annotation cut_off_tuple[3]
         print("Subsetting by", cut_off_tuple[3], "from DF w", enrich_df.shape)
