@@ -71,6 +71,9 @@ class Enrich(object):
         # cols_to_keep = ['popmax_af', 'var_id', 'tss_dist', 'func_refgene',
         #                 'exon_func_refgene', 'func_ensgene',
         #                 'exon_func_ensgene', 'var_id_freq']
+        dtype_specs = {
+            'dist_refgene': 'float64', 'exon_func_refgene': 'str',
+            'dist_ensgene': 'float64', 'exon_func_ensgene': 'str'}
         if annovar_func:
             print("Keeping only {} variants".format(annovar_func))
             if refgene and ensgene:
@@ -83,7 +86,8 @@ class Enrich(object):
             # "wgs_pcgc_singletons_per_chrom/enh_var_hets_chr" + chrom + ".txt"
             print("chr" + chrom)
             var_df_per_chrom = pd.read_table(
-                self.var_loc % ("chr" + chrom))  # , low_memory=False
+                self.var_loc % ("chr" + chrom), dtype=dtype_specs)
+            # , low_memory=False
             # Trying withOUT low_memory=False to avoid segfault
             # print("gene count:", len(var_df_per_chrom.gene.unique()))
             var_df_per_chrom.set_index(['gene', 'blinded_id'], inplace=True)
@@ -141,6 +145,7 @@ class Enrich(object):
             tss_cut_off_vec = [tss_cut_off_vec]
         if isinstance(af_cut_off_vec, float):
             af_cut_off_vec = [af_cut_off_vec]
+        print(expr_cut_off_vec, tss_cut_off_vec, af_cut_off_vec)
         cartesian_iter = itertools.product(expr_cut_off_vec,
                                            tss_cut_off_vec,
                                            af_cut_off_vec)
@@ -150,16 +155,17 @@ class Enrich(object):
         # run either multi-core or single core
         print("Using {} cores, less than all {} cores".format(
               n_processes, cpu_count()))
-        for anno in anno_list[:5]:
-            self.anno_df = copy.deepcopy(self.joined_df)
-            self.anno_df = self.anno_df[self.anno_df[anno] == 1]
-            print(self.anno_df.shape)
-            with Pool(n_processes) as p:
-                out_line_list = p.map(enrichment_per_tuple_partial,
-                                      cartesian_iter)
-            [i.extend(anno) for i in out_line_list]
-            print(out_line_list[0])
-            self.write_enrichment_to_file(out_line_list)
+        # for anno in anno_list[:5]:
+        anno = anno_list[0]
+        self.anno_df = copy.deepcopy(self.joined_df)
+        self.anno_df = self.anno_df[self.anno_df[anno] == 1]
+        print(self.anno_df.shape)
+        with Pool(n_processes) as p:
+            out_line_list = p.map(enrichment_per_tuple_partial,
+                                  cartesian_iter)
+        [i.extend(anno) for i in out_line_list]
+        print(out_line_list[0])
+        self.write_enrichment_to_file(out_line_list)
 
     def enrichment_per_tuple(self, cut_off_tuple):
         """Calculate enrichment for each tuple.
@@ -205,6 +211,8 @@ class Enrich(object):
         genes_w_rvs = enrich_df.groupby(
             'gene')['rare_variant_status'].transform('sum') > 0
         print(genes_w_rvs.head())
+        print(genes_w_rvs.rare_variant_status.head())
+        print(genes_w_rvs.values.head())
         enrich_df.loc[:, 'gene_has_rare_vars'] = genes_w_rvs
         print(enrich_df.shape)
         enrich_df = enrich_df.loc[enrich_df.gene_has_rare_vars]
