@@ -141,10 +141,11 @@ class Enrich(object):
             tss_cut_off_vec = [tss_cut_off_vec]
         if isinstance(af_cut_off_vec, float):
             af_cut_off_vec = [af_cut_off_vec]
+        print(anno_list[:3])
         cartesian_iter = itertools.product(expr_cut_off_vec,
                                            tss_cut_off_vec,
                                            af_cut_off_vec,
-                                           anno_list)
+                                           73)  # anno_list
         # https://stackoverflow.com/questions/533905/get-the-cartesian-product-of-a-series-of-lists
         enrichment_per_tuple_partial = partial(
             self.enrichment_per_tuple)
@@ -158,7 +159,6 @@ class Enrich(object):
             out_list = enrichment_per_tuple_partial(cut_off_tuple)
             print(out_list)
             out_line_list.append(out_list)
-            break
         self.write_enrichment_to_file(out_line_list)
 
     def enrichment_per_tuple(self, cut_off_tuple):
@@ -171,7 +171,6 @@ class Enrich(object):
         print("Calculating enrichment for", cut_off_tuple)
         enrich_df = copy.deepcopy(self.joined_df)
         current_anno = list(enrich_df)[cut_off_tuple[3]]
-        current_anno = "E105_15_coreMarks_6"
         print("current column:", current_anno)
         in_anno = enrich_df.loc[:, current_anno] == 1
         # keep only a specific annotation
@@ -270,6 +269,7 @@ class Enrich(object):
         """
         enrich_df['gene_has_rare_var'] = enrich_df.groupby(
             ['gene', 'blinded_id'])['rare_variant_status'].transform('sum') > 0
+        print(enrich_df)
         enrich_df = enrich_df.loc[:, [
             'gene', 'blinded_id', 'expr_outlier', 'expr_outlier_neg',
             'gene_has_NEG_out_w_vars', 'gene_has_rare_var']
