@@ -198,7 +198,7 @@ class Enrich(object):
         # out_list.extend(var_list)
         out_list.extend(gene_list)
         print(out_list)
-        return "\t".join([str(i) for i in out_list])
+        return "\t".join([str(i) for i in out_list]) + "\t" + current_anno
 
     def subset_deepcopy_df(self, enrich_df):
         """Subset a deep copy of the dataframe.
