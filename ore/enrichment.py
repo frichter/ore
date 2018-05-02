@@ -74,7 +74,7 @@ class Enrich(object):
         dtype_specs = {
             'dist_refgene': 'str', 'exon_func_refgene': 'str',
             'dist_ensgene': 'str', 'exon_func_ensgene': 'str'}
-        for chrom in contigs:
+        for chrom in contigs[6:8]:
             # "wgs_pcgc_singletons_per_chrom/enh_var_hets_chr" + chrom + ".txt"
             print("chr" + chrom)
             var_df_per_chrom = pd.read_table(
@@ -84,11 +84,9 @@ class Enrich(object):
             if variant_class:
                 var_df_per_chrom = self.filter_refgene_ensgene(
                     var_df_per_chrom, variant_class, refgene, ensgene)
-            print(list(var_df_per_chrom)[15:20])
-            cols_to_keep.extend(list(var_df_per_chrom)[20:120])
-            print(cols_to_keep)
+            # [18:118] [118:218] [218:]
+            cols_to_keep.extend(list(var_df_per_chrom)[18:118])
             var_df_per_chrom = var_df_per_chrom[cols_to_keep]
-            print(var_df_per_chrom.shape)
             list_.append(var_df_per_chrom)
         print("All contigs/chromosomes loaded")
         self.var_df = pd.concat(list_)
@@ -134,7 +132,9 @@ class Enrich(object):
             n_processes (:obj:`int`): number of processes to use
 
         """
-        anno_list = [i for i in range(20, 50)]
+        print("Anno column final index:", self.joined_df.shape[1])
+        anno_list = [i for i in range(9, self.joined_df.shape[1])]
+        print(anno_list[:5])
         if isinstance(expr_cut_off_vec, float):
             expr_cut_off_vec = [expr_cut_off_vec]
         if isinstance(tss_cut_off_vec, float):
