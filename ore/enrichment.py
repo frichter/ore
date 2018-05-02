@@ -12,7 +12,7 @@
 import itertools
 import copy
 from functools import partial
-from multiprocessing import Pool, cpu_count
+# from multiprocessing import Pool, cpu_count
 
 import pandas as pd
 import numpy as np
@@ -139,7 +139,7 @@ class Enrich(object):
             n_processes (:obj:`int`): number of processes to use
 
         """
-        anno_list = [i for i in range(20, 25)]
+        anno_list = [i for i in range(20, 350)]
         if isinstance(expr_cut_off_vec, float):
             expr_cut_off_vec = [expr_cut_off_vec]
         if isinstance(tss_cut_off_vec, float):
@@ -149,12 +149,12 @@ class Enrich(object):
         cartesian_iter = itertools.product(expr_cut_off_vec,
                                            tss_cut_off_vec,
                                            af_cut_off_vec,
-                                           anno_list[:3])
+                                           anno_list)
         # https://stackoverflow.com/questions/533905/get-the-cartesian-product-of-a-series-of-lists
         enrichment_per_tuple_partial = partial(
             self.enrichment_per_tuple)
-        print("Using {} cores, less than all {} cores".format(
-              n_processes, cpu_count()))
+        # print("Using {} cores, less than all {} cores".format(
+        #       n_processes, cpu_count()))
         # with Pool(n_processes) as p:
         #     out_line_list = p.map(enrichment_per_tuple_partial,
         #                           cartesian_iter)
@@ -175,17 +175,18 @@ class Enrich(object):
         """
         print("Calculating enrichment for", cut_off_tuple)
         enrich_df = copy.deepcopy(self.joined_df)
-        print(enrich_df.ix[:, cut_off_tuple[3]].head())
         current_anno = list(enrich_df)[cut_off_tuple[3]]
         print("current column:", current_anno)
         in_anno = enrich_df.loc[:, current_anno] == 1
-        cut_off_tuple = tuple(list(cut_off_tuple)[:-1])
-        print("new cut-off tuple:", cut_off_tuple)
-        # keep only a specific annotation cut_off_tuple[3]
+        # keep only a specific annotation
         enrich_df = enrich_df.loc[in_anno]
         print("new DF dimensions", enrich_df.shape)
+        # remove annotation column index number from tuple
+        cut_off_tuple = tuple(list(cut_off_tuple)[:-1])
         if enrich_df.shape[0] == 0:
             return "NA_line"
+        # replace af_cut_off with intra-cohort minimum if former is
+        # smaller than latter
         max_intrapop_af = self.get_max_intra_pop_af(
             enrich_df, cut_off_tuple[2])
         enrich_df = self.identify_rows_to_keep(
@@ -256,7 +257,8 @@ class Enrich(object):
         # classify as rare/common
         joined_df.loc[:, "rare_variant_status"] = (
             joined_df.popmax_af <= af_cut_off) & (
-            joined_df.var_id_freq <= max_intrapop_af)
+            # joined_df.var_id_freq <= max_intrapop_af)
+            joined_df.var_id_count <= 5)
         return joined_df
 
     @staticmethod
