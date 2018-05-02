@@ -312,7 +312,10 @@ class Enrich(object):
                            "annotaion"]
             enrich_f.write("\t".join(header_list) + "\n")
             for out_line in out_line_list:
-                enrich_f.write(out_line + "\n")
+                if not out_line.startswith("NA_line"):
+                    enrich_f.write(out_line + "\n")
+                else:
+                    print("Skipping", out_line)
 
     @staticmethod
     def flatten_crosstab(out_tb):
