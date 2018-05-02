@@ -85,7 +85,7 @@ class Enrich(object):
                 var_df_per_chrom = self.filter_refgene_ensgene(
                     var_df_per_chrom, variant_class, refgene, ensgene)
             print(list(var_df_per_chrom)[15:20])
-            cols_to_keep.extend(list(var_df_per_chrom)[20:100])
+            cols_to_keep.extend(list(var_df_per_chrom)[20:120])
             print(cols_to_keep)
             var_df_per_chrom = var_df_per_chrom[cols_to_keep]
             print(var_df_per_chrom.shape)
