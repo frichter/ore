@@ -98,11 +98,12 @@ class Enrich(object):
             # var_df_per_chrom = var_df_per_chrom[cols_to_keep]
             list_.append(var_df_per_chrom)
         self.var_df = pd.concat(list_)
-        print(set(self.var_df.exon_func_refgene),
-              set(self.var_df.exon_func_ensgene))
         if annovar_func:
-            print("Considering variants in the following refseq categories",
+            print("Considering variants in the following categories",
                   set(self.var_df.func_refgene))
+        # if exon_class:
+        #     print("Considering variants in the following Exonic categories",
+        #           set(self.var_df.exon_func_refgene))
 
     @staticmethod
     def filter_refgene_ensgene(var_df_per_chrom, annovar_func,
@@ -138,9 +139,10 @@ class Enrich(object):
             n_processes (:obj:`int`): number of processes to use
 
         """
-        anno_list = list(self.joined_df)[20:-9]
-        print(anno_list[:5])
-        print(anno_list[-5:])
+        # anno_list = list(self.joined_df)[20:-9]
+        # print(anno_list[:5])
+        # print(anno_list[-5:])
+        anno_list = [i for i in range(20, 25)]
         if isinstance(expr_cut_off_vec, float):
             expr_cut_off_vec = [expr_cut_off_vec]
         if isinstance(tss_cut_off_vec, float):
@@ -184,10 +186,12 @@ class Enrich(object):
 
         """
         print("Calculating enrichment for", cut_off_tuple)
-        enrich_df = copy.deepcopy(self.anno_df)  # self.joined_df
+        enrich_df = copy.deepcopy(self.joined_df)
+        print(enrich_df[cut_off_tuple.ix[:, 3]].head())
+        in_anno = enrich_df[cut_off_tuple.ix[:, 3]] == 1
         # keep only a specific annotation cut_off_tuple[3]
         print("Subsetting by", cut_off_tuple[3], "from DF w", enrich_df.shape)
-        enrich_df = enrich_df.loc[cut_off_tuple[3] == 1]
+        enrich_df = enrich_df.loc[in_anno]
         print("new DF dimensions", enrich_df.shape)
         if enrich_df.shape[0] == 0:
             return "NA_line"
@@ -220,9 +224,10 @@ class Enrich(object):
         genes_w_rvs = enrich_df.groupby(
             'gene')['rare_variant_status'].transform('sum') > 0
         print(enrich_df.shape)
-        enrich_df.loc[:, 'gene_has_rare_vars'] = genes_w_rvs.values
+        # enrich_df.loc[:, 'gene_has_rare_vars'] = genes_w_rvs.values
+        # print(enrich_df.shape)
+        enrich_df = enrich_df.loc[genes_w_rvs.values]
         print(enrich_df.shape)
-        enrich_df = enrich_df.loc[enrich_df.gene_has_rare_vars]
         return enrich_df
 
     @staticmethod
@@ -264,13 +269,6 @@ class Enrich(object):
         print(joined_df.rare_variant_status.sum())
         print(max_intrapop_af, af_cut_off)
         print(min(joined_df.popmax_af), min(joined_df.var_id_freq))
-        # Only keep genes with at least 1 rare variant.
-        # joined_df = joined_df[
-        #     joined_df.near_TSS & joined_df.gene_has_out_w_vars]
-        # # confirm each gene has at least 1 rare variant
-        # joined_df['gene_has_rare_vars'] = joined_df.groupby(
-        #     ['gene', 'tissue'])['rare_variant_status'].transform('sum') > 0
-        # joined_df = joined_df[joined_df.gene_has_rare_vars]
         return joined_df
 
     @staticmethod
