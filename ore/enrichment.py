@@ -98,6 +98,8 @@ class Enrich(object):
             # var_df_per_chrom = var_df_per_chrom[cols_to_keep]
             list_.append(var_df_per_chrom)
         self.var_df = pd.concat(list_)
+        print(set(self.var_df.exon_func_refgene),
+              set(self.var_df.exon_func_ensgene))
         if annovar_func:
             print("Considering variants in the following refseq categories",
                   set(self.var_df.func_refgene))
@@ -149,12 +151,12 @@ class Enrich(object):
         cartesian_iter = itertools.product(expr_cut_off_vec,
                                            tss_cut_off_vec,
                                            af_cut_off_vec,
-                                           anno_list[1:3])
+                                           anno_list[:3])
         print([i for i in cartesian_iter])
         cartesian_iter = itertools.product(expr_cut_off_vec,
                                            tss_cut_off_vec,
                                            af_cut_off_vec,
-                                           anno_list[1:3])
+                                           anno_list[:3])
         # https://stackoverflow.com/questions/533905/get-the-cartesian-product-of-a-series-of-lists
         enrichment_per_tuple_partial = partial(
             self.enrichment_per_tuple)
