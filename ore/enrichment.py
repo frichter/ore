@@ -182,7 +182,6 @@ class Enrich(object):
         del cut_off_tuple[-1]
         print("new cut-off tuple:", cut_off_tuple)
         # keep only a specific annotation cut_off_tuple[3]
-        print("Subsetting by", cut_off_tuple[3], "from DF w", enrich_df.shape)
         enrich_df = enrich_df.loc[in_anno]
         print("new DF dimensions", enrich_df.shape)
         if enrich_df.shape[0] == 0:
