@@ -74,7 +74,7 @@ class Enrich(object):
         dtype_specs = {
             'dist_refgene': 'str', 'exon_func_refgene': 'str',
             'dist_ensgene': 'str', 'exon_func_ensgene': 'str'}
-        for chrom in ["21", "22"]:  # contigs[6:8]:
+        for chrom in contigs[6:8]:  # for testing: ["21", "22"]:
             # "wgs_pcgc_singletons_per_chrom/enh_var_hets_chr" + chrom + ".txt"
             print("chr" + chrom)
             var_df_per_chrom = pd.read_table(
@@ -86,7 +86,7 @@ class Enrich(object):
                     var_df_per_chrom, variant_class, refgene, ensgene)
             # [18:118] [118:218] [218:-2]
             if len(cols_to_keep) == 9:
-                cols_to_keep.extend(list(var_df_per_chrom)[18:40])
+                cols_to_keep.extend(list(var_df_per_chrom)[18:118])
             print(cols_to_keep)
             var_df_per_chrom = var_df_per_chrom[cols_to_keep]
             list_.append(var_df_per_chrom)
@@ -176,7 +176,7 @@ class Enrich(object):
         # remove annotation column index number from tuple
         cut_off_tuple = tuple(list(cut_off_tuple)[:-1])
         if enrich_df.shape[0] == 0:
-            return "NA_line"
+            return "NA_line: no overlaps with " + current_anno
         # replace af_cut_off with intra-cohort minimum if former is
         # smaller than latter
         max_intrapop_af = self.get_max_intra_pop_af(
