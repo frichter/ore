@@ -148,25 +148,26 @@ class Enrich(object):
         print(expr_cut_off_vec, tss_cut_off_vec, af_cut_off_vec)
         cartesian_iter = itertools.product(expr_cut_off_vec,
                                            tss_cut_off_vec,
-                                           af_cut_off_vec)
+                                           af_cut_off_vec,
+                                           anno_list[1:3])
         # https://stackoverflow.com/questions/533905/get-the-cartesian-product-of-a-series-of-lists
         enrichment_per_tuple_partial = partial(
             self.enrichment_per_tuple)
         # run either multi-core or single core
         print("Using {} cores, less than all {} cores".format(
               n_processes, cpu_count()))
-        for anno in anno_list[1:3]:
-            # anno = anno_list[0]
-            self.anno_df = copy.deepcopy(self.joined_df)
-            self.anno_df = self.anno_df[self.anno_df[anno] == 1]
-            print(self.anno_df.shape)
-            with Pool(n_processes) as p:
-                out_line_list = p.map(enrichment_per_tuple_partial,
-                                      cartesian_iter)
-            print(out_line_list[0])
-            [i + "\t" + anno for i in out_line_list]
-            print(out_line_list[0])
-            self.write_enrichment_to_file(out_line_list)
+        # for anno in anno_list[1:3]:
+        # anno = anno_list[0]
+        # self.anno_df = copy.deepcopy(self.joined_df)
+        # self.anno_df = self.anno_df[self.anno_df[anno] == 1]
+        # print(self.anno_df.shape)
+        with Pool(n_processes) as p:
+            out_line_list = p.map(enrichment_per_tuple_partial,
+                                  cartesian_iter)
+        # print(out_line_list[0])
+        # [i + "\t" + anno for i in out_line_list]
+        print(out_line_list[0])
+        self.write_enrichment_to_file(out_line_list)
 
     def enrichment_per_tuple(self, cut_off_tuple):
         """Calculate enrichment for each tuple.
@@ -178,9 +179,9 @@ class Enrich(object):
         print("Calculating enrichment for", cut_off_tuple)
         enrich_df = copy.deepcopy(self.anno_df)  # self.joined_df
         # keep only a specific annotation cut_off_tuple[3]
-        # print("Subsetting by", cut_off_tuple[3], "from DF w",enrich_df.shape)
-        # enrich_df = enrich_df.loc[cut_off_tuple[3] == 1]
-        # print("new DF dimensions", enrich_df.shape)
+        print("Subsetting by", cut_off_tuple[3], "from DF w", enrich_df.shape)
+        enrich_df = enrich_df.loc[cut_off_tuple[3] == 1]
+        print("new DF dimensions", enrich_df.shape)
         if enrich_df.shape[0] == 0:
             return "NA_line"
         max_intrapop_af = self.get_max_intra_pop_af(
