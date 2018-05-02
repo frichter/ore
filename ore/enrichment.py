@@ -178,7 +178,9 @@ class Enrich(object):
         print(enrich_df.ix[:, cut_off_tuple[3]].head())
         current_anno = list(enrich_df)[cut_off_tuple[3]]
         print("current column:", current_anno)
-        in_anno = enrich_df.ix[:, cut_off_tuple[3]] == 1
+        in_anno = enrich_df.loc[:, current_anno] == 1
+        del cut_off_tuple[-1]
+        print("new cut-off tuple:", cut_off_tuple)
         # keep only a specific annotation cut_off_tuple[3]
         print("Subsetting by", cut_off_tuple[3], "from DF w", enrich_df.shape)
         enrich_df = enrich_df.loc[in_anno]
