@@ -145,7 +145,7 @@ class Enrich(object):
         cartesian_iter = itertools.product(expr_cut_off_vec,
                                            tss_cut_off_vec,
                                            af_cut_off_vec,
-                                           73)  # anno_list
+                                           [73])  # anno_list
         # https://stackoverflow.com/questions/533905/get-the-cartesian-product-of-a-series-of-lists
         enrichment_per_tuple_partial = partial(
             self.enrichment_per_tuple)
