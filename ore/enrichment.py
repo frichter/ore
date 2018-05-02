@@ -18,8 +18,6 @@ import pandas as pd
 import numpy as np
 from scipy.stats import fisher_exact
 
-# from .utils import anno_file_locations
-
 
 class Enrich(object):
     """Methods and objects for enrichment.
@@ -137,16 +135,9 @@ class Enrich(object):
             n_processes (:obj:`int`): number of processes to use
 
         """
-        # anno_file_loc = anno_file_locations()
-        # print("finding enrichment for annotations here", anno_file_loc)
-        # anno_list = [i for i in glob.iglob(anno_file_loc[0])]
-        # rep_w_blank = ".*/|.merged.sorted|.bed$|.bed.gz$|.txt$"
-        # anno_list = [re.sub(rep_w_blank, "", i) for i in anno_list]
-        # anno_list = [re.sub("all_predictions", "cvdc_enhancers_dickel", i)
-        #              for i in anno_list]
-        anno_list = list(self.joined_df)[21:]
+        anno_list = list(self.joined_df)[19:-9]
         print(anno_list[:5])
-        print(anno_list[-8:])
+        print(anno_list[-5:])
         if isinstance(expr_cut_off_vec, float):
             expr_cut_off_vec = [expr_cut_off_vec]
         if isinstance(tss_cut_off_vec, float):
