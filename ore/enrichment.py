@@ -95,8 +95,6 @@ class Enrich(object):
             # var_df_per_chrom = var_df_per_chrom[cols_to_keep]
             list_.append(var_df_per_chrom)
         self.var_df = pd.concat(list_)
-        print(self.var_df.head())
-        print(self.var_df.shape)
         if annovar_func:
             print("Considering variants in the following refseq categories",
                   set(self.var_df.func_refgene))
@@ -135,7 +133,7 @@ class Enrich(object):
             n_processes (:obj:`int`): number of processes to use
 
         """
-        anno_list = list(self.joined_df)[19:-9]
+        anno_list = list(self.joined_df)[20:-9]
         print(anno_list[:5])
         print(anno_list[-5:])
         if isinstance(expr_cut_off_vec, float):
@@ -147,7 +145,7 @@ class Enrich(object):
         cartesian_iter = itertools.product(expr_cut_off_vec,
                                            tss_cut_off_vec,
                                            af_cut_off_vec,
-                                           anno_list)
+                                           anno_list[:10])
         # https://stackoverflow.com/questions/533905/get-the-cartesian-product-of-a-series-of-lists
         enrichment_per_tuple_partial = partial(
             self.enrichment_per_tuple)
