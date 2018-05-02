@@ -113,6 +113,20 @@ class Enrich(object):
             var_df_per_chrom = var_df_per_chrom[vars_ensgene]
         return var_df_per_chrom
 
+    @staticmethod
+    def filter_refgene_ensgene_exon(var_df_per_chrom, exon_class,
+                                    refgene, ensgene):
+        """Filter for a refgene function, ensembl function or both."""
+        if refgene:
+            vars_refgene = var_df_per_chrom.exon_func_refgene.str.contains(
+                exon_class)
+            var_df_per_chrom = var_df_per_chrom[vars_refgene]
+        if ensgene:
+            vars_ensgene = var_df_per_chrom.exon_func_ensgene.str.contains(
+                exon_class)
+            var_df_per_chrom = var_df_per_chrom[vars_ensgene]
+        return var_df_per_chrom
+
     def load_outliers(self):
         """Load expression outlier dataframe.
 
@@ -197,11 +211,11 @@ class Enrich(object):
     def subset_deepcopy_df(self, enrich_df):
         """Subset a deep copy of the dataframe.
 
-        Only keep genes with at least 1 rare variant.
+        Only keep genes with at least 1 rare variant (doesn't have to be
+            the one with the outlier)
 
         """
-        enrich_df = enrich_df.loc[
-            enrich_df.near_TSS & enrich_df.gene_has_out_w_vars]
+        enrich_df = enrich_df.loc[enrich_df.gene_has_out_w_vars]
         # confirm each gene has at least 1 rare variant
         genes_w_rvs = enrich_df.groupby(
             'gene')['rare_variant_status'].transform('sum') > 0
@@ -220,6 +234,7 @@ class Enrich(object):
         print("Parameters", expr_cut_off, tss_cut_off, af_cut_off)
         # classify as within x kb of TSS
         joined_df["near_TSS"] = abs(joined_df.tss_dist) <= tss_cut_off
+        joined_df = joined_df.loc[joined_df.near_TSS]
         # update outliers based on more extreme cut-offs
         if distribution == "normal":
             joined_df.expr_outlier = (
