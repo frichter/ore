@@ -179,7 +179,6 @@ class Enrich(object):
         current_anno = list(enrich_df)[cut_off_tuple[3]]
         print("current column:", current_anno)
         in_anno = enrich_df.loc[:, current_anno] == 1
-        del cut_off_tuple[-1]
         cut_off_tuple = tuple(list(cut_off_tuple)[:-1])
         print("new cut-off tuple:", cut_off_tuple)
         # keep only a specific annotation cut_off_tuple[3]
@@ -258,9 +257,6 @@ class Enrich(object):
         joined_df.loc[:, "rare_variant_status"] = (
             joined_df.popmax_af <= af_cut_off) & (
             joined_df.var_id_freq <= max_intrapop_af)
-        print(joined_df.rare_variant_status.sum())
-        print(max_intrapop_af, af_cut_off)
-        print(min(joined_df.popmax_af), min(joined_df.var_id_freq))
         return joined_df
 
     @staticmethod
