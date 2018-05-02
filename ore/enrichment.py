@@ -163,7 +163,6 @@ class Enrich(object):
             out_line_list.append(enrichment_per_tuple_partial(cut_off_tuple))
         # print(out_line_list[0])
         # [i + "\t" + anno for i in out_line_list]
-        print(out_line_list[0])
         self.write_enrichment_to_file(out_line_list)
 
     def enrichment_per_tuple(self, cut_off_tuple):
@@ -180,7 +179,6 @@ class Enrich(object):
         in_anno = enrich_df.loc[:, current_anno] == 1
         # keep only a specific annotation
         enrich_df = enrich_df.loc[in_anno]
-        print("new DF dimensions", enrich_df.shape)
         # remove annotation column index number from tuple
         cut_off_tuple = tuple(list(cut_off_tuple)[:-1])
         if enrich_df.shape[0] == 0:
@@ -198,7 +196,6 @@ class Enrich(object):
         out_list = list(cut_off_tuple)
         # out_list.extend(var_list)
         out_list.extend(gene_list)
-        print(out_list)
         return "\t".join([str(i) for i in out_list]) + "\t" + current_anno
 
     def subset_deepcopy_df(self, enrich_df):
@@ -215,11 +212,9 @@ class Enrich(object):
         #     'gene')['rare_variant_status'].transform('sum') > 0
         genes_w_rvs = enrich_df.groupby(
             'gene')['rare_variant_status'].transform('sum') > 0
-        print(enrich_df.shape)
         # enrich_df.loc[:, 'gene_has_rare_vars'] = genes_w_rvs.values
         # print(enrich_df.shape)
         enrich_df = enrich_df.loc[genes_w_rvs.values]
-        print(enrich_df.shape)
         return enrich_df
 
     @staticmethod
