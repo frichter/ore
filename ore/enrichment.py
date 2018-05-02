@@ -200,27 +200,12 @@ class Enrich(object):
         enrich_df = self.identify_rows_to_keep(
             enrich_df, max_intrapop_af,
             self.distribution, cut_off_tuple)
-        # enrich_df = self.subset_deepcopy_df(enrich_df)
         # var_list = self.calculate_var_enrichment(enrich_df)
         gene_list = self.calculate_gene_enrichment(enrich_df)
         out_list = list(cut_off_tuple)
         # out_list.extend(var_list)
         out_list.extend(gene_list)
         return "\t".join([str(i) for i in out_list]) + "\t" + current_anno
-
-    def subset_deepcopy_df(self, enrich_df):
-        """Subset a deep copy of the dataframe.
-
-        Only keep genes with at least 1 rare variant (doesn't have to be
-            the one with the outlier)
-
-        """
-        enrich_df = enrich_df.loc[enrich_df.gene_has_out_w_vars]
-        # confirm each gene has at least 1 rare variant
-        genes_w_rvs = enrich_df.groupby(
-            'gene')['rare_variant_status'].transform('sum') > 0
-        enrich_df = enrich_df.loc[genes_w_rvs.values]
-        return enrich_df
 
     @staticmethod
     def identify_rows_to_keep(joined_df, max_intrapop_af, distribution,
@@ -343,12 +328,29 @@ class Enrich(object):
             # if there's only 1 category in gene_has_rare_var...
             if len(out_tb) == 1:
                 # if that category is true then prepend the 0s
+                # bc the first 2 cols in the output are not_rare_not_out
+                # and not_rare_out
                 if out_tb.index == np.array([True]):
+                    # case where all gene-ID pairs for the gene
+                    # are rare variants
                     out_list = [0] + out_list
+                elif len(out_tb.columns) == 1:
+                    # case where only gene-ID pair for the gene
+                    # is an outlier with a common variant
+                    out_list = [0] + out_list
+                    out_list.extend([0, 0])
                 else:
+                    # case where all gene-ID pairs for the gene
+                    # are common variants
                     out_list.append(0)
             else:
+                # case where all gene-ID pairs are outliers and there are
+                # non-zero subsets for both rare and non_rare categories.
+                # since the requirement is that we only look at
+                # genes with outliers with variants, there must always
+                # be a expr_outlier or expr_outlier_neg True column
                 out_list.append(0)
+                out_list.insert(2, 0)
         return out_list
 
     @staticmethod
@@ -382,8 +384,6 @@ class Enrich(object):
             enrich_df, max_intrapop_af,
             distribution=self.distribution, cut_off_tuple=cut_off_tuple)
         print("outlier DF size", outlier_df.shape)
-        # outlier_df = self.subset_deepcopy_df(outlier_df)
-        # outlier_df.to_csv("test_all_joined.txt", index=False, sep="\t")
         # only keep outliers with rare variants
         print("outlier DF size post subset", outlier_df.shape)
         outlier_df = outlier_df.loc[
