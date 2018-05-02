@@ -158,6 +158,7 @@ class Enrich(object):
             out_list = enrichment_per_tuple_partial(cut_off_tuple)
             print(out_list)
             out_line_list.append(out_list)
+            break
         self.write_enrichment_to_file(out_line_list)
 
     def enrichment_per_tuple(self, cut_off_tuple):
@@ -170,6 +171,7 @@ class Enrich(object):
         print("Calculating enrichment for", cut_off_tuple)
         enrich_df = copy.deepcopy(self.joined_df)
         current_anno = list(enrich_df)[cut_off_tuple[3]]
+        current_anno = "E105_15_coreMarks_6"
         print("current column:", current_anno)
         in_anno = enrich_df.loc[:, current_anno] == 1
         # keep only a specific annotation
@@ -323,12 +325,16 @@ class Enrich(object):
         """Flatten the crosstab output list."""
         out_list = out_tb.values.flatten().tolist()
         while len(out_list) < 4:
-            if len(out_tb) > 0:
-                print(out_tb, len(out_tb), out_list)
+            # if there's only 1 category in gene_has_rare_var...
+            if len(out_tb) == 1:
+                # if that category is true then prepend the 0s
                 if out_tb.index == np.array([True]):
                     out_list = [0] + out_list
                 else:
                     out_list.append(0)
+            elif out_tb.columns == np.array([True]):
+                out_list = [0] + out_list
+                out_list.insert(2, 0)
             else:
                 out_list.append(0)
         return out_list
