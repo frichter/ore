@@ -82,7 +82,7 @@ class Enrich(object):
                 print("...in RefGene")
             elif ensgene:
                 print("...in ENSEMBL")
-        for chrom in contigs[6:8]:
+        for chrom in contigs:
             # "wgs_pcgc_singletons_per_chrom/enh_var_hets_chr" + chrom + ".txt"
             print("chr" + chrom)
             var_df_per_chrom = pd.read_table(
@@ -161,8 +161,6 @@ class Enrich(object):
         out_line_list = []
         for cut_off_tuple in cartesian_iter:
             out_line_list.append(enrichment_per_tuple_partial(cut_off_tuple))
-        # print(out_line_list[0])
-        # [i + "\t" + anno for i in out_line_list]
         self.write_enrichment_to_file(out_line_list)
 
     def enrichment_per_tuple(self, cut_off_tuple):
@@ -207,13 +205,8 @@ class Enrich(object):
         enrich_df = enrich_df.loc[
             enrich_df.near_TSS & enrich_df.gene_has_out_w_vars]
         # confirm each gene has at least 1 rare variant
-        # This line raises a SettingWithCopyWarning
-        # enrich_df.loc[:, 'gene_has_rare_vars'] = enrich_df.groupby(
-        #     'gene')['rare_variant_status'].transform('sum') > 0
         genes_w_rvs = enrich_df.groupby(
             'gene')['rare_variant_status'].transform('sum') > 0
-        # enrich_df.loc[:, 'gene_has_rare_vars'] = genes_w_rvs.values
-        # print(enrich_df.shape)
         enrich_df = enrich_df.loc[genes_w_rvs.values]
         return enrich_df
 
