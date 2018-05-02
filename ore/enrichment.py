@@ -74,7 +74,7 @@ class Enrich(object):
         dtype_specs = {
             'dist_refgene': 'str', 'exon_func_refgene': 'str',
             'dist_ensgene': 'str', 'exon_func_ensgene': 'str'}
-        for chrom in contigs[6:8]:  # for testing: ["21", "22"]:
+        for chrom in ["21", "22"]:  # contigs:  # for testing:
             # "wgs_pcgc_singletons_per_chrom/enh_var_hets_chr" + chrom + ".txt"
             print("chr" + chrom)
             var_df_per_chrom = pd.read_table(
@@ -155,7 +155,9 @@ class Enrich(object):
         #                           cartesian_iter)
         out_line_list = []
         for cut_off_tuple in cartesian_iter:
-            out_line_list.append(enrichment_per_tuple_partial(cut_off_tuple))
+            out_list = enrichment_per_tuple_partial(cut_off_tuple)
+            print(out_list)
+            out_line_list.append(out_list)
         self.write_enrichment_to_file(out_line_list)
 
     def enrichment_per_tuple(self, cut_off_tuple):
@@ -322,6 +324,7 @@ class Enrich(object):
         out_list = out_tb.values.flatten().tolist()
         while len(out_list) < 4:
             if len(out_tb) > 0:
+                print(out_tb, len(out_tb), out_list)
                 if out_tb.index == np.array([True]):
                     out_list = [0] + out_list
                 else:
