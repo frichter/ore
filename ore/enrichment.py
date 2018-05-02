@@ -203,17 +203,15 @@ class Enrich(object):
         Only keep genes with at least 1 rare variant.
 
         """
-        print(enrich_df.rare_variant_status.sum())
         enrich_df = enrich_df.loc[
             enrich_df.near_TSS & enrich_df.gene_has_out_w_vars]
         # confirm each gene has at least 1 rare variant
         # This line raises a SettingWithCopyWarning
-        print("genes with outliers:", enrich_df.shape)
-        enrich_df.loc[:, 'gene_has_rare_vars'] = enrich_df.groupby(
-            'gene')['rare_variant_status'].transform('sum') > 0
-        print("genes with rare variants:", enrich_df.shape)
-        print(enrich_df.rare_variant_status.sum())
-        print(enrich_df.gene_has_rare_vars.sum())
+        # enrich_df.loc[:, 'gene_has_rare_vars'] = enrich_df.groupby(
+        #     'gene')['rare_variant_status'].transform('sum') > 0
+        enrich_df['gene_has_rare_vars'] = enrich_df.groupby(
+            'gene')['rare_variant_status'].transform('sum')
+        enrich_df.gene_has_rare_vars = enrich_df.gene_has_rare_vars > 0
         enrich_df = enrich_df.loc[enrich_df.gene_has_rare_vars]
         return enrich_df
 
@@ -374,21 +372,17 @@ class Enrich(object):
         enrich_df = copy.deepcopy(self.joined_df)
         max_intrapop_af = self.get_max_intra_pop_af(enrich_df, af_cut_off)
         print("Intra-population AF cut-off for rare:", max_intrapop_af)
-        print(enrich_df.head())
         print("enrichment DF size", enrich_df.shape)
         outlier_df = self.identify_rows_to_keep(
             enrich_df, max_intrapop_af,
             distribution=self.distribution, cut_off_tuple=cut_off_tuple)
-        print(outlier_df.head())
         print("outlier DF size", outlier_df.shape)
         outlier_df = self.subset_deepcopy_df(outlier_df)
         # outlier_df.to_csv("test_all_joined.txt", index=False, sep="\t")
         # only keep outliers with rare variants
-        print(outlier_df.head())
         print("outlier DF size post subset", outlier_df.shape)
         outlier_df = outlier_df.loc[
             outlier_df.rare_variant_status & outlier_df.expr_outlier]
-        print(outlier_df.head())
         print("outlier DF after filtering for RVs/outliers", outlier_df.shape)
         # cols_to_keep = ["blinded_id", "gene", "z_expr", "tss_dist",
         #                 "var_id", "popmax_af", "var_id_freq"]
