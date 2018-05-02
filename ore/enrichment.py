@@ -348,9 +348,9 @@ class Enrich(object):
                     out_list = [0] + out_list
                 else:
                     out_list.append(0)
-            elif out_tb.columns == np.array([True]):
-                out_list = [0] + out_list
-                out_list.insert(2, 0)
+            # elif out_tb.columns == np.array([True]):
+            #     out_list = [0] + out_list
+            #     out_list.insert(2, 0)
             else:
                 out_list.append(0)
         return out_list
