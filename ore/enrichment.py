@@ -87,9 +87,10 @@ class Enrich(object):
             # [18:118] [118:218] [218:-3]
             # last one is regions_enh_E013, total length is 371
             if len(cols_to_keep) == 9:
-                cols_to_keep.extend(list(var_df_per_chrom)[18+250:18+300])
+                cols_to_keep.extend(list(var_df_per_chrom)[18+300:-3])
                 print(list(var_df_per_chrom)[-10:])
                 print(len(list(var_df_per_chrom)))
+                print(cols_to_keep[-5:])
             var_df_per_chrom = var_df_per_chrom[cols_to_keep]
             list_.append(var_df_per_chrom)
         print("All contigs/chromosomes loaded")
