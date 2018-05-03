@@ -84,9 +84,10 @@ class Enrich(object):
             if variant_class:
                 var_df_per_chrom = self.filter_refgene_ensgene(
                     var_df_per_chrom, variant_class, refgene, ensgene)
-            # [18:118] [118:218] [218:-2]
+            # [18:118] [118:218] [218:-3]
+            # last one is regions_enh_E013, total length is 371
             if len(cols_to_keep) == 9:
-                cols_to_keep.extend(list(var_df_per_chrom)[18+200:18+300])
+                cols_to_keep.extend(list(var_df_per_chrom)[18+150:18+250])
                 print(list(var_df_per_chrom)[-10:])
                 print(len(list(var_df_per_chrom)))
             var_df_per_chrom = var_df_per_chrom[cols_to_keep]
