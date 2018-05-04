@@ -71,7 +71,7 @@ class Enrich(object):
         cols_to_keep = ['popmax_af', 'var_id', 'tss_dist', 'func_refgene',
                         'exon_func_refgene', 'func_ensgene',
                         'exon_func_ensgene', 'var_id_count', 'var_id_freq']
-        # cols_to_keep.extend(['nkx2.5.mm9.hg19', 'regions_enh_E013'])
+        cols_to_keep.extend(['nkx2.5.mm9.hg19', 'regions_enh_E013'])
         dtype_specs = {
             'dist_refgene': 'str', 'exon_func_refgene': 'str',
             'dist_ensgene': 'str', 'exon_func_ensgene': 'str'}
@@ -419,9 +419,9 @@ class Enrich(object):
             outlier_df.rare_variant_status & outlier_df.expr_outlier]
         # cols_to_keep = ["blinded_id", "gene", "z_expr", "tss_dist",
         #                 "var_id", "popmax_af", "var_id_freq"]
-        in_anno = outlier_df.loc[:, 'nkx2.5.mm9.hg19'] == 1
         # keep only a specific annotation
-        outlier_df = outlier_df.loc[in_anno]
+        # in_anno = outlier_df.loc[:, 'nkx2.5.mm9.hg19'] == 1
+        # outlier_df = outlier_df.loc[in_anno]
         # outlier_df = outlier_df[cols_to_keep]
         outlier_df.rename(columns={"var_id_freq": "intra_cohort_af"},
                           inplace=True)
