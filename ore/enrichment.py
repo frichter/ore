@@ -71,7 +71,7 @@ class Enrich(object):
         cols_to_keep = ['popmax_af', 'var_id', 'tss_dist', 'func_refgene',
                         'exon_func_refgene', 'func_ensgene',
                         'exon_func_ensgene', 'var_id_count', 'var_id_freq']
-        cols_to_keep.extend(['nkx2.5.mm9.hg19', 'regions_enh_E013'])
+        # cols_to_keep.extend(['nkx2.5.mm9.hg19', 'regions_enh_E013'])
         dtype_specs = {
             'dist_refgene': 'str', 'exon_func_refgene': 'str',
             'dist_ensgene': 'str', 'exon_func_ensgene': 'str'}
@@ -89,7 +89,12 @@ class Enrich(object):
             # last one is regions_enh_E013, total length is 371
             # if len(cols_to_keep) == 9:
             #     cols_to_keep.extend(list(var_df_per_chrom)[18+325:-3])
-            var_df_per_chrom = var_df_per_chrom[cols_to_keep]
+            # regular production code:
+            # var_df_per_chrom = var_df_per_chrom[cols_to_keep]
+            # modification for summing accross annotations
+            var_df_per_chrom = self.summarise_anno_cols(
+                var_df_per_chrom, cols_to_keep)
+            print(var_df_per_chrom.head())
             list_.append(var_df_per_chrom)
         print("All contigs/chromosomes loaded")
         self.var_df = pd.concat(list_)
@@ -100,6 +105,31 @@ class Enrich(object):
         # if exon_class:
         #     print("Considering variants in the following Exonic categories",
         #           set(self.var_df.exon_func_refgene))
+
+    @staticmethod
+    def summarise_anno_cols(df, cols_to_keep):
+        """Keep a few prespecified summary columns."""
+        any_gata4 = [col for col in df.columns if 'ata4' in col]
+        any_nkx25 = [col for col in df.columns if 'kx2' in col]
+        any_tbx5 = [col for col in df.columns if 'bx5' in col]
+        all_tf = any_gata4 + any_nkx25 + any_tbx5
+        print(all_tf)
+        df['any_gata4'] = df[any_gata4].sum(axis=1) > 0
+        df['any_nkx25'] = df[any_nkx25].sum(axis=1) > 0
+        df['any_tbx5'] = df[any_tbx5].sum(axis=1) > 0
+        df['all_tf'] = df[all_tf].sum(axis=1) > 0
+        df['cvdc_enh_OR_prom'] = df[
+            ['cvdc_enhancers_dickel', 'cvdc_promoters.lineID']].sum(axis=1) > 0
+        df.any_gata4 = df.any_gata4.astype(int)
+        df.any_nkx25 = df.any_nkx25.astype(int)
+        df.any_tbx5 = df.any_tbx5.astype(int)
+        df.all_tf = df.all_tf.astype(int)
+        df.cvdc_enh_OR_prom = df.cvdc_enh_OR_prom.astype(int)
+        cols_to_keep.extend(
+            ['any_gata4', 'any_nkx25', 'any_tbx5', 'all_tf',
+             'cvdc_enh_OR_prom'])
+        df = df[cols_to_keep]
+        return df
 
     @staticmethod
     def filter_refgene_ensgene(var_df_per_chrom, variant_class,
