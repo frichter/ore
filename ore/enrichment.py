@@ -71,10 +71,33 @@ class Enrich(object):
         cols_to_keep = ['popmax_af', 'var_id', 'tss_dist', 'func_refgene',
                         'exon_func_refgene', 'func_ensgene',
                         'exon_func_ensgene', 'var_id_count', 'var_id_freq']
-        cols_to_keep.extend(['nkx2.5.mm9.hg19', 'regions_enh_E013'])
+        # cols_to_keep.extend(['nkx2.5.mm9.hg19', 'regions_enh_E013'])
+        # cols_to_keep.extend(
+        #     ['any_gata4', 'any_nkx25', 'any_tbx5', 'all_tf',
+        #      'cvdc_enh_OR_prom'])
         cols_to_keep.extend(
-            ['any_gata4', 'any_nkx25', 'any_tbx5', 'all_tf',
-             'cvdc_enh_OR_prom'])
+            ["any_gata4", "any_nkx25", "any_tbx5", "Centipedehg19",
+             "genome.All_hg19_RS", "DNaseMasterMajority", "Fetal_dense_prom3",
+             "Fetal_dense_prom4", "E083_15_coreMarks_12", "Gata4_day15_100",
+             "Gata4_day6_14", "gata4.mm9.hg19", "H3K27ac_CM_Rep_1.hg19",
+             "H3K27ac_CM_Rep_2.hg19", "H3K27me3_ESC_Rep_2.hg19",
+             "H3K27me3_MES_Rep_2.hg19",
+             "heart%252c%2520adult%252c%2520diseased%252c%2520donor1" +
+             ".CNhs11758.10051-101G6.hg19.ctss",
+             "heart%252c%2520adult%252c%2520pool1.CNhs10621." +
+             "10016-101C7.hg19.ctss",
+             "heart%252c%2520adult%252c%2520diseased%2520post-infarction" +
+             "%252c%2520donor1.CNhs11757.10050-101G5.hg19.ctss",
+             "heart%252c%2520fetal%252c%2520pool1.CNhs10653.10046-101G1." +
+             "hg19.ctss", "all_tf", "E013_15_coreMarks_14",
+             "E013_15_coreMarks_2", "hg19.cage_peak_phase1and2combined_ann",
+             "E095_15_coreMarks_13", "E095_15_coreMarks_14",
+             "heart%2520-%2520mitral%2520valve%252c%2520adult.CNhs12855." +
+             "10205-103F7.hg19.ctss", "nkx2.5.mm9.hg19", "Nkx25_day15_100",
+             "Nkx25_day15_14", "permissive_enhancers",
+             "heart%2520-%2520pulmonic%2520valve%252c%2520adult." +
+             "CNhs12856.10206-103F8.hg19.ctss", "robust_enhancers",
+             "robust_enhancers.1", "tbx5.mm9.hg19"])
         dtype_specs = {
             'dist_refgene': 'str', 'exon_func_refgene': 'str',
             'dist_ensgene': 'str', 'exon_func_ensgene': 'str'}
@@ -178,8 +201,8 @@ class Enrich(object):
             n_processes (:obj:`int`): number of processes to use
 
         """
-        print("Anno column final index:", self.joined_df.shape[1] - 6)
-        anno_list = [i for i in range(11, self.joined_df.shape[1] - 6)]
+        print("Anno column final index:", self.joined_df.shape[1] - 5)
+        anno_list = [i for i in range(11, self.joined_df.shape[1] - 5)]
         if isinstance(expr_cut_off_vec, float):
             expr_cut_off_vec = [expr_cut_off_vec]
         if isinstance(tss_cut_off_vec, float):
