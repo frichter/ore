@@ -118,9 +118,6 @@ class Enrich(object):
             # modification for summing accross annotations
             var_df_per_chrom = self.summarise_anno_cols(var_df_per_chrom)
             var_df_per_chrom = var_df_per_chrom[cols_to_keep]
-            print(var_df_per_chrom.head(2))
-            print(var_df_per_chrom.all_tf.sum())
-            print(var_df_per_chrom.any_nkx25.sum())
             list_.append(var_df_per_chrom)
         print("All contigs/chromosomes loaded")
         self.var_df = pd.concat(list_)
@@ -139,7 +136,6 @@ class Enrich(object):
         any_nkx25 = [col for col in df.columns if 'kx2' in col]
         any_tbx5 = [col for col in df.columns if 'bx5' in col]
         all_tf = any_gata4 + any_nkx25 + any_tbx5
-        print(all_tf)
         df['any_gata4'] = df[any_gata4].sum(axis=1) > 0
         df['any_nkx25'] = df[any_nkx25].sum(axis=1) > 0
         df['any_tbx5'] = df[any_tbx5].sum(axis=1) > 0
