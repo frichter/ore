@@ -198,7 +198,7 @@ class Enrich(object):
 
         """
         print("Anno column final index:", self.joined_df.shape[1] - 5)
-        anno_list = [i for i in range(11, self.joined_df.shape[1] - 5)]
+        # anno_list = [i for i in range(11, self.joined_df.shape[1] - 5)]
         if isinstance(expr_cut_off_vec, float):
             expr_cut_off_vec = [expr_cut_off_vec]
         if isinstance(tss_cut_off_vec, float):
@@ -207,8 +207,7 @@ class Enrich(object):
             af_cut_off_vec = [af_cut_off_vec]
         cartesian_iter = itertools.product(expr_cut_off_vec,
                                            tss_cut_off_vec,
-                                           af_cut_off_vec,
-                                           anno_list)
+                                           af_cut_off_vec)
         # https://stackoverflow.com/questions/533905/get-the-cartesian-product-of-a-series-of-lists
         enrichment_per_tuple_partial = partial(
             self.enrichment_per_tuple)
@@ -233,6 +232,8 @@ class Enrich(object):
         """
         print("Calculating enrichment for", cut_off_tuple)
         enrich_df = copy.deepcopy(self.joined_df)
+        """
+        # only use if filtering by annotation:
         current_anno = list(enrich_df)[cut_off_tuple[3]]
         print("current column:", current_anno)
         in_anno = enrich_df.loc[:, current_anno] == 1
@@ -242,6 +243,7 @@ class Enrich(object):
         cut_off_tuple = tuple(list(cut_off_tuple)[:-1])
         if enrich_df.shape[0] == 0:
             return "NA_line: no overlaps with " + current_anno
+        """
         # replace af_cut_off with intra-cohort minimum if former is
         # smaller than latter
         max_intrapop_af = self.get_max_intra_pop_af(
@@ -254,7 +256,7 @@ class Enrich(object):
         out_list = list(cut_off_tuple)
         # out_list.extend(var_list)
         out_list.extend(gene_list)
-        return "\t".join([str(i) for i in out_list]) + "\t" + current_anno
+        return "\t".join([str(i) for i in out_list])  # + "\t" + current_anno
 
     @staticmethod
     def identify_rows_to_keep(joined_df, max_intrapop_af, distribution,
