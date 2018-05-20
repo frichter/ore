@@ -185,7 +185,8 @@ class Genes(object):
         var_df["var_id"] = (var_df.Chrom.str.cat(var_df.Start1b.
                             astype(str), sep='.').str.cat(var_df.Ref, sep='.').
                             str.cat(var_df.Alt, sep='.'))
-        var_df.to_csv(self.nearTSS_loc, sep="\t", header=False, index=False)
+        var_df.to_csv(self.nearTSS_loc, sep="\t", header=False, index=False,
+                      float_format='%g')
 
 
 # prepare gene file with TSS distances

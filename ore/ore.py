@@ -19,7 +19,7 @@ from .utils import initialize_logger, checkCPUcount
 from .variants import Variants
 # from .enrichment import Enrich
 from .outliers import Outliers
-from .join_dna_rna import JoinedDF
+from .join_dna_rna import JoinedVarExpr
 from .version import __version__
 
 """Profiling libraries:
@@ -108,16 +108,16 @@ def associate_outliers(args):
     logger.info("Outliers prepared")
     # join outliers with variants
     dna_rna_df_loc = output_prefix + "_all_data.txt"
-    joined_df = JoinedDF(variants_obj.anno_obj.final_var_loc,
-                         outlier_obj.expr_outs_loc,
-                         dna_rna_df_loc,
-                         args.variant_class,
-                         args.exon_class,
-                         args.refgene,
-                         args.ensgene,
-                         variants_obj.combined_contigs,
-                         logger)
-    print(joined_df)
+    joined_obj = JoinedVarExpr(variants_obj.anno_obj.final_var_loc,
+                               outlier_obj.expr_outs_loc,
+                               dna_rna_df_loc,
+                               args.variant_class,
+                               args.exon_class,
+                               args.refgene,
+                               args.ensgene,
+                               variants_obj.combined_contigs,
+                               logger)
+    print(joined_obj.df.head())
     # output final set of outliers and calculate enrichment
     # rv_outlier_loc = output_prefix + "_rv_w_outliers.txt"
     # enrich_obj = Enrich(variants_obj.anno_obj.final_var_loc,
