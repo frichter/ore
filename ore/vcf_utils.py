@@ -9,22 +9,39 @@
 :License: CC BY-SA
 """
 
-from .vcf import VCFError
+
+class Error(Exception):
+    """Base class for exceptions in this module."""
+
+    pass
+
+
+class VCFError(Error):
+    """Exception raised for errors in this module.
+
+    Attributes:
+        message -- explanation of the error
+
+    """
+
+    def __init__(self, message):
+        """Assign error explanation to object."""
+        self.message = message
 
 
 def get_info_af(line_dict, alt_allele_list):
     """Obtain the allele frequency from the info field."""
     try:
-        vcf_af = [i[2:] for i in line_dict["INFO"].split(";") if
+        vcf_af = [i[3:] for i in line_dict["INFO"].split(";") if
                   i.startswith("AF=")]
-        if len(vcf_af) == 0:
+        if len(vcf_af) != 1:
             raise VCFError("No AF in INFO field for " +
                            line_dict["#CHROM"] +
                            " " + line_dict["POS"] + " so excluding")
     except VCFError:
         vcf_af = "NA"
     finally:
-        vcf_af_list = vcf_af.split(",")
+        vcf_af_list = vcf_af[0].split(",")
     if len(vcf_af_list) != len(alt_allele_list):
         vcf_af_list = ["NA"] * len(alt_allele_list)
     return vcf_af_list

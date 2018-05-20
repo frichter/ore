@@ -29,36 +29,42 @@ class Enrich(object):
     """
 
     def __init__(self, var_loc, expr_outs_loc, enrich_loc, rv_outlier_loc,
-                 distribution, variant_class, refgene, ensgene, contigs):
+                 distribution, variant_class, exon_class, refgene, ensgene,
+                 contigs):
         """Load and join variants and outliers.
 
         Args:
-            `var_loc`: file location for the final set of variants that are
-                being joined with expression (with string rep for chrom)
-            `expr_outs_loc`: file location of the outliers
-            `enrich_loc`: output file for enrichment calculations
-            `rv_outlier_loc`: file location with the final set of
+            var_loc (:obj:`str`): file location for the final set of variants
+                that are being joined with expression (contains a
+                string rep for chrom)
+            expr_outs_loc (:obj:`str`): file location of the outliers
+            enrich_loc (:obj:`str`): output file for enrichment calculations
+            rv_outlier_loc (:obj:`str`): file location with the final set of
                 outlier-variant pairs
-            `distribution`: type of distribution being used for outliers
-            `variant_class`: annovar variant class to filter on (default None)
-            `contigs`: chromosomes that are in the VCF
+            distribution (:obj:`str`): type of distribution for outliers
+            variant_class (:obj:`str`): annovar variant class to filter
+                on (default None)
+            exon_class (:obj:`str`): annovar EXON class to filter
+                on (default None)
+            contigs (:obj:`list`): chromosomes that are in the VCF
 
         Attributes:
             `joined_df`: variants and outliers in a single dataframe
 
         """
+        self.joined_df = joined_df
         self.var_loc = var_loc
         self.expr_outs_loc = expr_outs_loc
         self.enrich_loc = enrich_loc
         self.distribution = distribution
         self.rv_outlier_loc = rv_outlier_loc
-        self.load_vars(contigs, variant_class, refgene, ensgene)
+        self.load_vars(contigs, variant_class, exon_class, refgene, ensgene)
         self.load_outliers()
         print("joining outliers with variants...")
         self.joined_df = self.var_df.join(self.expr_outlier_df, how='inner')
         self.joined_df.reset_index(inplace=True)
 
-    def load_vars(self, contigs, variant_class, refgene, ensgene):
+    def load_vars(self, contigs, variant_class, exon_class, refgene, ensgene):
         """Load and combine variant data.
 
         Attributes:
@@ -90,9 +96,9 @@ class Enrich(object):
         if variant_class:
             print("Considering variants in the following categories",
                   set(self.var_df.func_refgene))
-        # if exon_class:
-        #     print("Considering variants in the following Exonic categories",
-        #           set(self.var_df.exon_func_refgene))
+        if exon_class:
+            print("Considering variants in the following Exonic categories",
+                  set(self.var_df.exon_func_refgene))
 
     @staticmethod
     def filter_refgene_ensgene(var_df_per_chrom, variant_class,

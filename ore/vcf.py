@@ -17,27 +17,8 @@ import gzip
 import pysam
 
 from .vcf_utils import (
-    replace_multiGT_with_bialleleGT, convert_to_012, get_info_af,
-    calculate_depth_and_AAR)
-
-
-class Error(Exception):
-    """Base class for exceptions in this module."""
-
-    pass
-
-
-class VCFError(Error):
-    """Exception raised for errors in this module.
-
-    Attributes:
-        message -- explanation of the error
-
-    """
-
-    def __init__(self, message):
-        """Assign error explanation to object."""
-        self.message = message
+    VCFError, replace_multiGT_with_bialleleGT, convert_to_012,
+    get_info_af, calculate_depth_and_AAR)
 
 
 class VCF(object):

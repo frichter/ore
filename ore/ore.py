@@ -17,8 +17,9 @@ from pkg_resources import resource_filename
 
 from .utils import initialize_logger, checkCPUcount
 from .variants import Variants
-from .enrichment import Enrich
+# from .enrichment import Enrich
 from .outliers import Outliers
+from .join_dna_rna import JoinedDF
 from .version import __version__
 
 """Profiling libraries:
@@ -44,6 +45,7 @@ def associate_outliers(args):
         extrema (:obj:`boolean`): T/F for using most extreme outlier
         distribution (:obj:`str`): type of outlier distribution considered
         variant_class (:obj:`str`): variant functional class to test
+        exon_class (:obj:`str`): Exon functional class to test
         enrich_loc (:obj:`str`): file location of enrichment results
 
     Attributes:
@@ -104,26 +106,39 @@ def associate_outliers(args):
     outlier_obj.prepare_outliers(outlier_max=args.max_outliers_per_id,
                                  vcf_id_list=variants_obj.vcf_obj.id_list)
     logger.info("Outliers prepared")
+    # join outliers with variants
+    dna_rna_df_loc = output_prefix + "_all_data.txt"
+    joined_df = JoinedDF(variants_obj.anno_obj.final_var_loc,
+                         outlier_obj.expr_outs_loc,
+                         dna_rna_df_loc,
+                         args.variant_class,
+                         args.exon_class,
+                         args.refgene,
+                         args.ensgene,
+                         variants_obj.combined_contigs,
+                         logger)
+    print(joined_df)
     # output final set of outliers and calculate enrichment
-    rv_outlier_loc = output_prefix + "_rv_w_outliers.txt"
-    enrich_obj = Enrich(variants_obj.anno_obj.final_var_loc,
-                        outlier_obj.expr_outs_loc,
-                        args.enrich_file,
-                        rv_outlier_loc,
-                        args.distribution,
-                        args.variant_class,
-                        args.refgene,
-                        args.ensgene,
-                        variants_obj.combined_contigs)
-    enrich_obj.write_rvs_w_outs_to_file(
-        out_cut_off=outlier_obj.least_extr_threshold,
-        tss_cut_off=max_tss_dist,
-        af_cut_off=max(args.af_rare))
-    logger.info("Printed final set of outliers with rare variants")
-    enrich_obj.loop_enrichment(n_processes=args.processes,
-                               expr_cut_off_vec=args.threshold,
-                               tss_cut_off_vec=args.tss_dist,
-                               af_cut_off_vec=args.af_rare)
+    # rv_outlier_loc = output_prefix + "_rv_w_outliers.txt"
+    # enrich_obj = Enrich(variants_obj.anno_obj.final_var_loc,
+    #                     outlier_obj.expr_outs_loc,
+    #                     args.enrich_file,
+    #                     rv_outlier_loc,
+    #                     args.distribution,
+    #                     args.variant_class,
+    #                     args.exon_class,
+    #                     args.refgene,
+    #                     args.ensgene,
+    #                     variants_obj.combined_contigs)
+    # enrich_obj.write_rvs_w_outs_to_file(
+    #     out_cut_off=outlier_obj.least_extr_threshold,
+    #     tss_cut_off=max_tss_dist,
+    #     af_cut_off=max(args.af_rare))
+    # logger.info("Printed final set of outliers with rare variants")
+    # enrich_obj.loop_enrichment(n_processes=args.processes,
+    #                            expr_cut_off_vec=args.threshold,
+    #                            tss_cut_off_vec=args.tss_dist,
+    #                            af_cut_off_vec=args.af_rare)
     logger.info("Completed outlier enrichment")
     logger.info("All done :)")
 
@@ -176,7 +191,7 @@ def main():
                          "is considered rare", type=float, nargs="*",
                          default=[0.01])
     opt_var.add_argument("--af_vcf", default=False, action="store_true",
-                         help="Use the VCF AF field to define a an " +
+                         help="Use the VCF AF field to define an " +
                          "allele as rare.")
     opt_var.add_argument("--gq", help="Minimum genotype quality each " +
                          "variant in each individual",
