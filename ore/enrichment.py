@@ -427,6 +427,9 @@ class Enrich(object):
         Args:
             `out_cut_off`
 
+        TODO:
+            Remove index column in output (figure out where this is being made)
+
         """
         cut_off_tuple = (out_cut_off, tss_cut_off, af_cut_off)
         enrich_df = copy.deepcopy(self.joined_df)
