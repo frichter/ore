@@ -358,10 +358,9 @@ class Annotations(object):
         # clean column names
         rep_w_blank = ".*/|.merged.sorted|.sorted|.bed$|.bed.gz$|.txt$"
         anno_list = [re.sub(rep_w_blank, "", i) for i in anno_list]
-        anno_list = [re.sub("all_predictions", "cvdc_enhancers_dickel", i)
-                     for i in anno_list]
-        anno_col_names = ["Chrom", "Start0", "End0", "Ref", "Alt", "gene_TSS",
-                          "gene", "gene_strand", "tss_dist", "var_id"]
+        anno_col_names = ["Chrom", "Start0", "End0", "Ref", "Alt", "VCF_af",
+                          "gene_TSS", "gene", "gene_strand", "tss_dist",
+                          "var_id"]
         anno_col_names.extend(anno_list)
         anno_df = pd.read_table(anno_out_loc, header=None,
                                 names=anno_col_names)

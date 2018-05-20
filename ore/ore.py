@@ -175,6 +175,9 @@ def main():
     opt_var.add_argument("--af_rare", help="AF cut-off below which a variant" +
                          "is considered rare", type=float, nargs="*",
                          default=[0.01])
+    opt_var.add_argument("--af_vcf", default=False, action="store_true",
+                         help="Use the VCF AF field to define a an " +
+                         "allele as rare.")
     opt_var.add_argument("--gq", help="Minimum genotype quality each " +
                          "variant in each individual",
                          type=float, default=30)

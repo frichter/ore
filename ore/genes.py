@@ -167,9 +167,9 @@ class Genes(object):
             max_tss_dist: integer
 
         """
-        cols_to_use = [0, 1, 2, 3, 4, 7, 8, 10, 11]
-        bed_col_names = ["Chrom", "Start", "End", "Ref", "Alt", "gene_TSS",
-                         "gene", "gene_strand", "tss_dist"]
+        cols_to_use = [0, 1, 2, 3, 4, 5, 8, 9, 11, 12]
+        bed_col_names = ["Chrom", "Start", "End", "Ref", "Alt", "VCF_af",
+                         "gene_TSS", "gene", "gene_strand", "tss_dist"]
         var_df = pd.read_table(self.closest_gene_var_loc,
                                header=None,
                                usecols=cols_to_use,
