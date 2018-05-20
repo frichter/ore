@@ -71,52 +71,17 @@ class Enrich(object):
         cols_to_keep = ['popmax_af', 'var_id', 'tss_dist', 'func_refgene',
                         'exon_func_refgene', 'func_ensgene',
                         'exon_func_ensgene', 'var_id_count', 'var_id_freq']
-        # cols_to_keep.extend(['nkx2.5.mm9.hg19', 'regions_enh_E013'])
-        # cols_to_keep.extend(
-        #     ['any_gata4', 'any_nkx25', 'any_tbx5', 'all_tf',
-        #      'cvdc_enh_OR_prom'])
-        cols_to_keep.extend(
-            ["any_gata4", "any_nkx25", "any_tbx5", "Centipedehg19",
-             "genome.All_hg19_RS", "DNaseMasterMajority", "Fetal_dense_prom3",
-             "Fetal_dense_prom4", "E083_15_coreMarks_12", "Gata4_day15_100",
-             "Gata4_day6_14", "gata4.mm9.hg19", "H3K27ac_CM_Rep_1.hg19",
-             "H3K27ac_CM_Rep_2.hg19", "H3K27me3_ESC_Rep_2.hg19",
-             "H3K27me3_MES_Rep_2.hg19",
-             "heart%252c%2520adult%252c%2520diseased%252c%2520donor1" +
-             ".CNhs11758.10051-101G6.hg19.ctss",
-             "heart%252c%2520adult%252c%2520pool1.CNhs10621." +
-             "10016-101C7.hg19.ctss",
-             "heart%252c%2520adult%252c%2520diseased%2520post-infarction" +
-             "%252c%2520donor1.CNhs11757.10050-101G5.hg19.ctss",
-             "heart%252c%2520fetal%252c%2520pool1.CNhs10653.10046-101G1." +
-             "hg19.ctss", "all_tf", "E013_15_coreMarks_14",
-             "E013_15_coreMarks_2", "hg19.cage_peak_phase1and2combined_ann",
-             "E095_15_coreMarks_13", "E095_15_coreMarks_14",
-             "heart%2520-%2520mitral%2520valve%252c%2520adult.CNhs12855." +
-             "10205-103F7.hg19.ctss", "nkx2.5.mm9.hg19", "Nkx25_day15_100",
-             "Nkx25_day15_14", "permissive_enhancers",
-             "heart%2520-%2520pulmonic%2520valve%252c%2520adult." +
-             "CNhs12856.10206-103F8.hg19.ctss", "robust_enhancers",
-             "robust_enhancers.1", "tbx5.mm9.hg19"])
         dtype_specs = {
             'dist_refgene': 'str', 'exon_func_refgene': 'str',
             'dist_ensgene': 'str', 'exon_func_ensgene': 'str'}
-        for chrom in contigs:  # ["21", "22"]:  #
-            # "wgs_pcgc_singletons_per_chrom/enh_var_hets_chr" + chrom + ".txt"
+        for chrom in contigs:
             print("chr" + chrom)
             var_df_per_chrom = pd.read_table(
                 self.var_loc % ("chr" + chrom), dtype=dtype_specs)
             var_df_per_chrom.set_index(['gene', 'blinded_id'], inplace=True)
-            # remove regions in repeats
             if variant_class:
                 var_df_per_chrom = self.filter_refgene_ensgene(
                     var_df_per_chrom, variant_class, refgene, ensgene)
-            # [18:118] [118:218] [218:-3]
-            # last one is regions_enh_E013, total length is 371
-            # if len(cols_to_keep) == 9:
-            #     cols_to_keep.extend(list(var_df_per_chrom)[18+325:-3])
-            # modification for summing accross annotations
-            var_df_per_chrom = self.summarise_anno_cols(var_df_per_chrom)
             var_df_per_chrom = var_df_per_chrom[cols_to_keep]
             list_.append(var_df_per_chrom)
         print("All contigs/chromosomes loaded")
@@ -128,26 +93,6 @@ class Enrich(object):
         # if exon_class:
         #     print("Considering variants in the following Exonic categories",
         #           set(self.var_df.exon_func_refgene))
-
-    @staticmethod
-    def summarise_anno_cols(df):
-        """Keep a few prespecified summary columns."""
-        any_gata4 = [col for col in df.columns if 'ata4' in col]
-        any_nkx25 = [col for col in df.columns if 'kx2' in col]
-        any_tbx5 = [col for col in df.columns if 'bx5' in col]
-        all_tf = any_gata4 + any_nkx25 + any_tbx5
-        df['any_gata4'] = df[any_gata4].sum(axis=1) > 0
-        df['any_nkx25'] = df[any_nkx25].sum(axis=1) > 0
-        df['any_tbx5'] = df[any_tbx5].sum(axis=1) > 0
-        df['all_tf'] = df[all_tf].sum(axis=1) > 0
-        df['cvdc_enh_OR_prom'] = df[
-            ['cvdc_enhancers_dickel', 'cvdc_promoters.lineID']].sum(axis=1) > 0
-        df.any_gata4 = df.any_gata4.astype(int)
-        df.any_nkx25 = df.any_nkx25.astype(int)
-        df.any_tbx5 = df.any_tbx5.astype(int)
-        df.all_tf = df.all_tf.astype(int)
-        df.cvdc_enh_OR_prom = df.cvdc_enh_OR_prom.astype(int)
-        return df
 
     @staticmethod
     def filter_refgene_ensgene(var_df_per_chrom, variant_class,
