@@ -17,7 +17,7 @@ from pkg_resources import resource_filename
 
 from .utils import initialize_logger, checkCPUcount
 from .variants import Variants
-# from .enrichment import Enrich
+from .enrichment import Enrich
 from .outliers import Outliers
 from .join_dna_rna import JoinedVarExpr
 from .version import __version__
@@ -117,28 +117,22 @@ def associate_outliers(args):
                                args.ensgene,
                                variants_obj.combined_contigs,
                                logger)
-    print(joined_obj.df.head())
     # output final set of outliers and calculate enrichment
-    # rv_outlier_loc = output_prefix + "_rv_w_outliers.txt"
-    # enrich_obj = Enrich(variants_obj.anno_obj.final_var_loc,
-    #                     outlier_obj.expr_outs_loc,
-    #                     args.enrich_file,
-    #                     rv_outlier_loc,
-    #                     args.distribution,
-    #                     args.variant_class,
-    #                     args.exon_class,
-    #                     args.refgene,
-    #                     args.ensgene,
-    #                     variants_obj.combined_contigs)
-    # enrich_obj.write_rvs_w_outs_to_file(
-    #     out_cut_off=outlier_obj.least_extr_threshold,
-    #     tss_cut_off=max_tss_dist,
-    #     af_cut_off=max(args.af_rare))
-    # logger.info("Printed final set of outliers with rare variants")
-    # enrich_obj.loop_enrichment(n_processes=args.processes,
-    #                            expr_cut_off_vec=args.threshold,
-    #                            tss_cut_off_vec=args.tss_dist,
-    #                            af_cut_off_vec=args.af_rare)
+    rv_outlier_loc = output_prefix + "_rv_w_outliers.txt"
+    # joined_df, enrich_loc, rv_outlier_loc, distribution
+    enrich_obj = Enrich(joined_obj.df,
+                        args.enrich_file,
+                        rv_outlier_loc,
+                        args.distribution)
+    enrich_obj.write_rvs_w_outs_to_file(
+        out_cut_off=outlier_obj.least_extr_threshold,
+        tss_cut_off=max_tss_dist,
+        af_cut_off=max(args.af_rare))
+    logger.info("Printed final set of outliers with rare variants")
+    enrich_obj.loop_enrichment(n_processes=args.processes,
+                               expr_cut_off_vec=args.threshold,
+                               tss_cut_off_vec=args.tss_dist,
+                               af_cut_off_vec=args.af_rare)
     logger.info("Completed outlier enrichment")
     logger.info("All done :)")
 

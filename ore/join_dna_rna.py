@@ -59,7 +59,7 @@ class JoinedVarExpr(object):
         """Load and combine variant data.
 
         Attributes:
-            `var_df`: all processed variants in a single dataframe
+            var_df (:obj:`DataFrame`): all variants in a single dataframe
 
         """
         self.var_df = pd.DataFrame()
@@ -126,7 +126,8 @@ class JoinedVarExpr(object):
         """Load expression outlier dataframe.
 
         Attributes:
-            `expr_outlier_df`: all gene-ID pairs with outliers labeled
+            expr_outlier_df (:obj:`DataFrame`): all gene-ID pairs with
+                outliers labelled
 
         """
         self.expr_outlier_df = pd.read_table(expr_outs_loc)
