@@ -59,6 +59,36 @@ def checkCPUcount(n_processes):
         raise ValueError
 
 
+def check_variant_inputs(args):
+    """Confirm variant-related inputs.
+
+    Args:
+        args (:obj:`argparse object`): contains user inputs
+
+    """
+    # TSS distance > 0
+    if args.tss_dist <= 0:
+        print("TSS distance must be greater than 0")
+        raise ValueError
+    if args.upstream and args.downstream:
+        print("Cannot use BOTH --upstream and --downstream")
+        raise ValueError
+
+
+def check_ANNOVAR_inputs(args):
+    """Confirm that ANNOVAR related inputs are available."""
+    if args.annovar:
+        if not os.path.exists(args.annovar_dir + "table_annovar.pl"):
+            print("table_annovar.pl does not exist in", args.annovar_dir)
+            raise FileNotFoundError
+        if not os.path.exists(args.annovar_dir + "annovate_variation.pl"):
+            print("annovate_variation.pl does not exist in", args.annovar_dir)
+            raise FileNotFoundError
+        # list of inputs needed for ANNOVAR in humandb directory
+        # provide code to install if not available
+        # what inputs are needed in humandb?
+
+
 def prepare_directory(new_dir, clean_run=False):
     """Prepare per chromosome directory FOR NEW RUN.
 

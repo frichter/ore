@@ -138,8 +138,11 @@ class JoinedVarExpr(object):
         """Write full joined DF to a file."""
         self.df.rename(columns={"var_id_freq": "intra_cohort_af"},
                        inplace=True)
-        self.df.to_csv(dna_rna_df_loc, index=False, sep="\t",
-                       float_format='%g')
+        cols_to_keep = ["blinded_id", "gene", "z_expr", "tss_dist",
+                        "var_id", "popmax_af", "intra_cohort_af", "VCF_af"]
+        out_df = self.df[cols_to_keep]
+        out_df.to_csv(dna_rna_df_loc, index=False, sep="\t",
+                      float_format='%g')
 
 #
 #

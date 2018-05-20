@@ -15,7 +15,8 @@ import re
 
 from pkg_resources import resource_filename
 
-from .utils import initialize_logger, checkCPUcount
+from .utils import (initialize_logger, checkCPUcount,
+                    check_variant_inputs, check_ANNOVAR_inputs)
 from .variants import Variants
 from .enrichment import Enrich
 from .outliers import Outliers
@@ -60,6 +61,8 @@ def associate_outliers(args):
     logger = initialize_logger(log_file=output_prefix + "_ore.log",
                                logAppName="ore_status")
     checkCPUcount(args.processes)
+    check_variant_inputs(args)
+    check_ANNOVAR_inputs(args)
     variants_obj = Variants(args.vcf, args.bed,
                             output_prefix=output_prefix,
                             use_annovar=args.annovar,

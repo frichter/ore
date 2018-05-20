@@ -141,7 +141,8 @@ class Enrich(object):
         # classify as rare/common
         joined_df.loc[:, "rare_variant_status"] = (
             joined_df.popmax_af <= af_cut_off) & (
-            joined_df.var_id_freq <= max_intrapop_af)
+            # joined_df.var_id_count <= 5)
+            joined_df.intra_cohort_af <= max_intrapop_af)
         return joined_df
 
     def write_enrichment_to_file(self, out_line_list):
@@ -166,12 +167,12 @@ class Enrich(object):
         """Obtain the maximum wihtin population AF to classify variants as rare.
 
         Args:
-            `df_w_af` (:obj:`DataFrame`): a DF with a `var_id_freq` column
+            `df_w_af` (:obj:`DataFrame`): a DF with a `intra_cohort_af` column
             `af_cut_off` (:obj:`float`): current allele frequency cut-off
 
         """
-        if af_cut_off < min(df_w_af.var_id_freq):
-            max_intra_pop_af = min(df_w_af.var_id_freq)
+        if af_cut_off < min(df_w_af.intra_cohort_af):
+            max_intra_pop_af = min(df_w_af.intra_cohort_af)
         else:
             max_intra_pop_af = af_cut_off
         return max_intra_pop_af
@@ -192,11 +193,10 @@ class Enrich(object):
         # only keep outliers with rare variants
         outlier_df = outlier_df.loc[
             outlier_df.rare_variant_status & outlier_df.expr_outlier]
-        # cols_to_keep = ["blinded_id", "gene", "z_expr", "tss_dist",
-        #                 "var_id", "popmax_af", "var_id_freq"]
-        # outlier_df = outlier_df[cols_to_keep]
-        outlier_df.rename(columns={"var_id_freq": "intra_cohort_af"},
-                          inplace=True)
+        cols_to_keep = ["blinded_id", "gene", "z_expr", "tss_dist",
+                        "var_id", "popmax_af", "intra_cohort_af", "VCF_af"]
+        outlier_df = outlier_df[cols_to_keep]
+        print(outlier_df.head())
         outlier_df.to_csv(self.rv_outlier_loc, index=False, sep="\t",
                           float_format='%g')
 

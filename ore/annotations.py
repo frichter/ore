@@ -296,6 +296,10 @@ class Annotations(object):
         Returns:
             current_chrom (:obj:`str`): region of genome completed (b37 format)
 
+        TODO:
+            low_memory is deprecated so instead specify any ambiguous dtypes
+            https://stackoverflow.com/questions/24251219/pandas-read-csv-low-memory-and-dtype-options
+
         """
         annovar_out_loc = re.sub("txt$", "hg19_multianno.txt",
                                  self.annovar_file_loc % current_chrom)
