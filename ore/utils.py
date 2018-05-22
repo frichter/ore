@@ -67,7 +67,7 @@ def check_variant_inputs(args):
 
     """
     # TSS distance > 0
-    if args.tss_dist <= 0:
+    if any([i <= 0 for i in args.tss_dist]):
         print("TSS distance must be greater than 0")
         raise ValueError
     if args.upstream and args.downstream:
