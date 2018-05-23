@@ -267,13 +267,15 @@ cat vcf_per_chrom_headers.txt | uniq | wc -l
 
 cd /sc/orga/projects/chdiTrios/Felix/alzheimers/wgs
 time bcftools concat -f vcf_files_by_chrom.txt --output ad_wgs.vcf.gz -Oz --threads 3
-
+# user 586m50.518s
 ## get a warning, [W::hts_idx_load2] The index file is older than the data file: /sc/orga/projects/AMPADWGS/RawDataSinai/SCH_11923_06_16_2017/Project_SCH_11923_B02_GRM_WGS.2017-05-17/jgwd/joint_vcf/SCH_11923_B02_GRM_WGS_2017-05-15_others.recalibrated_variants.vcf.gz.tbi
 cp --verbose /sc/orga/projects/AMPADWGS/RawDataSinai/SCH_11923_06_16_2017/Project_SCH_11923_B02_GRM_WGS.2017-05-17/jgwd/joint_vcf/*variants.vcf.gz .
 ## so copy and paste files to current directory, recreate tabix
 for F in *_variants.vcf.gz; do time tabix -f -p vcf ${F}; done
 # for loop from https://www.biostars.org/p/259000/
-time bcftools concat -f vcf_files_by_chrom.txt --output ad_wgs_cp.vcf.gz -Oz --threads 3
+# ls *variants.vcf.gz
+time bcftools concat -f vcf_files_by_chrom_cp.txt -Ou  --threads 5 | time bcftools view -f PASS -i "F_MISSING <= 0.3 && QUAL >= 30" -o ad_wgs_cp.vcf.gz -Oz --threads 5
+# user 773m9.340s
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 
@@ -284,7 +286,7 @@ python -m ore.ore --version
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/alzheimers/expression/residuals_AMPAD_MSSM_GE_SV_17_tissue_36_with_disease_in_model_europeans_only.bed.gz"
 VCF_DIR="/sc/orga/projects/AMPADWGS/RawDataSinai/SCH_11923_06_16_2017/Project_SCH_11923_B02_GRM_WGS.2017-05-17/jgwd/joint_vcf/"
 VCF=$VCF_DIR"SCH_11923_B02_GRM_WGS_2017-05-15_1.recalibrated_variants.vcf.gz"
-OUT_PREFIX="/sc/orga/projects/chdiTrios/Felix/alzheimers/ore_2018_05/ad_ore_chr1"
+OUT_PREFIX="/sc/orga/projects/chdiTrios/Felix/alzheimers/ore_2018_05/ad_ore"
 ENRICH_F="/sc/orga/projects/chdiTrios/Felix/alzheimers/ore_2018_05/ad_ore_chr1_enrich_test.txt"
 
 time tabix -p bed $EXPR_F

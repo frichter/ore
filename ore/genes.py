@@ -142,8 +142,8 @@ class Genes(object):
                         out_line = "chr" + out_line
                     gene_bed_f.write(out_line + "\n")
                     line_count += 1
-                else:
-                    print(line_list[3], "not available in NCBI DB")
+                # else:
+                #     print(line_list[3], "not available in NCBI DB")
         return gene_bed_loc
 
     def check_gene_ref_genome(self):
