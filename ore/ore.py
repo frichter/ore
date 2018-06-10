@@ -188,8 +188,10 @@ def main():
                               "of outliers per ID", type=int, default=None)
     # Arguments for variants
     opt_var = parser.add_argument_group('Optional variant-related arguments')
-    opt_var.add_argument("--af_rare", help="AF cut-off below which a variant" +
-                         "is considered rare", type=float, nargs="*",
+    opt_var.add_argument("--af_rare", help="AF cut-off below which a " +
+                         "variant is considered rare (space" +
+                         "separated list e.g., 0.1 0.05)",
+                         type=float, nargs="*",
                          default=[0.01])
     opt_var.add_argument("--af_vcf", default=False, action="store_true",
                          help="Use the VCF AF field to define an " +
