@@ -232,17 +232,9 @@ OUT_PREFIX="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_04/wgs_arter
 ENRICH_PREFIX="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_04/enrichment_results/wgs_arterial_valve"
 
 
-####################
-##### GTEX LV
-####################
-EXPR_F="/hpc/users/richtf01/whole_genome/rare_variants_eqtl/gtex_control/gtex_final_expr_matrix/LV_gtex_2018_02_20/residual_expr_5_SVs_hg19.bed.gz"
-VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/rare_var_outliers/gtex_june_2017/wgs_gtex.vcf.gz"
-OUT_PREFIX="/sc/orga/projects/chdiTrios/Felix/dna_rna/rare_var_outliers/gtex_2018_04/wgs_gtex_lv_interactive"
-ENRICH_PREFIX="/sc/orga/projects/chdiTrios/Felix/dna_rna/rare_var_outliers/gtex_2018_04/enrichment_results/lv/"
-
 
 ####################
-##### AD
+##### AD prep
 ####################
 
 
@@ -277,39 +269,118 @@ for F in *_variants.vcf.gz; do time tabix -f -p vcf ${F}; done
 time bcftools concat -f vcf_files_by_chrom_cp.txt -Ou  --threads 5 | time bcftools view -f PASS -i "F_MISSING <= 0.3 && QUAL >= 30" -o ad_wgs_cp.vcf.gz -Oz --threads 5
 # user 773m9.340s
 
+cd /sc/orga/projects/chdiTrios/Felix/alzheimers/expression
+for F in *.bed.gz; do time tabix -f -p bed ${F}; done
+
+time tabix -p vcf ad_wgs_cp.vcf.gz
+
+####################
+##### AD RUN
+####################
+
+
+cd /sc/orga/projects/chdiTrios/Felix/alzheimers
+
+module load bedtools/2.27.0
+module load samtools/1.3
+module load bcftools/1.6
+module load python/3.5.0
+module load py_packages/3.5
+
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 
 python -m ore.ore --help
 python -m ore.ore --version
 
-
-EXPR_F="/sc/orga/projects/chdiTrios/Felix/alzheimers/expression/residuals_AMPAD_MSSM_GE_SV_17_tissue_36_with_disease_in_model_europeans_only.bed.gz"
-VCF_DIR="/sc/orga/projects/AMPADWGS/RawDataSinai/SCH_11923_06_16_2017/Project_SCH_11923_B02_GRM_WGS.2017-05-17/jgwd/joint_vcf/"
-VCF=$VCF_DIR"SCH_11923_B02_GRM_WGS_2017-05-15_1.recalibrated_variants.vcf.gz"
-OUT_PREFIX="/sc/orga/projects/chdiTrios/Felix/alzheimers/ore_2018_05/ad_ore"
-ENRICH_F="/sc/orga/projects/chdiTrios/Felix/alzheimers/ore_2018_05/ad_ore_chr1_enrich_test.txt"
-
-time tabix -p bed $EXPR_F
+PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/alzheimers"
+EXPR_F="$PARENT_DIR/expression/residuals_AMPAD_MSSM_GE_SV_17_tissue_36_with_disease_in_model_europeans_only.bed.gz"
+VCF="$PARENT_DIR/wgs/ad_wgs_cp.vcf.gz"
+OUT_PREFIX="$PARENT_DIR/ore_2018_05/ad_ore"
+ENRICH_F="$PARENT_DIR/ore_2018_05/ad_ore_enrich_test.txt"
 
 time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --bed $EXPR_F \
     --output $OUT_PREFIX \
     --enrich_file $ENRICH_F \
     --distribution "normal" \
+    --extrema \
     --threshold 2 \
     --max_outliers_per_id 1000 \
     --af_rare 5e-2 1e-2 1e-3 \
-    --tss_dist 1e4 \
+    --tss_dist 5e4 \
     --annovar \
     --variant_class "UTR5" \
     --ensgene \
     --refgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 2
+    --processes 3
 
     # --outlier_output "outliers_norm_SV5.txt" \
 
 
+## run on node with internet
+screen -R -D ore
+module purge
+module load python/3.5.0 py_packages/3.5
+virtualenv venv_ore
+source venv_ore/bin/activate
+pip install --upgrade pip
+pip install ore
+deactivate
 
 
+# Download ANNOVAR databases by (a) registering here:
+http://www.openbioinformatics.org/annovar/annovar_download_form.php
+
+# Will get a link like this with a specific USER_KEY
+wget http://www.openbioinformatics.org/annovar/download/USER_KEY/annovar.latest.tar.gz
+tar -xzvf annovar.latest.tar.gz
+
+# Set your data directory. REPLACE WITH YOUR OWN human_db location
+DB_DIR="./annovar/human_db/"
+
+# This provides the custom ANNOVAR scripts
+annotate_variation.pl
+retrieve_seq_from_fasta.pl
+
+DB_DIR="/sc/orga/projects/chdiTrios/whole_genome/humandb/"
+cd annovar
+perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar refGene humandb/
+perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar ensGene humandb/
+perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar gnomad_genome humandb/
+
+## Run these 3 commands
+perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar knownGene $DB_DIR/
+perl annotate_variation.pl --buildver hg19 --downdb seq $DB_DIR/hg19_seq
+perl retrieve_seq_from_fasta.pl $DB_DIR/hg19_knownGene.txt -seqdir $DB_DIR/hg19_seq -format knownGene -outfile $DB_DIR/hg19_knownGeneMrna.fa
+
+
+# Switch to node where you want to actually execute code
+ssh interactive_node
+screen -R -D ore
+module purge
+module load bedtools/2.27.0 samtools/1.3 bcftools/1.6
+module load python/3.5.0 py_packages/3.5 
+source venv_ore/bin/activate
+
+# Run ORE!
+VCF="wgs/ad_wgs_cp.vcf.gz"
+OUTPUT_PREFIX="brain_region_1"
+DB_DIR="annovar/human_db/"
+
+ore --vcf $VCF \
+    --bed $BED \
+    --output $OUTPUT_PREFIX \
+    --distribution "custom" \
+    --af_rare 5e-2 1e-2 1e-3 1e-4 1e-5 \
+    # --intracohort_rare_allele_count 5 \
+    --tss_dist 5e3 \
+    --annovar \
+    --humandb_dir $DB_DIR \
+    --n_processes 6
+
+
+time tar -zcvf wgs_by_chrom.tar.gz wgs_by_chrom/
+# VCF_DIR="/sc/orga/projects/AMPADWGS/RawDataSinai/SCH_11923_06_16_2017/Project_SCH_11923_B02_GRM_WGS.2017-05-17/jgwd/joint_vcf/"
+# VCF=$VCF_DIR"SCH_11923_B02_GRM_WGS_2017-05-15_1.recalibrated_variants.vcf.gz"
 

@@ -189,6 +189,10 @@ def main():
     opt_var.add_argument("--af_vcf", default=False, action="store_true",
                          help="Use the VCF AF field to define an " +
                          "allele as rare.")
+    opt_var.add_argument("--intracohort_rare_ac", default=False,
+                         action="store_true", help="For intra-cohort rare, " +
+                         "use an allele count rather than allele frequency" +
+                         "(still uses af_rare for population level AF cutoff)")
     opt_var.add_argument("--gq", help="Minimum genotype quality each " +
                          "variant in each individual",
                          type=float, default=30)
