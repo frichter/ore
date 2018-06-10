@@ -48,7 +48,8 @@ class Enrich(object):
         self.rv_outlier_loc = rv_outlier_loc
 
     def loop_enrichment(self, n_processes, expr_cut_off_vec,
-                        tss_cut_off_vec, af_cut_off_vec):
+                        tss_cut_off_vec, af_cut_off_vec,
+                        af_vcf, intracohort_rare_ac):
         """Loop over enrichment.
 
         Args:
@@ -66,7 +67,8 @@ class Enrich(object):
                                            af_cut_off_vec)
         # https://stackoverflow.com/questions/533905/get-the-cartesian-product-of-a-series-of-lists
         enrichment_per_tuple_partial = partial(
-            self.enrichment_per_tuple)
+            self.enrichment_per_tuple,
+            af_vcf, intracohort_rare_ac)
         # print("Using {} cores, less than all {} cores".format(
         #       n_processes, cpu_count()))
         # with Pool(n_processes) as p:
@@ -79,7 +81,7 @@ class Enrich(object):
             out_line_list.append(out_list)
         self.write_enrichment_to_file(out_line_list)
 
-    def enrichment_per_tuple(self, cut_off_tuple):
+    def enrichment_per_tuple(self, cut_off_tuple, af_vcf, intracohort_rare_ac):
         """Calculate enrichment for each tuple.
 
         Deep copy the joined_df to avoid race conditions. Shallow copy is
@@ -92,8 +94,10 @@ class Enrich(object):
         # smaller than latter
         max_intrapop_af = self.get_max_intra_pop_af(
             enrich_df, cut_off_tuple[2])
+        max_vcf_af = self.get_max_vcf_af(enrich_df, cut_off_tuple[2])
         enrich_df = self.identify_rows_to_keep(
-            enrich_df, max_intrapop_af,
+            enrich_df, max_intrapop_af, max_vcf_af,
+            af_vcf, intracohort_rare_ac,
             self.distribution, cut_off_tuple)
         # var_list = calculate_var_enrichment(enrich_df)
         gene_list = calculate_gene_enrichment(enrich_df)
@@ -103,8 +107,9 @@ class Enrich(object):
         return "\t".join([str(i) for i in out_list])
 
     @staticmethod
-    def identify_rows_to_keep(joined_df, max_intrapop_af, distribution,
-                              cut_off_tuple):
+    def identify_rows_to_keep(joined_df, max_intrapop_af, max_vcf_af,
+                              af_vcf, intracohort_rare_ac,
+                              distribution, cut_off_tuple):
         """Reclassify rare variants and outliers and identify rows to keep.
 
         Keep only rows for genes with at least 1 outlier
@@ -139,10 +144,19 @@ class Enrich(object):
         joined_df = joined_df.loc[joined_df.gene_has_out_w_vars]
         print("filtered by if gene has outlier:", joined_df.shape)
         # classify as rare/common
-        joined_df.loc[:, "rare_variant_status"] = (
-            joined_df.popmax_af <= af_cut_off) & (
-            # joined_df.var_id_count <= 5)
-            joined_df.intra_cohort_af <= max_intrapop_af)
+        rare_variant_status = joined_df.popmax_af <= af_cut_off
+        if af_vcf:
+            rare_variant_status = (rare_variant_status &
+                                   joined_df.VCF_af <= max_vcf_af)
+        if intracohort_rare_ac:
+            rare_variant_status = (rare_variant_status &
+                                   joined_df.intra_cohort_ac <=
+                                   intracohort_rare_ac)
+        else:
+            rare_variant_status = (rare_variant_status &
+                                   joined_df.intra_cohort_af <=
+                                   max_intrapop_af)
+        joined_df.loc[:, "rare_variant_status"] = rare_variant_status
         return joined_df
 
     def write_enrichment_to_file(self, out_line_list):
@@ -177,7 +191,23 @@ class Enrich(object):
             max_intra_pop_af = af_cut_off
         return max_intra_pop_af
 
-    def write_rvs_w_outs_to_file(self, out_cut_off, tss_cut_off, af_cut_off):
+    @staticmethod
+    def get_max_vcf_af(df_w_vcf_af, af_cut_off):
+        """Obtain the maximum VCF AF to classify variants as rare.
+
+        Args:
+            `df_w_vcf_af` (:obj:`DataFrame`): a DF with a `VCF_af` column
+            `af_cut_off` (:obj:`float`): current allele frequency cut-off
+
+        """
+        if af_cut_off < min(df_w_vcf_af.VCF_af):
+            max_vcf_af = min(df_w_vcf_af.VCF_af)
+        else:
+            max_vcf_af = af_cut_off
+        return max_vcf_af
+
+    def write_rvs_w_outs_to_file(self, out_cut_off, tss_cut_off, af_cut_off,
+                                 af_vcf, intracohort_rare_ac):
         """Write outliers with specified cut-offs to a file.
 
         Args:
@@ -187,14 +217,17 @@ class Enrich(object):
         cut_off_tuple = (out_cut_off, tss_cut_off, af_cut_off)
         enrich_df = copy.deepcopy(self.joined_df)
         max_intrapop_af = self.get_max_intra_pop_af(enrich_df, af_cut_off)
+        max_vcf_af = self.get_max_vcf_af(enrich_df, af_cut_off)
         outlier_df = self.identify_rows_to_keep(
-            enrich_df, max_intrapop_af,
+            enrich_df, max_intrapop_af, max_vcf_af,
+            af_vcf, intracohort_rare_ac,
             distribution=self.distribution, cut_off_tuple=cut_off_tuple)
         # only keep outliers with rare variants
         outlier_df = outlier_df.loc[
             outlier_df.rare_variant_status & outlier_df.expr_outlier]
         cols_to_keep = ["blinded_id", "gene", "z_expr", "tss_dist",
-                        "var_id", "popmax_af", "intra_cohort_af", "VCF_af"]
+                        "var_id", "popmax_af", "intra_cohort_af",
+                        "intra_cohort_ac", "VCF_af"]
         outlier_df = outlier_df[cols_to_keep]
         print(outlier_df.head())
         outlier_df.to_csv(self.rv_outlier_loc, index=False, sep="\t",
