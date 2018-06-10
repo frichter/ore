@@ -44,7 +44,7 @@ Example run
         --af_rare 0.05 0.01 1e-3 \
         --tss_dist 5000
 
-Usage, visit the `latest ORE documentation`_ for more
+Usage
 
 .. code-block:: none
 
@@ -82,9 +82,8 @@ Optional outlier arguments:
                         {normal,rank,custom}
   --threshold THRESHOLD
                         Expression threshold for defining outliers. Must be
-                        greater than 0 for --distribution normal or (0,0.5)
-                        non-inclusive with --distribution rank. Ignored with
-                        --distribution custom
+                        greater than 0 for normal or (0,0.5)
+                        non-inclusive with rank. Ignored with custom
   --max_outliers_per_id MAX_OUTLIERS_PER_ID
                         Maximum number of outliers per ID
 
