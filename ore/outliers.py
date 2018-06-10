@@ -155,9 +155,11 @@ class Outliers(object):
         elif self.distribution == "custom":
             not_0_1 = ~self.expr_long_df.z_expr.isin([0, 1])
             if any(not_0_1):
-                print(self.expr_long_df[not_0_1])
+                print(self.expr_long_df[not_0_1].head())
                 raise RNASeqError("The values above were not 0 or 1")
             self.expr_long_df["expr_outlier"] = self.expr_long_df.z_expr == 1
+            # set expr_outlier_neg as 0 for custom
+            self.expr_long_df["expr_outlier_neg"] = 0
         else:
             raise RNASeqError("'{}' is not a valid outlier distribution".
                               format(self.distribution))

@@ -68,7 +68,7 @@ class Enrich(object):
         # https://stackoverflow.com/questions/533905/get-the-cartesian-product-of-a-series-of-lists
         enrichment_per_tuple_partial = partial(
             self.enrichment_per_tuple,
-            af_vcf, intracohort_rare_ac)
+            af_vcf=af_vcf, intracohort_rare_ac=intracohort_rare_ac)
         # print("Using {} cores, less than all {} cores".format(
         #       n_processes, cpu_count()))
         # with Pool(n_processes) as p:
@@ -76,12 +76,14 @@ class Enrich(object):
         #                           cartesian_iter)
         out_line_list = []
         for cut_off_tuple in cartesian_iter:
+            print(cut_off_tuple)
             out_list = enrichment_per_tuple_partial(cut_off_tuple)
             print(out_list)
             out_line_list.append(out_list)
         self.write_enrichment_to_file(out_line_list)
 
-    def enrichment_per_tuple(self, cut_off_tuple, af_vcf, intracohort_rare_ac):
+    def enrichment_per_tuple(self, cut_off_tuple, af_vcf=False,
+                             intracohort_rare_ac=None):
         """Calculate enrichment for each tuple.
 
         Deep copy the joined_df to avoid race conditions. Shallow copy is
@@ -92,6 +94,7 @@ class Enrich(object):
         enrich_df = copy.deepcopy(self.joined_df)
         # replace af_cut_off with intra-cohort minimum if former is
         # smaller than latter
+        print(cut_off_tuple)
         max_intrapop_af = self.get_max_intra_pop_af(
             enrich_df, cut_off_tuple[2])
         max_vcf_af = self.get_max_vcf_af(enrich_df, cut_off_tuple[2])
@@ -120,7 +123,7 @@ class Enrich(object):
         # classify as within x kb of TSS
         joined_df["near_TSS"] = abs(joined_df.tss_dist) <= tss_cut_off
         joined_df = joined_df.loc[joined_df.near_TSS]
-        print("filtered by TSS:", joined_df.shape)
+        # print("filtered by TSS:", joined_df.shape)
         # update outliers based on more extreme cut-offs
         if distribution == "normal":
             joined_df.expr_outlier = (
@@ -135,6 +138,8 @@ class Enrich(object):
             joined_df.loc[:, "expr_outlier"] = (
                 (joined_df.expr_rank >= hi_expr_cut_off) |
                 joined_df.expr_outlier_neg) & joined_df.expr_outlier
+        # expression outliers should be preset as 0 and 1 for custom
+        # i.e., there should be no parameter iteration in this dimension
         # else: raise error
         # only keep if there is any outlier in the gene
         joined_df.loc[:, 'gene_has_out_w_vars'] = joined_df.groupby(
@@ -142,20 +147,17 @@ class Enrich(object):
         joined_df.loc[:, 'gene_has_NEG_out_w_vars'] = joined_df.groupby(
             'gene')['expr_outlier_neg'].transform('sum') > 0
         joined_df = joined_df.loc[joined_df.gene_has_out_w_vars]
-        print("filtered by if gene has outlier:", joined_df.shape)
         # classify as rare/common
         rare_variant_status = joined_df.popmax_af <= af_cut_off
         if af_vcf:
-            rare_variant_status = (rare_variant_status &
-                                   joined_df.VCF_af <= max_vcf_af)
+            rare_variant_status = rare_variant_status & (
+                joined_df.VCF_af <= max_vcf_af)
         if intracohort_rare_ac:
-            rare_variant_status = (rare_variant_status &
-                                   joined_df.intra_cohort_ac <=
-                                   intracohort_rare_ac)
+            rare_variant_status = rare_variant_status & (
+                joined_df.intra_cohort_ac <= intracohort_rare_ac)
         else:
-            rare_variant_status = (rare_variant_status &
-                                   joined_df.intra_cohort_af <=
-                                   max_intrapop_af)
+            rare_variant_status = rare_variant_status & (
+                joined_df.intra_cohort_af <= max_intrapop_af)
         joined_df.loc[:, "rare_variant_status"] = rare_variant_status
         return joined_df
 
@@ -229,7 +231,6 @@ class Enrich(object):
                         "var_id", "popmax_af", "intra_cohort_af",
                         "intra_cohort_ac", "VCF_af"]
         outlier_df = outlier_df[cols_to_keep]
-        print(outlier_df.head())
         outlier_df.to_csv(self.rv_outlier_loc, index=False, sep="\t",
                           float_format='%g')
 

@@ -139,7 +139,10 @@ class JoinedVarExpr(object):
         self.df.rename(columns={"var_id_freq": "intra_cohort_af",
                                 "var_id_count": "intra_cohort_ac"},
                        inplace=True)
-        cols_to_keep = ["blinded_id", "gene", "z_expr", "tss_dist",
+        print(self.df.head())
+        print(self.df.shape)
+        cols_to_keep = ["blinded_id", "gene", "z_expr", "z_abs",
+                        "expr_outlier", "expr_outlier_neg", "tss_dist",
                         "var_id", "popmax_af", "intra_cohort_af",
                         "intra_cohort_ac", "VCF_af"]
         out_df = self.df[cols_to_keep]
