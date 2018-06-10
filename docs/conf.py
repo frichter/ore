@@ -89,6 +89,7 @@ color = {'green': '#00ff00',
          'skyblue': '#1ad1ff',
          'lightgray': '#b3b3b3',
          'white': '#FFFFFF',
+         'purple': '#ac00e6',
          'black': '#000000'}
 
 html_theme_options = {
@@ -98,9 +99,9 @@ html_theme_options = {
     'github_banner': False,
     # 'touch_icon': "logos/ios_home.png" # iOS home button icon
     'sidebar_collapse': False,
-    'link': color['skyblue'],
-    'link_hover': color['green'],
-    'gray_1': color['lightgray'],
+    'link': color['purple'],
+    'link_hover': color['skyblue'],
+    'gray_1': color['black']
     # 'narrow_sidebar_bg': color['gray'],
     # 'narrow_sidebar_fg': color['white'],
     # typography
