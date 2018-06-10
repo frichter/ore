@@ -85,11 +85,8 @@ html_theme = 'alabaster'
 # documentation.
 # http://alabaster.readthedocs.io/en/latest/customization.html
 
-color = {'green': '#00ff00',
-         'skyblue': '#1ad1ff',
-         'lightgray': '#b3b3b3',
-         'white': '#FFFFFF',
-         'purple': '#ac00e6',
+color = {'skyblue': '#1ad1ff',
+         'purple': '#8600b3',
          'black': '#000000'}
 
 html_theme_options = {
@@ -99,18 +96,14 @@ html_theme_options = {
     'github_banner': False,
     # 'touch_icon': "logos/ios_home.png" # iOS home button icon
     'sidebar_collapse': False,
+    # colors
+    'body_text': color['black'],
     'link': color['purple'],
     'link_hover': color['skyblue'],
-    'gray_1': color['black']
-    # 'narrow_sidebar_bg': color['gray'],
-    # 'narrow_sidebar_fg': color['white'],
+    'gray_1': color['black'],
     # typography
-    # 'font_size': 17,
+    'font_family': "Helvetica"
     # 'font_family': "'PT Sans', Helvetica, Arial, 'sans-serif'",
-    # 'head_font_family': "",
-    # 'code_font_size': "smaller",
-    # 'code_font_family': "Menlo, Monaco, 'Courier New', monospace",
-    # 'caption_font_size': "smaller",
     }
 
 # Add any paths that contain custom static files (such as style sheets) here,
