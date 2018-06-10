@@ -121,6 +121,6 @@ Felix Richter <felix.richter@icahn.mssm.edu>
 
 
 .. _Python >=3.5.0: https://www.python.org/downloads/release/python-350/
-.. _bedtools >=2.27.0: (http://bedtools.readthedocs.io/en/latest/
+.. _bedtools >=2.27.0: http://bedtools.readthedocs.io/en/latest/
 .. _samtools >=1.3 and bcftools >=1.6: http://www.htslib.org/download/
 .. _latest ORE documentation: http://ore.readthedocs.io/en/latest/ 
