@@ -83,8 +83,34 @@ html_theme = 'alabaster'
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#
-# html_theme_options = {}
+# http://alabaster.readthedocs.io/en/latest/customization.html
+
+color = {'green': '#00ff00',
+         'skyblue': '#1ad1ff',
+         'lightgray': '#b3b3b3',
+         'white': '#FFFFFF',
+         'black': '#000000'}
+
+html_theme_options = {
+    # 'logo' : "logos/ore_logo.png", # found in _static/logos
+    'github_user': "frichter",
+    'github_repo': "ore",
+    'github_banner': False,
+    # 'touch_icon': "logos/ios_home.png" # iOS home button icon
+    'sidebar_collapse': False,
+    'link': color['skyblue'],
+    'link_hover': color['green'],
+    'gray_1': color['lightgray'],
+    # 'narrow_sidebar_bg': color['gray'],
+    # 'narrow_sidebar_fg': color['white'],
+    # typography
+    # 'font_size': 17,
+    # 'font_family': "'PT Sans', Helvetica, Arial, 'sans-serif'",
+    # 'head_font_family': "",
+    # 'code_font_size': "smaller",
+    # 'code_font_family': "Menlo, Monaco, 'Courier New', monospace",
+    # 'caption_font_size': "smaller",
+    }
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
