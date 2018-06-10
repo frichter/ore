@@ -97,11 +97,11 @@ Optional arguments for using ANNOVAR:
                         functional class
   --variant_class
                         Only variants in these classes will be considered. Options:
-                         {intronic,intergenic,exonic,UTR5,UTR3,splicing,upstream,ncRNA}
+                        {intronic,intergenic,exonic,UTR5,UTR3,splicing,upstream,ncRNA}
   --exon_class
                         Only variants with these exonic impacts will be
                         considered. Options:
-                         {nonsynonymous,intergenic,nonframeshift,frameshift,stopgain,stoploss}
+                        {nonsynonymous,intergenic,nonframeshift,frameshift,stopgain,stoploss}
   --refgene             Filter on RefGene function.
   --ensgene             Filter on ENSEMBL function.
   --annovar_dir ANNOVAR_DIR
