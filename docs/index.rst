@@ -19,6 +19,10 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+
+Getting started
+~~~~~~~~~~~~~~~~~~~
+
 To use ORE (outlier-RV enrichment), confirm the following are installed:
 
     - `Python >=3.5.0`_
@@ -44,7 +48,11 @@ Example run
         --af_rare 0.05 0.01 1e-3 \
         --tss_dist 5000
 
-Usage
+
+
+Arguments
+~~~~~~~~~~~~~~~~~~~
+
 
 .. code-block:: none
 
@@ -62,6 +70,9 @@ Usage
            [--refgene] [--ensgene] [--annovar_dir ANNOVAR_DIR]
            [--humandb_dir HUMANDB_DIR] [--processes PROCESSES] [--clean_run]
 
+
+Argument details
+~~~~~~~~~~~~~~~~~~~
 
 Required arguments:
   -v VCF, --vcf VCF     Location of VCF file
