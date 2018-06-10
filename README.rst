@@ -90,7 +90,8 @@ Optional variant-related arguments:
                         Variants within this distance of the TSS are
                         considered
   --upstream            Only variants UPstream of TSS
-  --downstream          Only variants DOWNstream of TSS
+  --downstream
+                        Only variants DOWNstream of TSS
 
 Optional arguments for using ANNOVAR:
   --annovar             Use ANNOVAR to specify allele frequencies and
