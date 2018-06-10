@@ -90,7 +90,7 @@ Optional variant-related arguments:
                         Variants within this distance of the TSS are
                         considered
   --upstream            Only variants UPstream of TSS
-  --downstream
+  --downstream          
                         Only variants DOWNstream of TSS
 
 Optional arguments for using ANNOVAR:
