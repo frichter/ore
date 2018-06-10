@@ -72,7 +72,7 @@ def associate_outliers(args):
                             clean_run=args.clean_run,
                             logger=logger)
     chroms_completed = variants_obj.extract_variants_from_vcf(
-         gq=args.gq, dp=args.dp, aar=args.aar)
+         gq=args.gq, dp=args.dp, aar=args.aar, af_vcf=args.af_vcf)
     logger.info("LONG format variant abstraction done for chromosomes...\n" +
                 ", ".join(chroms_completed) + "\n")
     # annovar
@@ -130,7 +130,8 @@ def associate_outliers(args):
     enrich_obj.write_rvs_w_outs_to_file(
         out_cut_off=outlier_obj.least_extr_threshold,
         tss_cut_off=max_tss_dist,
-        af_cut_off=max(args.af_rare))
+        af_cut_off=max(args.af_rare),
+        intracohort_rare_ac=args.intracohort_rare_ac)
     logger.info("Printed final set of outliers with rare variants")
     enrich_obj.loop_enrichment(n_processes=args.processes,
                                expr_cut_off_vec=args.threshold,
@@ -190,6 +191,10 @@ def main():
     opt_var.add_argument("--af_vcf", default=False, action="store_true",
                          help="Use the VCF AF field to define an " +
                          "allele as rare.")
+    opt_var.add_argument("--intracohort_rare_ac", default=False,
+                         action="store_true", help="For intra-cohort rare, " +
+                         "use an allele count rather than allele frequency" +
+                         "(still uses af_rare for population level AF cutoff)")
     opt_var.add_argument("--gq", help="Minimum genotype quality each " +
                          "variant in each individual",
                          type=float, default=30)
