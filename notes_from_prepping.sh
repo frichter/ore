@@ -98,6 +98,8 @@ mv README2.rst README.rst
 cd docs
 sphinx-quickstart # accept defaults for most
 
+# convert to html (from within docs)
+make html
 # https://readthedocs.org/dashboard/ore/version/latest/
 
 ############################################################
@@ -106,7 +108,7 @@ sphinx-quickstart # accept defaults for most
 
 ## final commands run: 
 ## need to update version EVERYTIME in version.py
-# confirm readme is parsed correctly:
+# confirm readme rst is parsed correctly:
 python3 setup.py check --restructuredtext
 # confirm previous builds are archived
 ls dist/ore*
