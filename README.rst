@@ -1,7 +1,7 @@
 ORE: Outlier-RV enrichment
 --------------------------
 
-Associate outliers with rare variants. To use ORE (outlier-RV enrichment), confirm the following are installed:
+To use ORE (outlier-RV enrichment), confirm the following are installed:
 
     - `Python >=3.5.0`_
     - `bedtools >=2.27.0`_
