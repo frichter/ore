@@ -1,6 +1,8 @@
 ORE: Outlier-RV enrichment
 --------------------------
 
+|docs|
+
 To use ORE (outlier-RV enrichment), confirm the following are installed:
 
     - `Python >=3.5.0`_

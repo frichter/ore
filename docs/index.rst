@@ -12,14 +12,6 @@ ORE: Outlier-RV enrichment
 
 
 
-Indices and tables
-~~~~~~~~~~~~~~~~~~~
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-
 Getting started
 ~~~~~~~~~~~~~~~~~~~
 
@@ -150,6 +142,15 @@ Contact
 ~~~~~~~~~~~~~~~~~~~
 
 Felix Richter <felix.richter@icahn.mssm.edu>
+
+
+
+Indices and tables
+~~~~~~~~~~~~~~~~~~~
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
 
 
 .. _Python >=3.5.0: https://www.python.org/downloads/release/python-350/
