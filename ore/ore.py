@@ -165,10 +165,13 @@ def main():
     required.add_argument("-b", "--bed", help="Gene expression file location",
                           required=True)
     optional_files = parser.add_argument_group('Optional file locations')
-    optional_files.add_argument("-o", "--output", help="Output prefix")
-    optional_files.add_argument("--outlier_output", help="Outlier filename")
+    optional_files.add_argument("-o", "--output", help="Output prefix " +
+                                "(default is VCF prefix)")
+    optional_files.add_argument("--outlier_output", help="Outlier filename " +
+                                "(default is VCF prefix)")
     optional_files.add_argument("--enrich_file", help="Output file for " +
-                                "enrichment odds ratios and p-values")
+                                "enrichment odds ratios and p-values " +
+                                "(default is VCF prefix)")
     # Arguments for expression outliers
     opt_out_args = parser.add_argument_group('Optional outlier arguments')
     opt_out_args.add_argument("--extrema", default=False,  # "-e",

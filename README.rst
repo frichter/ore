@@ -51,11 +51,11 @@ Required arguments:
 
 Optional file locations:
   -o OUTPUT, --output OUTPUT
-                        Output prefix
+                        Output prefix (default is VCF prefix)
   --outlier_output OUTLIER_OUTPUT
-                        Outlier filename
+                        Outlier filename (default is VCF prefix)
   --enrich_file ENRICH_FILE
-                        Output file for enrichment odds ratios and p-values
+                        Output file for enrichment odds ratios and p-values (default is VCF prefix)
 
 Optional outlier arguments:
   --extrema             Only the most extreme value is an outlier
@@ -115,6 +115,7 @@ optional arguments:
   --processes PROCESSES
                         Number of CPU processes
   --clean_run           Delete temporary files from the previous run
+
 
 Felix Richter <felix.richter@icahn.mssm.edu>
 

@@ -145,6 +145,10 @@ optional arguments:
                         Number of CPU processes
   --clean_run           Delete temporary files from the previous run
 
+
+Contact
+~~~~~~~~~~~~~~~~~~~
+
 Felix Richter <felix.richter@icahn.mssm.edu>
 
 
