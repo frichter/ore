@@ -78,10 +78,12 @@ Optional variant-related arguments:
                         Allele COUNT to be used instead of intra-cohort allele
                         frequency. (still uses af_rare for population level AF
                         cut-off)
-  --gq GQ               Minimum genotype quality each variant in each
-                        individual
-  --dp DP               Minimum depth per variant in each individual
-  --aar AAR AAR         Alternate allelic ratio for heterozygous variants
+  --gq GQ
+                        Minimum genotype quality each variant in each individual
+  --dp DP
+                        Minimum depth per variant in each individual
+  --aar AAR
+                        Alternate allelic ratio for heterozygous variants
                         (provide two space-separated numbers between 0 and 1,
                         e.g., 0.2 0.8)
   --tss_dist TSS_DIST
