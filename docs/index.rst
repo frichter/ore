@@ -1,7 +1,9 @@
+.. -*- coding: utf-8 -*-
 .. ORE documentation master file, created by
    sphinx-quickstart on Tue Apr 24 18:53:07 2018.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
+
 
 ORE: Outlier-RV enrichment
 ===============================
@@ -21,15 +23,15 @@ To use ORE (outlier-RV enrichment), confirm the following are installed:
     - `bedtools >=2.27.0`_
     - `samtools >=1.3 and bcftools >=1.6`_
 
-Then, on the command line, install with
+Then, on the command line, install with pip_ using
 
-.. code-block:: none
+.. code-block:: bash
 
     pip install ore
 
 Example run
 
-.. code-block:: none
+.. code-block:: bash
 
     ore --vcf test.vcf.gz \
         --bed test.bed.gz \
@@ -40,6 +42,11 @@ Example run
         --af_rare 0.05 0.01 1e-3 \
         --tss_dist 5000
 
+
+.. _Python >=3.5.0: https://www.python.org/downloads/release/python-350/
+.. _bedtools >=2.27.0: http://bedtools.readthedocs.io/en/latest/
+.. _samtools >=1.3 and bcftools >=1.6: http://www.htslib.org/download/
+.. _pip: http://www.pip-installer.org/en/latest/index.html
 
 
 Arguments
@@ -141,7 +148,8 @@ optional arguments:
 Contact
 ~~~~~~~~~~~~~~~~~~~
 
-Felix Richter <felix.richter@icahn.mssm.edu>
+Please report **bugs** or **requests** through the `Issue
+Tracker`_. Alternatively, contact Felix Richter at <felix.richter@icahn.mssm.edu>
 
 
 
@@ -153,7 +161,4 @@ Indices and tables
 * :ref:`search`
 
 
-.. _Python >=3.5.0: https://www.python.org/downloads/release/python-350/
-.. _bedtools >=2.27.0: http://bedtools.readthedocs.io/en/latest/
-.. _samtools >=1.3 and bcftools >=1.6: http://www.htslib.org/download/
-.. _latest ORE documentation: http://ore.readthedocs.io/en/latest/ 
+.. _Issue Tracker: https://github.com/frichter/ore/issues
