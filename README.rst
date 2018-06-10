@@ -4,8 +4,8 @@ ORE: Outlier-RV enrichment
 Associate outliers with rare variants. To use ORE (outlier-RV enrichment), confirm the following are installed:
 
     - `Python >=3.5.0`_
-    - bedtools >=2.27.0 (http://bedtools.readthedocs.io/en/latest/)
-    - samtools >=1.3 and bcftools >=1.6 (both from http://www.htslib.org/download/)
+    - `bedtools >=2.27.0`
+    - `samtools >=1.3 and bcftools >=1.6`
 
 Then, on the command line, install with
 
@@ -121,3 +121,5 @@ Felix Richter <felix.richter@icahn.mssm.edu>
 
 
 .. _Python >=3.5.0: https://www.python.org/downloads/release/python-350/
+.. _bedtools >=2.27.0: (http://bedtools.readthedocs.io/en/latest/
+.. _samtools >=1.3 and bcftools >=1.6: http://www.htslib.org/download/
