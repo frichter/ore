@@ -25,13 +25,13 @@ To use ORE (outlier-RV enrichment), confirm the following are installed:
 
 Then, on the command line, install with pip_ using
 
-.. code-block:: bash
+.. code-block:: none
 
     pip install ore
 
 Example run
 
-.. code-block:: bash
+.. code-block:: none
 
     ore --vcf test.vcf.gz \
         --bed test.bed.gz \
