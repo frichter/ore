@@ -15,7 +15,7 @@ Then, on the command line, install with
 
 Example run
 
-.. code-block:: bash
+.. code-block::
    :linenos:
 
     ore --vcf test.vcf.gz \
