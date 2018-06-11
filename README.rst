@@ -1,7 +1,7 @@
 ORE: Outlier-RV enrichment
 --------------------------
 
-To use ORE (outlier-RV enrichment), confirm the following are installed:
+Cursory use of ORE (outlier-RV enrichment) is provided here, visit the `latest ORE documentation`_ for more details. Confirm the following are installed:
 
     - `Python >=3.5.0`_
     - `bedtools >=2.27.0`_
@@ -25,6 +25,10 @@ Example run
         --max_outliers_per_id 500 \
         --af_rare 0.05 0.01 1e-3 \
         --tss_dist 5000
+
+
+Variants and gene expression are specified with :code:`--vcf` and (line 1) :code:`--bed` (line 2), respectively. The output prefix is provided with :code:`--output` (line 3). In this example, the outlier specifications :code:`--distribution` (line 4), `:code:--threshold` (line 5), and :code:`--max_outliers_per_id` (line 6) indicate that outliers are defined using a normal distribution with a z-score more extreme than two, and samples with more than 500 outliers are excluded. Variant information is specified with :code:`--af_rare` (line 7) and :code:`--tss_dist` (line 8) to encode that variants are defined as rare with a intra-cohort allele frequency at varying thresholds (≤ 0.05, 0.01, and 0.001), and to only use variants within 5 kb of the TSS.
+
 
 Usage, visit the `latest ORE documentation`_ for more
 
