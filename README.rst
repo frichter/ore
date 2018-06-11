@@ -15,12 +15,13 @@ Then, on the command line, install with
 
 Example run
 
-.. code-block::
+.. code-block:: none
+   :linenos:
 
     ore --vcf test.vcf.gz \
         --bed test.bed.gz \
-        --enrich_file enrichment.txt \
-        --distribution "normal" \
+        --output ore_results \
+        --distribution normal \
         --threshold 2 3 4 \
         --max_outliers_per_id 500 \
         --af_rare 0.05 0.01 1e-3 \
