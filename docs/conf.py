@@ -87,6 +87,7 @@ html_theme = 'alabaster'
 
 color = {'skyblue': '#1ad1ff',
          'purple': '#8600b3',
+         'blue': '#0033cc',
          'black': '#000000'}
 
 html_theme_options = {
@@ -98,7 +99,7 @@ html_theme_options = {
     'sidebar_collapse': False,
     # colors
     'body_text': color['black'],
-    'link': color['purple'],
+    'link': color['blue'],
     'link_hover': color['skyblue'],
     'gray_1': color['black'],
     # typography
