@@ -134,16 +134,16 @@ class Genes(object):
                 search_chrom = re.sub('chr', '', search_chrom)
             for line in tbx_gene_handle.fetch(search_chrom, 0, 3e8):
                 line_list = line.strip().split("\t")[0:4]
+                line_list.append(str(line_count))
                 if line_list[3] in strand_dict:
-                    line_list.append(str(line_count))
                     line_list.append(strand_dict[line_list[3]])
-                    out_line = "\t".join(line_list)
-                    if not self.ucsc_ref_genome:
-                        out_line = "chr" + out_line
-                    gene_bed_f.write(out_line + "\n")
-                    line_count += 1
                 else:
-                    print(line_list[3], "not available in NCBI DB")
+                    line_list.append("NA")
+                out_line = "\t".join(line_list)
+                if not self.ucsc_ref_genome:
+                    out_line = "chr" + out_line
+                gene_bed_f.write(out_line + "\n")
+                line_count += 1
         return gene_bed_loc
 
     def check_gene_ref_genome(self):
@@ -175,7 +175,7 @@ class Genes(object):
                                usecols=cols_to_use,
                                names=bed_col_names)
         # max TSS distance
-        var_df = var_df.loc[abs(var_df.tss_dist) < max_tss_dist]
+        var_df = var_df.loc[abs(var_df.tss_dist) <= max_tss_dist]
         if upstream_only:
             var_df = var_df.loc[var_df.tss_dist < 0]
         elif downstream_only:
