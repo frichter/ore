@@ -70,8 +70,9 @@ class Genes(object):
 
         Docs for bedtools closest:
             http://bedtools.readthedocs.io/en/latest/content/tools/closest.html
-            - D b option: declare variant as upstream/downstream with
-            respect to the strand of the gene TSS
+            - D b option: reports distance and declare variant as
+                upstream/downstream with respect to the strand
+                of the gene TSS. Note that overlapping feature distance = 0
             -t option: what to do with genes with the same TSS? pick the first
 
         Args:
@@ -160,6 +161,8 @@ class Genes(object):
         Only keep a subset of the variants, those within 10^5 base pairs of
             the TSS and possibly only those upstream or downstream.
         Can go under genes.py or annotations.py
+        Note that filter is <= max_tss_dist and not < max_tss_dist so that a
+            tss_distance cut-off of 0 corresponds to overlapping features
 
         Args:
             upstream_only: logical
