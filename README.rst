@@ -16,7 +16,6 @@ Then, on the command line, install with
 Example run
 
 .. code-block:: bash
-  :emphasize-lines: 1,2
 
   ore --vcf test.vcf.gz \
       --bed test.bed.gz \
