@@ -8,7 +8,7 @@ Running ORE
 Flowchart
 ~~~~~~~~~
 
-.. image:: _static/ore_flowchart.png
+.. image:: ore_flowchart.png
    :align: left
 
 Pre-processing data
