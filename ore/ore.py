@@ -160,10 +160,10 @@ def main():
                         version="%(prog)s {}".format(__version__))
     # Arguments for file locations
     required = parser.add_argument_group('Required arguments')
-    required.add_argument("-v", "--vcf", help="Location of VCF file",
-                          required=True)
-    required.add_argument("-b", "--bed", help="Gene expression file location",
-                          required=True)
+    required.add_argument("-v", "--vcf", help="Location of VCF file. Must " +
+                          "be tabixed!", required=True)
+    required.add_argument("-b", "--bed", help="Gene expression file " +
+                          "location. Must be tabixed!", required=True)
     optional_files = parser.add_argument_group('Optional file locations')
     optional_files.add_argument("-o", "--output", help="Output prefix " +
                                 "(default is VCF prefix)")
