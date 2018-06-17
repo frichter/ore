@@ -128,7 +128,7 @@ html_sidebars = {
         'globaltoc.html',
         # 'about.html',
         # 'navigation.html',
-        'relations.html',
+        # 'relations.html',
         # 'searchbox.html',
         # 'donate.html',
     ]
