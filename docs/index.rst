@@ -10,7 +10,6 @@ ORE: Outlier-RV enrichment
 
 .. toctree::
    :maxdepth: 2
-   :hidden:
 
    index
    run_ore
