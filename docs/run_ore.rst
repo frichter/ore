@@ -5,7 +5,7 @@ Running ORE
 
 ..
 
-Flowchart
+Overview
 ~~~~~~~~~
 
 .. image:: _static/ore_flowchart.png
@@ -32,7 +32,7 @@ ORE uses the same inputs as FastQTL_, bgzip_ with bcftools and index with tabix_
     tabix -p bed test.bed.gz
 
 
-Normalize_ the VCF using :code:`bcftools norm`_. Standardize every allele into its most parsimonious and left aligned form (so that appropriate allele frequencies can be obtained from population databases)
+Normalize_ the VCF using `bcftools norm`_. Standardize every allele into its most parsimonious and left aligned form (so that appropriate allele frequencies can be obtained from population databases)
 
 .. code-block:: bash
 
