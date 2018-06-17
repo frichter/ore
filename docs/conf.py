@@ -123,15 +123,16 @@ html_static_path = ['_static']
 # html_sidebars = {'**': ['globaltoc.html', 'relations.html',
 #                         'sourcelink.html', 'searchbox.html']}
 
-# html_sidebars = {
-#     '**': [
-#         'about.html',
-#         'navigation.html',
-#         'relations.html',
-#         # 'searchbox.html',
-#         # 'donate.html',
-#     ]
-# }
+html_sidebars = {
+    '**': [
+        'globaltoc.html',
+        # 'about.html',
+        # 'navigation.html',
+        # 'relations.html',
+        # 'searchbox.html',
+        # 'donate.html',
+    ]
+}
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
