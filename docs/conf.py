@@ -129,7 +129,7 @@ html_sidebars = {
         # 'about.html',
         # 'navigation.html',
         # 'sourcelink.html',
-        # 'relations.html',
+        'relations.html',
         # 'searchbox.html',
         # 'donate.html',
     ]
