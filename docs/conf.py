@@ -41,6 +41,7 @@ release = '0.1.6'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
+    'sphinxcontrib.fulltoc',
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
 ]
@@ -128,6 +129,7 @@ html_sidebars = {
         'globaltoc.html',
         # 'about.html',
         # 'navigation.html',
+        'sourcelink.html',
         # 'relations.html',
         # 'searchbox.html',
         # 'donate.html',
