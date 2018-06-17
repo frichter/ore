@@ -12,6 +12,10 @@ ORE: Outlier-RV enrichment
    :maxdepth: 2
    :caption: Contents:
 
+   index
+   run_ore
+
+
 .. index
 .. run_ore
 
