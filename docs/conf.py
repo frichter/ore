@@ -97,6 +97,7 @@ html_theme_options = {
     'github_banner': False,
     # 'touch_icon': "logos/ios_home.png" # iOS home button icon
     'sidebar_collapse': False,
+    'sidebar_includehidden': True,
     # colors
     'body_text': color['black'],
     'link': color['blue'],
