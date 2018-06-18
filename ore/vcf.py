@@ -168,6 +168,7 @@ class VCF(object):
         else:
             print("No genome assembly found in VCF header, defaulting to",
                   self.ref_assembly)
+        print("Using the following reference genome:", self.ref_assembly)
 
     def loop_over_vcf(self, current_chrom, current_chrom_file_loc,
                       gq, dp, aar):
@@ -195,7 +196,7 @@ class VCF(object):
         tbx_handle = pysam.TabixFile(self.vcf_file_loc)
         self.declare_output_file_names(current_chrom_file_loc)
         self.gt_excluded_count = 0
-        if self.ucsc_ref_genome:
+        if not self.ucsc_ref_genome:
             current_chrom = "chr" + current_chrom
         # longest chrom length is less than 3e8
         for line in tbx_handle.fetch(current_chrom, 0, 5e8):
