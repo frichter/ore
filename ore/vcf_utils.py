@@ -193,6 +193,8 @@ def convert_to_012(id_format_dict, vcf_filters, line_dict):
                            " " + str(line_dict["POS"]) +
                            " " + gt_id)
         except KeyError:
+            print(line_dict["FORMAT"])
+            print(gt_id, ft_field_dict)
             raise VCFError("No AAR/GQ/DP field in FORMAT column on line " +
                            str(line_dict["#CHROM"]) +
                            " " + str(line_dict["POS"]) + " " + gt_id)
