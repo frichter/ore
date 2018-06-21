@@ -70,9 +70,9 @@ class JoinedVarExpr(object):
             'dist_refgene': 'str', 'exon_func_refgene': 'str',
             'dist_ensgene': 'str', 'exon_func_ensgene': 'str'}
         for chrom in contigs:
-            logger.info("chr" + chrom)
+            logger.info("Current chrom: " + chrom)  # "chr" +
             var_df_per_chrom = pd.read_table(
-                var_loc % ("chr" + chrom), dtype=dtype_specs)
+                var_loc % (chrom), dtype=dtype_specs)
             var_df_per_chrom.set_index(['gene', 'blinded_id'], inplace=True)
             if variant_class:
                 var_df_per_chrom = self.filter_refgene_ensgene(

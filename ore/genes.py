@@ -85,7 +85,7 @@ class Genes(object):
             Is there a bedtools temp directory?
 
         """
-        self.current_chrom = "chr" + current_chrom
+        self.current_chrom = current_chrom  # "chr" +
         # create input files and declare file names
         gene_bed_loc = self.create_gene_per_chrom_file(gene_strand_data)
         var_bed_loc = self.var_bed_loc % self.current_chrom
@@ -141,8 +141,8 @@ class Genes(object):
                 else:
                     line_list.append("NA")
                 out_line = "\t".join(line_list)
-                if not self.ucsc_ref_genome:
-                    out_line = "chr" + out_line
+                # if not self.ucsc_ref_genome:
+                #     out_line = "chr" + out_line
                 gene_bed_f.write(out_line + "\n")
                 line_count += 1
         return gene_bed_loc

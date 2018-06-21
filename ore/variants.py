@@ -80,6 +80,8 @@ class Variants(object):
             set(self.gene_obj.contigs) & set(self.vcf_obj.contigs))
         if self.gene_obj.ucsc_ref_genome is not self.vcf_obj.ucsc_ref_genome:
             raise RNASeqError("Genome mismatch between VCF and RNAseq")
+        if len(self.combined_contigs) == 0:
+            raise RNASeqError("No overlapping chromosomes in VCF and RNAseq")
         logger.info("Gene object loaded...")
 
     def extract_variants_from_vcf(self, gq, dp, aar):

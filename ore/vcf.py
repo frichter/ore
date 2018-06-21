@@ -196,8 +196,6 @@ class VCF(object):
         tbx_handle = pysam.TabixFile(self.vcf_file_loc)
         self.declare_output_file_names(current_chrom_file_loc)
         self.gt_excluded_count = 0
-        if not self.ucsc_ref_genome:
-            current_chrom = "chr" + current_chrom
         # longest chrom length is less than 3e8
         for line in tbx_handle.fetch(current_chrom, 0, 5e8):
             # str(, 'utf-8')
@@ -331,8 +329,6 @@ class VCF(object):
         """
         any_var_w_12_gt = False
         self.output_chrom = self.line_dict["#CHROM"]
-        if not self.ucsc_ref_genome:
-            self.output_chrom = "chr" + self.output_chrom
         for gt_id, gt in self.gt_dict_12.items():
             if gt in '1' or gt in '2':
                 self.format_allele_ID_pair_output_line(gt_id, gt)
@@ -428,10 +424,7 @@ def prepare_vcf_per_chrom(current_chrom, gq, dp, aar, vcf_loc,
     vcf_obj = VCF(vcf_loc)
     vcf_obj.load_vcf()
     # remove parents: vcf_obj.remove_ids_wo_re_pattern(".*(-01|-02)$")
-    if vcf_obj.ucsc_ref_genome:
-        out_file = current_chrom_file_loc % current_chrom
-    else:
-        out_file = current_chrom_file_loc % ("chr" + current_chrom)
+    out_file = current_chrom_file_loc % current_chrom
     if os.path.exists(out_file):
         # print("LONG format already done for chromosome", current_chrom)
         return "Not_rerun_" + current_chrom

@@ -25,10 +25,10 @@ ORE uses the same inputs as FastQTL_, bgzip_ with bcftools and index with tabix_
 .. code-block:: bash
 
     # Prepare the VCF
-    bgzip test.vcf > test.vcf.gz
+    bgzip test.vcf
     tabix -p vcf test.vcf.gz
     # Prepare the expression BED file
-    bgzip test.bed > test.bed.gz
+    bgzip test.bed
     tabix -p bed test.bed.gz
 
 
