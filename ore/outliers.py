@@ -52,6 +52,9 @@ class Outliers(object):
 
         """
         gene_expr_df = pd.read_table(pheno_loc, low_memory=False)
+        print(gene_expr_df.head())
+        print(gene_expr_df.columns)
+        print(gene_expr_df.shape)
         gene_expr_df = gene_expr_df.iloc[:, 3:]
         # Convert gene expression data frame from wide to long:
         self.expr_long_df = pd.melt(
