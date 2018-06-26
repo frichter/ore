@@ -23,7 +23,7 @@ class Outliers(object):
     """Methods and attributes of outliers."""
 
     def __init__(self, pheno_loc, output_prefix, outlier_postfix,
-                 extrema, distribution, threshold):
+                 extrema, distribution, threshold, logger):
         """Initialize outlier dataframe.
 
         Args:
@@ -33,6 +33,7 @@ class Outliers(object):
             extrema (:obj:`boolean`): T/F for using most extreme outlier
             distribution (:obj:`str`): type of outlier distribution considered
             threshold (:obj:`list`): list of outlier cut-off thresholds
+            logger (:obj:`logging object`): Current logger
 
         Attributes:
             expr_long_df (:obj:`DataFrame`): RNAseq expression in long format
@@ -52,14 +53,15 @@ class Outliers(object):
 
         """
         gene_expr_df = pd.read_table(pheno_loc, low_memory=False)
-        print(gene_expr_df.head())
-        print(gene_expr_df.columns)
-        print(gene_expr_df.shape)
+        logger.debug(gene_expr_df.head())
+        logger.debug(gene_expr_df.columns)
+        logger.debug(gene_expr_df.columns.values[2])
+        logger.debug(gene_expr_df.shape)
         gene_expr_df = gene_expr_df.iloc[:, 3:]
         # Convert gene expression data frame from wide to long:
         self.expr_long_df = pd.melt(
             gene_expr_df,
-            id_vars='gene',
+            id_vars=gene_expr_df.columns.values[2],  # 'gene',
             value_vars=gene_expr_df.columns[1:].tolist(),
             var_name='blinded_id',
             value_name='z_expr')
@@ -234,7 +236,8 @@ class Outliers(object):
     def test_normality(self):
         """Check if each gene has normal distribution.
 
-        Options include QQ-plots, shapiro-wilk test and others.
+        TODO:
+            Options include QQ-plots, shapiro-wilk test and others.
 
         """
         return True
