@@ -198,9 +198,11 @@ bed_df.head()
 bed_df.shape
 
 # saving
-bed_df.to_csv(re.sub(".bed", "_anno_cts_grouped_2.txt", gene_bed_f),
-              index=False, sep="\t")
+bed_df.to_csv(re.sub(".bed", "_anno_cts_grouped.txt", gene_bed_f),
+              sep="\t")  # keep index after groupby index=False,
 # _anno_cts.txt _anno_cts_grouped.txt
+# mp result shape: (26624244, 1)
+# non-mp results shape: (26624242, 1)
 
 # sum over evertyhing
 bed_df = bed_df.groupby(["Gene", "anno"]).sum()
