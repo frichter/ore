@@ -53,15 +53,15 @@ class Outliers(object):
 
         """
         gene_expr_df = pd.read_table(pheno_loc, low_memory=False)
+        gene_expr_df = gene_expr_df.iloc[:, 3:]
         logger.debug(gene_expr_df.head())
         logger.debug(gene_expr_df.columns)
-        logger.debug(gene_expr_df.columns.values[2])
+        logger.debug(gene_expr_df.columns.values[0])
         logger.debug(gene_expr_df.shape)
-        gene_expr_df = gene_expr_df.iloc[:, 3:]
         # Convert gene expression data frame from wide to long:
         self.expr_long_df = pd.melt(
             gene_expr_df,
-            id_vars=gene_expr_df.columns.values[2],  # 'gene',
+            id_vars=gene_expr_df.columns.values[0],  # 'gene',
             value_vars=gene_expr_df.columns[1:].tolist(),
             var_name='blinded_id',
             value_name='z_expr')
