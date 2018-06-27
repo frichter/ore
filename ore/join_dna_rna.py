@@ -95,7 +95,7 @@ class JoinedVarExpr(object):
                         'gene_refgene', 'func_refgene', 'dist_refgene',
                         'exon_func_refgene',
                         'gene_ensgene', 'func_ensgene', 'dist_ensgene',
-                        'exon_func_ensgene'
+                        'exon_func_ensgene',
                         'popmax_af', 'VCF_af', 'var_id_count', 'var_id_freq']
         dtype_specs = {
             'dist_refgene': 'str', 'exon_func_refgene': 'str',
