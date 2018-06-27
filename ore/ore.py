@@ -60,7 +60,6 @@ def associate_outliers(args):
         output_prefix = re.sub("(.*/|.vcf.gz)", "", args.vcf)
     logger = initialize_logger(log_file=output_prefix + "_ore.log",
                                logAppName="ore_status")
-    logger.DEBUG(args)
     checkCPUcount(args.processes)
     check_variant_inputs(args)
     check_ANNOVAR_inputs(args)
