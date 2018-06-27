@@ -143,9 +143,9 @@ class Enrich(object):
         # else: raise error
         # only keep if there is any outlier in the gene
         joined_df.loc[:, 'gene_has_out_w_vars'] = joined_df.groupby(
-            'gene')['expr_outlier'].transform('sum') > 0
+            'phenoID')['expr_outlier'].transform('sum') > 0
         joined_df.loc[:, 'gene_has_NEG_out_w_vars'] = joined_df.groupby(
-            'gene')['expr_outlier_neg'].transform('sum') > 0
+            'phenoID')['expr_outlier_neg'].transform('sum') > 0
         joined_df = joined_df.loc[joined_df.gene_has_out_w_vars]
         # classify as rare/common
         rare_variant_status = joined_df.popmax_af <= af_cut_off
