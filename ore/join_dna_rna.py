@@ -89,8 +89,14 @@ class JoinedVarExpr(object):
         """
         self.var_df = pd.DataFrame()
         list_ = []
-        cols_to_keep = ['popmax_af', 'var_id', 'tss_dist', 'VCF_af',
-                        'var_id_count', 'var_id_freq']
+        # cols_to_keep does not include 'gene' and 'blinded_id'
+        # because these are set as the indices
+        cols_to_keep = ['var_id', 'tss_dist',
+                        'gene_refgene', 'func_refgene', 'dist_refgene',
+                        'exon_func_refgene',
+                        'gene_ensgene', 'func_ensgene', 'dist_ensgene',
+                        'exon_func_ensgene'
+                        'popmax_af', 'VCF_af', 'var_id_count', 'var_id_freq']
         dtype_specs = {
             'dist_refgene': 'str', 'exon_func_refgene': 'str',
             'dist_ensgene': 'str', 'exon_func_ensgene': 'str'}
@@ -102,11 +108,12 @@ class JoinedVarExpr(object):
             if variant_class:
                 var_df_per_chrom = self.filter_refgene_ensgene(
                     var_df_per_chrom, variant_class, refgene, ensgene)
-                cols_to_keep.extend(['func_refgene', 'func_ensgene'])
+                # cols_to_keep.extend(['func_refgene', 'func_ensgene'])
             if exon_class:
                 var_df_per_chrom = self.filter_refgene_ensgene_exon(
                     var_df_per_chrom, exon_class, refgene, ensgene)
-                cols_to_keep.extend(['exon_func_refgene', 'exon_func_ensgene'])
+                # cols_to_keep.extend(['exon_func_refgene',
+                #                      'exon_func_ensgene'])
             var_df_per_chrom = var_df_per_chrom[cols_to_keep]
             list_.append(var_df_per_chrom)
         logger.info("All contigs/chromosomes loaded")
