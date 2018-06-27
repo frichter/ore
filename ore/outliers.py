@@ -56,14 +56,14 @@ class Outliers(object):
         gene_expr_df = gene_expr_df.iloc[:, 3:]
         logger.debug(gene_expr_df.head())
         logger.debug(gene_expr_df.columns)
-        gene_expr_df.rename(columns={gene_expr_df.columns[0]: "phenoID"},
+        gene_expr_df.rename(columns={gene_expr_df.columns[0]: "gene"},
                             inplace=True)
         logger.debug(gene_expr_df.columns.values[0])
         logger.debug(gene_expr_df.shape)
         # Convert gene expression data frame from wide to long:
         self.expr_long_df = pd.melt(
             gene_expr_df,
-            id_vars='phenoID',  # gene_expr_df.columns.values[0],  # 'gene',
+            id_vars='gene',  # gene_expr_df.columns.values[0],  # 'gene',
             value_vars=gene_expr_df.columns[1:].tolist(),
             var_name='blinded_id',
             value_name='z_expr')
@@ -203,7 +203,7 @@ class Outliers(object):
         """
         print("Calculating ranks...")
         expr_long_df = applyParallel(expr_long_df.groupby(
-            'phenoID'), Outliers.calculate_ranks)
+            'gene'), Outliers.calculate_ranks)
         print("Ranks calculated, identifying outliers")
         min_expr_cut_off = min(set(expr_long_df.expr_rank))
         if (least_extr_threshold <= min_expr_cut_off) or (
@@ -254,7 +254,7 @@ class Outliers(object):
         """
         print("Identifying most extreme outlier per gene...")
         expr_outlier_df = applyParallel(self.expr_long_df.groupby(
-            'phenoID'), self.find_most_extreme_expr_outlier_per_gene)
+            'gene'), self.find_most_extreme_expr_outlier_per_gene)
         expr_outlier_df['expr_outlier_neg'] = (
             expr_outlier_df.expr_outlier_neg &
             expr_outlier_df.expr_outlier)

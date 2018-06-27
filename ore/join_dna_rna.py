@@ -79,7 +79,7 @@ class JoinedVarExpr(object):
             logger.info("Current chrom: " + chrom)  # "chr" +
             var_df_per_chrom = pd.read_table(
                 var_loc % (chrom), dtype=dtype_specs)
-            var_df_per_chrom.set_index(['phenoID', 'blinded_id'], inplace=True)
+            var_df_per_chrom.set_index(['gene', 'blinded_id'], inplace=True)
             if variant_class:
                 var_df_per_chrom = self.filter_refgene_ensgene(
                     var_df_per_chrom, variant_class, refgene, ensgene)
@@ -138,7 +138,7 @@ class JoinedVarExpr(object):
         """
         self.expr_outlier_df = pd.read_table(expr_outs_loc)
         self.expr_outlier_df = self.expr_outlier_df.iloc[:, 1:]
-        self.expr_outlier_df.set_index(['phenoID', 'blinded_id'], inplace=True)
+        self.expr_outlier_df.set_index(['gene', 'blinded_id'], inplace=True)
 
     def write_to_file(self, dna_rna_df_loc):
         """Write full joined DF to a file."""
