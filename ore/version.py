@@ -13,4 +13,4 @@ https://packaging.python.org/tutorials/distributing-packages/#semantic-versionin
 
 """
 
-__version__ = '0.1.18'
+__version__ = '0.1.19'

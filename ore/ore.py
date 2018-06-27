@@ -124,8 +124,11 @@ def associate_outliers(args):
     # output final set of outliers and calculate enrichment
     rv_outlier_loc = output_prefix + "_rv_w_outliers.txt"
     # joined_df, enrich_loc, rv_outlier_loc, distribution
+    enrich_file = args.enrich_file
+    if not enrich_file:
+        enrich_file = output_prefix + "_enrichment.txt"
     enrich_obj = Enrich(joined_obj.df,
-                        args.enrich_file,
+                        enrich_file,
                         rv_outlier_loc,
                         args.distribution)
     enrich_obj.write_rvs_w_outs_to_file(
