@@ -15,6 +15,25 @@ import os
 import pandas as pd
 
 
+class Error(Exception):
+    """Base class for exceptions in this module."""
+
+    pass
+
+
+class JoinedDNAandRNAError(Error):
+    """Exception raised for errors in this module.
+
+    Attributes:
+        message -- explanation of the error
+
+    """
+
+    def __init__(self, message):
+        """Assign error explanation to object."""
+        self.message = message
+
+
 class JoinedVarExpr(object):
     """Methods for creating the final DF."""
 
@@ -151,9 +170,14 @@ class JoinedVarExpr(object):
                         "expr_outlier", "expr_outlier_neg", "tss_dist",
                         "var_id", "popmax_af", "intra_cohort_af",
                         "intra_cohort_ac", "VCF_af"]
-        if "z_abs" in self.df.columns:
-            cols_to_keep.insert(3, "z_abs")
-        out_df = self.df[cols_to_keep]
+        missing_cols = [i for i in cols_to_keep if i not in self.df.columns]
+        if any(missing_cols):
+            raise JoinedDNAandRNAError("The following essential columns are " +
+                                       "missing: " + ", ".join(missing_cols))
+        # keeping all columns for now
+        # if "z_abs" in self.df.columns:
+        #     cols_to_keep.insert(3, "z_abs")
+        out_df = self.df  # [cols_to_keep]
         out_df.to_csv(dna_rna_df_loc, index=False, sep="\t",
                       float_format='%g')
 
