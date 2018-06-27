@@ -227,10 +227,10 @@ class Enrich(object):
         # only keep outliers with rare variants
         outlier_df = outlier_df.loc[
             outlier_df.rare_variant_status & outlier_df.expr_outlier]
-        cols_to_keep = ["blinded_id", "gene", "z_expr", "tss_dist",
-                        "var_id", "popmax_af", "intra_cohort_af",
-                        "intra_cohort_ac", "VCF_af"]
-        outlier_df = outlier_df[cols_to_keep]
+        # cols_to_keep = ["blinded_id", "gene", "z_expr", "tss_dist",
+        #                 "var_id", "popmax_af", "intra_cohort_af",
+        #                 "intra_cohort_ac", "VCF_af"]
+        # outlier_df = outlier_df[cols_to_keep]
         outlier_df.to_csv(self.rv_outlier_loc, index=False, sep="\t",
                           float_format='%g')
 
