@@ -147,10 +147,12 @@ class JoinedVarExpr(object):
                        inplace=True)
         print(self.df.head())
         print(self.df.shape)
-        cols_to_keep = ["blinded_id", "gene", "z_expr", "z_abs",
+        cols_to_keep = ["blinded_id", "gene", "z_expr",
                         "expr_outlier", "expr_outlier_neg", "tss_dist",
                         "var_id", "popmax_af", "intra_cohort_af",
                         "intra_cohort_ac", "VCF_af"]
+        if "z_abs" in self.df.columns:
+            cols_to_keep.insert(3, "z_abs")
         out_df = self.df[cols_to_keep]
         out_df.to_csv(dna_rna_df_loc, index=False, sep="\t",
                       float_format='%g')
