@@ -433,8 +433,8 @@ def prepare_vcf_per_chrom(current_chrom, gq, dp, aar, vcf_loc,
         # print("LONG format already done for chromosome", current_chrom)
         return "Not_rerun_" + current_chrom
     print("Starting chromosome", current_chrom)
-    print("Using " + vcf_obj.ref_assembly)
-    print("Should be True with hg19 " + str(vcf_obj.ucsc_ref_genome))
+    print("Using " + vcf_obj.ref_assembly())
+    print("Should be True with hg19 " + str(vcf_obj.ucsc_ref_genome()))
     excluded_ct = vcf_obj.loop_over_vcf(current_chrom,
                                         current_chrom_file_loc,
                                         gq, dp, aar)
