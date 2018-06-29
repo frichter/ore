@@ -118,7 +118,7 @@ class Annotations(object):
             :obj:`AnnotationError`: if ANNOVAR command fails to execute
 
         """
-        infile = self.annovar_file_loc % ("chr" + current_chrom)
+        infile = self.annovar_file_loc % (current_chrom)  # "chr" +
         annovar_out_loc = re.sub(".txt", "", infile)
         if os.path.exists(annovar_out_loc + ".hg19_multianno.txt"):
             # print("ANNOVAR already done for %s" % infile)
@@ -152,7 +152,7 @@ class Annotations(object):
                 because of too little disk space for intermediate files)
 
         """
-        current_chrom = "chr" + current_chrom
+        # current_chrom = "chr" + current_chrom
         anno_out_loc = self.anno_out_loc % current_chrom
         anno_out_list_loc = self.anno_out_list_loc % current_chrom
         if os.path.exists(anno_out_loc):
@@ -231,7 +231,7 @@ class Annotations(object):
             current_chrom (:obj:`str`): region of genome completed (b37 format)
 
         """
-        current_chrom = "chr" + current_chrom
+        # current_chrom = "chr" + current_chrom
         if os.path.exists(self.final_var_loc % current_chrom):
             # print("Final variants already prepared for %s" % current_chrom)
             return "Not_rerun_" + current_chrom

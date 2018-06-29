@@ -24,9 +24,9 @@ copyright = '2018, Felix Richter'
 author = 'Felix Richter'
 
 # The short X.Y version
-version = ''
+version = '0.1'
 # The full version, including alpha/beta/rc tags
-release = '0.1.4'
+release = '0.1.6'
 
 
 # -- General configuration ---------------------------------------------------
@@ -83,8 +83,30 @@ html_theme = 'alabaster'
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#
-# html_theme_options = {}
+# http://alabaster.readthedocs.io/en/latest/customization.html
+
+color = {'skyblue': '#1ad1ff',
+         'purple': '#8600b3',
+         'blue': '#0033cc',
+         'black': '#000000'}
+
+html_theme_options = {
+    # 'logo' : "logos/ore_logo.png", # found in _static/logos
+    'github_user': "frichter",
+    'github_repo': "ore",
+    'github_banner': False,
+    # 'touch_icon': "logos/ios_home.png" # iOS home button icon
+    'sidebar_collapse': False,
+    'sidebar_includehidden': True,
+    # colors
+    'body_text': color['black'],
+    'link': color['blue'],
+    'link_hover': color['skyblue'],
+    'gray_1': color['black'],
+    # typography
+    'font_family': "Helvetica"
+    # 'font_family': "'PT Sans', Helvetica, Arial, 'sans-serif'",
+    }
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -99,8 +121,19 @@ html_static_path = ['_static']
 # default: ``['localtoc.html', 'relations.html', 'sourcelink.html',
 # 'searchbox.html']``.
 #
-# html_sidebars = {}
+# html_sidebars = {'**': ['globaltoc.html', 'relations.html',
+#                         'sourcelink.html', 'searchbox.html']}
 
+html_sidebars = {
+    '**': [
+        # 'globaltoc.html',
+        'about.html',
+        'navigation.html',
+        # 'relations.html',
+        # 'searchbox.html',
+        # 'donate.html',
+    ]
+}
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
@@ -160,3 +193,4 @@ texinfo_documents = [
 
 
 # -- Extension configuration -------------------------------------------------
+

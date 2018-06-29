@@ -70,8 +70,9 @@ class Genes(object):
 
         Docs for bedtools closest:
             http://bedtools.readthedocs.io/en/latest/content/tools/closest.html
-            - D b option: declare variant as upstream/downstream with
-            respect to the strand of the gene TSS
+            - D b option: reports distance and declare variant as
+                upstream/downstream with respect to the strand
+                of the gene TSS. Note that overlapping feature distance = 0
             -t option: what to do with genes with the same TSS? pick the first
 
         Args:
@@ -84,7 +85,7 @@ class Genes(object):
             Is there a bedtools temp directory?
 
         """
-        self.current_chrom = "chr" + current_chrom
+        self.current_chrom = current_chrom  # "chr" +
         # create input files and declare file names
         gene_bed_loc = self.create_gene_per_chrom_file(gene_strand_data)
         var_bed_loc = self.var_bed_loc % self.current_chrom
@@ -134,16 +135,16 @@ class Genes(object):
                 search_chrom = re.sub('chr', '', search_chrom)
             for line in tbx_gene_handle.fetch(search_chrom, 0, 3e8):
                 line_list = line.strip().split("\t")[0:4]
+                line_list.append(str(line_count))
                 if line_list[3] in strand_dict:
-                    line_list.append(str(line_count))
                     line_list.append(strand_dict[line_list[3]])
-                    out_line = "\t".join(line_list)
-                    if not self.ucsc_ref_genome:
-                        out_line = "chr" + out_line
-                    gene_bed_f.write(out_line + "\n")
-                    line_count += 1
-                # else:
-                #     print(line_list[3], "not available in NCBI DB")
+                else:
+                    line_list.append("NA")
+                out_line = "\t".join(line_list)
+                # if not self.ucsc_ref_genome:
+                #     out_line = "chr" + out_line
+                gene_bed_f.write(out_line + "\n")
+                line_count += 1
         return gene_bed_loc
 
     def check_gene_ref_genome(self):
@@ -160,6 +161,8 @@ class Genes(object):
         Only keep a subset of the variants, those within 10^5 base pairs of
             the TSS and possibly only those upstream or downstream.
         Can go under genes.py or annotations.py
+        Note that filter is <= max_tss_dist and not < max_tss_dist so that a
+            tss_distance cut-off of 0 corresponds to overlapping features
 
         Args:
             upstream_only: logical
@@ -175,7 +178,7 @@ class Genes(object):
                                usecols=cols_to_use,
                                names=bed_col_names)
         # max TSS distance
-        var_df = var_df.loc[abs(var_df.tss_dist) < max_tss_dist]
+        var_df = var_df.loc[abs(var_df.tss_dist) <= max_tss_dist]
         if upstream_only:
             var_df = var_df.loc[var_df.tss_dist < 0]
         elif downstream_only:

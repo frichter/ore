@@ -10,6 +10,9 @@
 """
 
 
+import re
+
+
 class Error(Exception):
     """Base class for exceptions in this module."""
 
@@ -62,7 +65,7 @@ def replace_multiGT_with_bialleleGT(id_format_dict, alt_allele_gt, line_dict):
     # loop over proband (gt_id) and genotype from FORMAT field (gt_value)
     for ft_id, ft_field_dict in id_format_dict.items():
         try:
-            gt_split_list = ft_field_dict["GT"].split("/")
+            gt_split_list = re.split("[|/]", ft_field_dict["GT"])
             alt_allele_gt_str = str(alt_allele_gt)
             if gt_split_list[0] == alt_allele_gt_str:
                 gt_split_list[0] = "1"
@@ -88,7 +91,7 @@ def replace_multiGT_with_bialleleGT(id_format_dict, alt_allele_gt, line_dict):
             # ft_field_dict is not a dict (expected with not enough info)
         except IndexError:
             # because AD does not have all alleles listed for some reason
-            raise VCFError("GT field in FORMAT column does not have ref" +
+            raise VCFError("GT field in FORMAT column does not have ref " +
                            "and alt genotype on line " +
                            line_dict["#CHROM"] + " " +
                            line_dict["POS"] + " " + ft_id)
@@ -190,6 +193,8 @@ def convert_to_012(id_format_dict, vcf_filters, line_dict):
                            " " + str(line_dict["POS"]) +
                            " " + gt_id)
         except KeyError:
+            print(line_dict["FORMAT"])
+            print(gt_id, ft_field_dict)
             raise VCFError("No AAR/GQ/DP field in FORMAT column on line " +
                            str(line_dict["#CHROM"]) +
                            " " + str(line_dict["POS"]) + " " + gt_id)

@@ -103,7 +103,8 @@ def associate_outliers(args):
                            outlier_postfix=args.outlier_output,
                            extrema=args.extrema,
                            distribution=args.distribution,
-                           threshold=args.threshold)
+                           threshold=args.threshold,
+                           logger=logger)
     print("Outliers initialized...")
     outlier_obj.prepare_outliers(outlier_max=args.max_outliers_per_id,
                                  vcf_id_list=variants_obj.vcf_obj.id_list)
@@ -122,19 +123,26 @@ def associate_outliers(args):
     # output final set of outliers and calculate enrichment
     rv_outlier_loc = output_prefix + "_rv_w_outliers.txt"
     # joined_df, enrich_loc, rv_outlier_loc, distribution
+    enrich_file = args.enrich_file
+    if not enrich_file:
+        enrich_file = output_prefix + "_enrichment.txt"
     enrich_obj = Enrich(joined_obj.df,
-                        args.enrich_file,
+                        enrich_file,
                         rv_outlier_loc,
                         args.distribution)
     enrich_obj.write_rvs_w_outs_to_file(
         out_cut_off=outlier_obj.least_extr_threshold,
         tss_cut_off=max_tss_dist,
-        af_cut_off=max(args.af_rare))
+        af_cut_off=max(args.af_rare),
+        af_vcf=args.af_vcf,
+        intracohort_rare_ac=args.intracohort_rare_ac)
     logger.info("Printed final set of outliers with rare variants")
     enrich_obj.loop_enrichment(n_processes=args.processes,
                                expr_cut_off_vec=args.threshold,
                                tss_cut_off_vec=args.tss_dist,
-                               af_cut_off_vec=args.af_rare)
+                               af_cut_off_vec=args.af_rare,
+                               af_vcf=args.af_vcf,
+                               intracohort_rare_ac=args.intracohort_rare_ac)
     logger.info("Completed outlier enrichment")
     logger.info("All done :)")
 
@@ -155,15 +163,18 @@ def main():
                         version="%(prog)s {}".format(__version__))
     # Arguments for file locations
     required = parser.add_argument_group('Required arguments')
-    required.add_argument("-v", "--vcf", help="Location of VCF file",
-                          required=True)
-    required.add_argument("-b", "--bed", help="Gene expression file location",
-                          required=True)
+    required.add_argument("-v", "--vcf", help="Location of VCF file. Must " +
+                          "be tabixed!", required=True)
+    required.add_argument("-b", "--bed", help="Gene expression file " +
+                          "location. Must be tabixed!", required=True)
     optional_files = parser.add_argument_group('Optional file locations')
-    optional_files.add_argument("-o", "--output", help="Output prefix")
-    optional_files.add_argument("--outlier_output", help="Outlier filename")
+    optional_files.add_argument("-o", "--output", help="Output prefix " +
+                                "(default is VCF prefix)")
+    optional_files.add_argument("--outlier_output", help="Outlier filename " +
+                                "(default is VCF prefix)")
     optional_files.add_argument("--enrich_file", help="Output file for " +
-                                "enrichment odds ratios and p-values")
+                                "enrichment odds ratios and p-values " +
+                                "(default is VCF prefix)")
     # Arguments for expression outliers
     opt_out_args = parser.add_argument_group('Optional outlier arguments')
     opt_out_args.add_argument("--extrema", default=False,  # "-e",
@@ -183,16 +194,18 @@ def main():
                               "of outliers per ID", type=int, default=None)
     # Arguments for variants
     opt_var = parser.add_argument_group('Optional variant-related arguments')
-    opt_var.add_argument("--af_rare", help="AF cut-off below which a variant" +
-                         "is considered rare", type=float, nargs="*",
+    opt_var.add_argument("--af_rare", help="AF cut-off below which a " +
+                         "variant is considered rare (space" +
+                         "separated list e.g., 0.1 0.05)",
+                         type=float, nargs="*",
                          default=[0.01])
     opt_var.add_argument("--af_vcf", default=False, action="store_true",
                          help="Use the VCF AF field to define an " +
                          "allele as rare.")
-    opt_var.add_argument("--intracohort_rare_ac", default=False,
-                         action="store_true", help="For intra-cohort rare, " +
-                         "use an allele count rather than allele frequency" +
-                         "(still uses af_rare for population level AF cutoff)")
+    opt_var.add_argument("--intracohort_rare_ac", type=int, default=None,
+                         help="Allele COUNT to be used instead of intra-" +
+                         "cohort allele frequency. (still uses af_rare for " +
+                         "population level AF cut-off)")
     opt_var.add_argument("--gq", help="Minimum genotype quality each " +
                          "variant in each individual",
                          type=float, default=30)
