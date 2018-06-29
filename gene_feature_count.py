@@ -149,6 +149,7 @@ def load_and_clean_cts(bed_file, bed_header):
     # use as column name
     print(bed_name)
     bed_df = pd.read_table(bed_file, names=bed_header)
+    print(bed_df.head())
     bed_df = bed_df[["Gene", "overlap_ct"]]
     bed_df["anno"] = bed_name
     bed_df = bed_df.groupby(["Gene", "anno"]).sum()
@@ -159,6 +160,11 @@ bed_header = ["Chrom", "Start", "End", "Gene", "rm1", "rm2", "rm3",
               "overlap_ct"]
 bed_iterable = glob.iglob(out_dir + "*_gene_ct.bed")
 
+for bed_file_i in bed_iterable:
+    bed_df_i = load_and_clean_cts(bed_file_i, bed_header)
+    print(bed_df_i.head())
+
+
 partial_load_and_clean_cts = partial(load_and_clean_cts, bed_header=bed_header)
 pool = mp.Pool(processes=6)
 # print("Total available cores: " + str(mp.cpu_count()))
@@ -166,29 +172,37 @@ bed_df_list = pool.map(partial_load_and_clean_cts, bed_iterable)
 len(bed_df_list)
 bed_df = pd.concat(bed_df_list)
 
+
+bed_df_list[1].iloc[0, :]
+bed_df_list[0].head()
+bed_df_list[0].index.get_level_values('A1BG')
+bed_df_list[0].query('Gene == ')
+bed_df_list[0]['A1BG']
+
 # bed_df = partial_load_and_clean_cts([i for i in bed_iterable][0])
 
 
-cols_to_keep = ["Gene", "overlap_ct"]
-# len([i for i in bed_iterable])
-bed_df_list = []
-count = 0
-for bed_file in bed_iterable:
-    # clean name
-    rep_w_blank = ".*/|.merged.sorted|.sorted|.bed$|.bed.gz$|.txt$|_gene_ct"
-    bed_name = re.sub(rep_w_blank, "", bed_file)
-    bed_name = re.sub("all_predictions", "cvdc_enhancers_dickel", bed_name)
-    # use as column name
-    print(bed_name)
-    bed_df = pd.read_table(bed_file, names=bed_header)
-    # print(bed_header)
-    bed_df = bed_df[cols_to_keep]
-    bed_df["anno"] = bed_name
-    bed_df_list.append(bed_df)
-    count += 1
-    # if count > 3:
-    #     break
-    print(count)
+# cols_to_keep = ["Gene", "overlap_ct"]
+# # len([i for i in bed_iterable])
+# bed_df_list = []
+# count = 0
+# for bed_file in bed_iterable:
+#     # clean name
+#     rep_w_blank = ".*/|.merged.sorted|.sorted|.bed$|.bed.gz$|.txt$|_gene_ct"
+#     bed_name = re.sub(rep_w_blank, "", bed_file)
+#     bed_name = re.sub("all_predictions", "cvdc_enhancers_dickel", bed_name)
+#     # use as column name
+#     print(bed_name)
+#     bed_df = pd.read_table(bed_file, names=bed_header)
+#     print(bed_df)
+#     # print(bed_header)
+#     bed_df = bed_df[cols_to_keep]
+#     bed_df["anno"] = bed_name
+#     bed_df_list.append(bed_df)
+#     count += 1
+#     # if count > 3:
+#     #     break
+#     print(count)
 
 
 bed_df = pd.concat(bed_df_list)
@@ -196,6 +210,11 @@ bed_df = pd.concat(bed_df_list)
 bed_df.columns
 bed_df.head()
 bed_df.shape
+
+# identify bed_df where first gene is not A1BG
+# bed_df_list[0].head()
+# for bed_df_i in bed_df_list:
+
 
 # saving
 bed_df.to_csv(re.sub(".bed", "_anno_cts_grouped.txt", gene_bed_f),
