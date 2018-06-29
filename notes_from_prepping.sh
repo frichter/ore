@@ -299,10 +299,10 @@ EXPR_F="$PARENT_DIR/expression/residuals_AMPAD_MSSM_GE_SV_17_tissue_36_with_dise
 VCF="$PARENT_DIR/wgs/ad_wgs_cp.vcf.gz"
 # ore_2018_06 ore_2018_05
 OUT_PREFIX="$PARENT_DIR/ore_2018_06/ad_ore"
-ENRICH_F="$PARENT_DIR/ore_2018_05/ad_ore_enrich_test.txt"
+ENRICH_F="$PARENT_DIR/ore_2018_06/ad_ore_enrich_test.txt"
 
-# ls $PARENT_DIR/ore_2018_06/
-# rm -rf $PARENT_DIR/ore_2018_06/*
+ls $PARENT_DIR/ore_2018_06/
+rm -rf $PARENT_DIR/ore_2018_06/*
 
 time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --bed $EXPR_F \
