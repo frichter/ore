@@ -324,6 +324,10 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     # --outlier_output "outliers_norm_SV5.txt" \
 
 
+# fixing up results from a previous run
+rename "chr" "" tmp_*
+time sed -i 's/chr//g' tmp_*
+
 ## run on node with internet
 screen -R -D ore
 module purge
