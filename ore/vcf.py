@@ -382,6 +382,8 @@ class VCF(object):
                                       self.line_dict["REF"],
                                       self.alt_allele,
                                       var_id])
+        if not self.ucsc_ref_genome:
+            annovar_out_line = "chr" + annovar_out_line
         annovar_out_loc = self.annovar_file_loc % self.output_chrom
         with open(annovar_out_loc, 'a') as chrom_f:
             chrom_f.write(annovar_out_line + "\n")  # possibly use _ =
