@@ -298,8 +298,11 @@ PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/alzheimers"
 EXPR_F="$PARENT_DIR/expression/residuals_AMPAD_MSSM_GE_SV_17_tissue_36_with_disease_in_model_europeans_only.bed.gz"
 VCF="$PARENT_DIR/wgs/ad_wgs_cp.vcf.gz"
 # ore_2018_06 ore_2018_05
-OUT_PREFIX="$PARENT_DIR/ore_2018_05/ad_ore"
+OUT_PREFIX="$PARENT_DIR/ore_2018_06/ad_ore"
 ENRICH_F="$PARENT_DIR/ore_2018_05/ad_ore_enrich_test.txt"
+
+# ls $PARENT_DIR/ore_2018_06/
+# rm -rf $PARENT_DIR/ore_2018_06/*
 
 time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --bed $EXPR_F \
@@ -316,7 +319,7 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --ensgene \
     --refgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 3
+    --processes 5
 
     # --outlier_output "outliers_norm_SV5.txt" \
 
