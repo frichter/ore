@@ -306,7 +306,7 @@ class Annotations(object):
         try:
             annovar_df = pd.read_table(annovar_out_loc, low_memory=False)
         except pd.errors.ParserError as pandas_import_error:
-                print("")
+                print("Couldn't import ANNOVAR results")
                 raise pandas_import_error
         # rename and keep only some of the columns
         col_rename_dict = {"Otherinfo": "var_id",
