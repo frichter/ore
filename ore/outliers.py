@@ -23,7 +23,7 @@ class Outliers(object):
     """Methods and attributes of outliers."""
 
     def __init__(self, pheno_loc, output_prefix, outlier_postfix,
-                 extrema, distribution, threshold):
+                 extrema, distribution, threshold, logger):
         """Initialize outlier dataframe.
 
         Args:
@@ -33,6 +33,7 @@ class Outliers(object):
             extrema (:obj:`boolean`): T/F for using most extreme outlier
             distribution (:obj:`str`): type of outlier distribution considered
             threshold (:obj:`list`): list of outlier cut-off thresholds
+            logger (:obj:`logging object`): Current logger
 
         Attributes:
             expr_long_df (:obj:`DataFrame`): RNAseq expression in long format
@@ -53,10 +54,16 @@ class Outliers(object):
         """
         gene_expr_df = pd.read_table(pheno_loc, low_memory=False)
         gene_expr_df = gene_expr_df.iloc[:, 3:]
+        logger.debug(gene_expr_df.head())
+        logger.debug(gene_expr_df.columns)
+        gene_expr_df.rename(columns={gene_expr_df.columns[0]: "gene"},
+                            inplace=True)
+        logger.debug(gene_expr_df.columns.values[0])
+        logger.debug(gene_expr_df.shape)
         # Convert gene expression data frame from wide to long:
         self.expr_long_df = pd.melt(
             gene_expr_df,
-            id_vars='gene',
+            id_vars='gene',  # gene_expr_df.columns.values[0],  # 'gene',
             value_vars=gene_expr_df.columns[1:].tolist(),
             var_name='blinded_id',
             value_name='z_expr')
@@ -155,9 +162,11 @@ class Outliers(object):
         elif self.distribution == "custom":
             not_0_1 = ~self.expr_long_df.z_expr.isin([0, 1])
             if any(not_0_1):
-                print(self.expr_long_df[not_0_1])
+                print(self.expr_long_df[not_0_1].head())
                 raise RNASeqError("The values above were not 0 or 1")
             self.expr_long_df["expr_outlier"] = self.expr_long_df.z_expr == 1
+            # set expr_outlier_neg as 0 for custom
+            self.expr_long_df["expr_outlier_neg"] = 0
         else:
             raise RNASeqError("'{}' is not a valid outlier distribution".
                               format(self.distribution))
@@ -229,7 +238,8 @@ class Outliers(object):
     def test_normality(self):
         """Check if each gene has normal distribution.
 
-        Options include QQ-plots, shapiro-wilk test and others.
+        TODO:
+            Options include QQ-plots, shapiro-wilk test and others.
 
         """
         return True

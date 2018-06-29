@@ -15,6 +15,25 @@ import os
 import pandas as pd
 
 
+class Error(Exception):
+    """Base class for exceptions in this module."""
+
+    pass
+
+
+class JoinedDNAandRNAError(Error):
+    """Exception raised for errors in this module.
+
+    Attributes:
+        message -- explanation of the error
+
+    """
+
+    def __init__(self, message):
+        """Assign error explanation to object."""
+        self.message = message
+
+
 class JoinedVarExpr(object):
     """Methods for creating the final DF."""
 
@@ -50,6 +69,12 @@ class JoinedVarExpr(object):
             logger.info("Loading outliers...")
             self.load_outliers(expr_outs_loc)
             logger.info("joining outliers with variants...")
+            logger.debug(self.var_df.head())
+            logger.debug(self.var_df.index[:10])
+            logger.debug(self.var_df.shape)
+            logger.debug(self.expr_outlier_df.head())
+            logger.debug(self.expr_outlier_df.index[:10])
+            logger.debug(self.expr_outlier_df.shape)
             self.df = self.var_df.join(self.expr_outlier_df, how='inner')
             self.df.reset_index(inplace=True)
             self.write_to_file(dna_rna_df_loc)
@@ -64,24 +89,31 @@ class JoinedVarExpr(object):
         """
         self.var_df = pd.DataFrame()
         list_ = []
-        cols_to_keep = ['popmax_af', 'var_id', 'tss_dist', 'VCF_af',
-                        'var_id_count', 'var_id_freq']
+        # cols_to_keep does not include 'gene' and 'blinded_id'
+        # because these are set as the indices
+        cols_to_keep = ['var_id', 'tss_dist',
+                        'gene_refgene', 'func_refgene', 'dist_refgene',
+                        'exon_func_refgene',
+                        'gene_ensgene', 'func_ensgene', 'dist_ensgene',
+                        'exon_func_ensgene',
+                        'popmax_af', 'VCF_af', 'var_id_count', 'var_id_freq']
         dtype_specs = {
             'dist_refgene': 'str', 'exon_func_refgene': 'str',
             'dist_ensgene': 'str', 'exon_func_ensgene': 'str'}
         for chrom in contigs:
-            logger.info("chr" + chrom)
+            logger.info("Current chrom: " + chrom)  # "chr" +
             var_df_per_chrom = pd.read_table(
-                var_loc % ("chr" + chrom), dtype=dtype_specs)
+                var_loc % (chrom), dtype=dtype_specs)
             var_df_per_chrom.set_index(['gene', 'blinded_id'], inplace=True)
             if variant_class:
                 var_df_per_chrom = self.filter_refgene_ensgene(
                     var_df_per_chrom, variant_class, refgene, ensgene)
-                cols_to_keep.extend(['func_refgene', 'func_ensgene'])
+                # cols_to_keep.extend(['func_refgene', 'func_ensgene'])
             if exon_class:
                 var_df_per_chrom = self.filter_refgene_ensgene_exon(
                     var_df_per_chrom, exon_class, refgene, ensgene)
-                cols_to_keep.extend(['exon_func_refgene', 'exon_func_ensgene'])
+                # cols_to_keep.extend(['exon_func_refgene',
+                #                      'exon_func_ensgene'])
             var_df_per_chrom = var_df_per_chrom[cols_to_keep]
             list_.append(var_df_per_chrom)
         logger.info("All contigs/chromosomes loaded")
@@ -136,11 +168,23 @@ class JoinedVarExpr(object):
 
     def write_to_file(self, dna_rna_df_loc):
         """Write full joined DF to a file."""
-        self.df.rename(columns={"var_id_freq": "intra_cohort_af"},
+        self.df.rename(columns={"var_id_freq": "intra_cohort_af",
+                                "var_id_count": "intra_cohort_ac"},
                        inplace=True)
-        cols_to_keep = ["blinded_id", "gene", "z_expr", "tss_dist",
-                        "var_id", "popmax_af", "intra_cohort_af", "VCF_af"]
-        out_df = self.df[cols_to_keep]
+        print(self.df.head())
+        print(self.df.shape)
+        cols_to_keep = ["blinded_id", "gene", "z_expr",
+                        "expr_outlier", "expr_outlier_neg", "tss_dist",
+                        "var_id", "popmax_af", "intra_cohort_af",
+                        "intra_cohort_ac", "VCF_af"]
+        missing_cols = [i for i in cols_to_keep if i not in self.df.columns]
+        if any(missing_cols):
+            raise JoinedDNAandRNAError("The following essential columns are " +
+                                       "missing: " + ", ".join(missing_cols))
+        # keeping all columns for now
+        # if "z_abs" in self.df.columns:
+        #     cols_to_keep.insert(3, "z_abs")
+        out_df = self.df  # [cols_to_keep]
         out_df.to_csv(dna_rna_df_loc, index=False, sep="\t",
                       float_format='%g')
 

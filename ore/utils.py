@@ -81,8 +81,8 @@ def check_ANNOVAR_inputs(args):
         if not os.path.exists(args.annovar_dir + "table_annovar.pl"):
             print("table_annovar.pl does not exist in", args.annovar_dir)
             raise FileNotFoundError
-        if not os.path.exists(args.annovar_dir + "annovate_variation.pl"):
-            print("annovate_variation.pl does not exist in", args.annovar_dir)
+        if not os.path.exists(args.annovar_dir + "annotate_variation.pl"):
+            print("annotate_variation.pl does not exist in", args.annovar_dir)
             raise FileNotFoundError
         # list of inputs needed for ANNOVAR in humandb directory
         # provide code to install if not available
