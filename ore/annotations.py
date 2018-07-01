@@ -176,7 +176,6 @@ class Annotations(object):
                     # need to save generator-based bed first
                     # https://github.com/daler/pybedtools/issues/172
                     bed = bed.saveas()
-                print(bed.head())
                 try:
                     var_bed_obj = var_bed_obj.intersect(bed, c=True)
                 except pybedtools.helpers.BEDToolsError as bed_error:
