@@ -177,6 +177,8 @@ class Genes(object):
                                header=None,
                                usecols=cols_to_use,
                                names=bed_col_names)
+        print(var_df.head())
+        print(var_df.shape)
         # max TSS distance
         var_df = var_df.loc[abs(var_df.tss_dist) <= max_tss_dist]
         if upstream_only:
@@ -185,6 +187,8 @@ class Genes(object):
             var_df = var_df.loc[var_df.tss_dist > 0]
         # var_id should use 1-based start position
         var_df.Start1b = var_df.Start + 1
+        print(var_df.head())
+        print(var_df.shape)
         var_df["var_id"] = (var_df.Chrom.str.cat(var_df.Start1b.
                             astype(str), sep='.').str.cat(var_df.Ref, sep='.').
                             str.cat(var_df.Alt, sep='.'))
