@@ -322,7 +322,7 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --ensgene \
     --refgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 6
+    --processes 2
 
     # --outlier_output "outliers_norm_SV5.txt" \
 
