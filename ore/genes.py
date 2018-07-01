@@ -189,6 +189,10 @@ class Genes(object):
         print("Start 1b should be added")
         print(var_df.head())
         print(var_df.shape)
+        print(var_df.Chrom.astype(str))
+        print("Checking joining")
+        print(var_df.Chrom.astype(str).cat(
+            var_df.Start1b.astype(str), sep='.'))
         var_df["var_id"] = (var_df.Chrom.str.cat(var_df.Start1b.
                             astype(str), sep='.').str.cat(var_df.Ref, sep='.').
                             str.cat(var_df.Alt, sep='.'))
