@@ -186,18 +186,13 @@ class Genes(object):
         # var_id should use 1-based start position
         var_df = var_df.assign(Start1b=var_df.Start + 1)
         # var_df["Start1b"] = var_df.Start + 1
-        print("Start 1b should be added")
-        print(var_df.head())
-        print(var_df.shape)
-        print(var_df.dtypes)
-        print("converting chrom type")
         var_df.Chrom = var_df.Chrom.astype(str)
-        print(var_df.dtypes)
         # print(var_df.Chrom.astype(str).str.cat(
         #     var_df.Start1b.astype(str), sep='.'))
         var_df["var_id"] = (var_df.Chrom.str.cat(var_df.Start1b.
                             astype(str), sep='.').str.cat(var_df.Ref, sep='.').
                             str.cat(var_df.Alt, sep='.'))
+        print("variant IDs joined, writing to file...")
         var_df.to_csv(self.nearTSS_loc, sep="\t", header=False, index=False,
                       float_format='%g')
 
