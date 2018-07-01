@@ -14,7 +14,7 @@ import os
 import re
 import subprocess
 import glob
-# import sys
+import sys
 
 import pandas as pd
 
@@ -275,8 +275,8 @@ class Annotations(object):
         print("012 long joined with annotated DF size:", final_df.shape)
         print("Getting intra-cohort variant counts/frequency")
         final_df.reset_index(inplace=True)
-        # print(final_df.head())
-        # print(sys.getsizeof(final_df))
+        print(final_df.head())
+        print(sys.getsizeof(final_df)/(1024**3), "Gb")
         final_df['var_id_count'] = final_df.groupby(
             'var_id')['GT'].transform('sum')
         # multiply by 2 for autosomes, 1 for sex chromosomes in MALES
