@@ -170,6 +170,10 @@ class Annotations(object):
             for bed_name in bed_iterable:
                 overlap_list.append(bed_name)
                 bed = BedTool(bed_name)
+                if not current_chrom.startswith("chr"):
+                    # bed file needs chr removed
+                    bed = bed.each(self.remove_chr_prefix)
+                print(bed.head())
                 try:
                     var_bed_obj = var_bed_obj.intersect(bed, c=True)
                 except pybedtools.helpers.BEDToolsError as bed_error:
@@ -220,6 +224,12 @@ class Annotations(object):
         print(
             "Overlapping {} annotation files with variants on {}".format(
                 count, current_chrom))
+
+    @staticmethod
+    def remove_chr_prefix(bed):
+        """Remove chr prefix from chromosomes in a BedTools object."""
+        bed.chrom = re.sub("chr", "", bed.chrom)
+        return bed
 
     def get_final_set_of_variants(self, current_chrom):
         """Process ANNOVAR, annotation overlap, and 012 results.
@@ -410,8 +420,10 @@ class Annotations(object):
 
         """
         long_col_names = ['loc_id', 'blinded_id', 'GT', 'Ref', 'Alt']
+        dtype_specs = {'loc_id': 'str', 'blinded_id': 'str', 'GT': 'str'}
         long012_df = pd.read_table(self.long012_loc % current_chrom,
-                                   header=None, names=long_col_names)
+                                   header=None, names=long_col_names,
+                                   dtype=dtype_specs)
         long012_df["var_id"] = (long012_df.loc_id.str.
                                 cat(long012_df.Ref.astype(str), sep='.').
                                 str.cat(long012_df.Alt, sep='.'))
