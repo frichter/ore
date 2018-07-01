@@ -422,7 +422,8 @@ class Annotations(object):
 
         """
         long_col_names = ['loc_id', 'blinded_id', 'GT', 'Ref', 'Alt']
-        dtype_specs = {'loc_id': 'str', 'blinded_id': 'str', 'GT': 'str'}
+        # GT should be int so you can sum all GTs for AC
+        dtype_specs = {'loc_id': 'str', 'blinded_id': 'str'}
         long012_df = pd.read_table(self.long012_loc % current_chrom,
                                    header=None, names=long_col_names,
                                    dtype=dtype_specs)
