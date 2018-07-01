@@ -14,6 +14,7 @@ import os
 import re
 import subprocess
 import glob
+import sys
 
 import pandas as pd
 
@@ -258,16 +259,18 @@ class Annotations(object):
             print("Joining ANNOVAR with annotations for", current_chrom)
             anno_df = annovar_df.set_index('var_id').join(anno_df, how='inner')
             # print("ANNOVAR joined w closest gene DF size:", anno_df.shape)
-        clean_df = self.remove_vars_in_unwanted_cols(anno_df)
+        final_df = self.remove_vars_in_unwanted_cols(anno_df)
         # print("Repeats and segdups removed DF size:", clean_df.shape)
         print("Loading long 012 matrix for", current_chrom)
         long012_df = self.load_long_012_df(current_chrom)
         # print("012 long DF size:", long012_df.shape)
         print("Joining long 012 with annotations", current_chrom)
-        final_df = clean_df.join(long012_df.set_index('var_id'), how='inner')
+        final_df = final_df.join(long012_df.set_index('var_id'), how='inner')
         # print("012 long joined with annotated DF size:", final_df.shape)
         print("Getting intra-cohort variant counts/frequency")
         final_df.reset_index(inplace=True)
+        print(final_df.head())
+        print(sys.getsizeof(final_df))
         final_df['var_id_count'] = final_df.groupby(
             'var_id')['GT'].transform('sum')
         # multiply by 2 for autosomes, 1 for sex chromosomes in MALES
