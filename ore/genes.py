@@ -194,7 +194,7 @@ class Genes(object):
         var_df["var_id"] = (var_df.Chrom.str.cat(var_df.Start1b.
                             astype(str), sep='.').str.cat(var_df.Ref, sep='.').
                             str.cat(var_df.Alt, sep='.'))
-        print(var_df.head())
+        var_df.drop("Start1b", 1, inplace=True)
         print("variant IDs joined, writing to file...")
         var_df.to_csv(self.nearTSS_loc, sep="\t", header=False, index=False,
                       float_format='%g')
