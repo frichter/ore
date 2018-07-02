@@ -8,6 +8,8 @@ python
 
 """
 
+import subprocess
+import os
 import re
 import glob
 from functools import partial
@@ -24,6 +26,7 @@ pybedtools.set_tempdir('pybedtools_temp_dir/')
 
 
 """
+# get all genes into a single bed file
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_04/
 
 cat wgs_atrial_per_chrom/*gene_bed*.bed | wc -l
@@ -35,6 +38,31 @@ wgs_arterial_valve_per_chrom/*gene_bed*.bed | wc -l
 cat wgs_atrial_per_chrom/*gene_bed*.bed wgs_vent_per_chrom/*gene_bed*.bed \
 wgs_arterial_valve_per_chrom/*gene_bed*.bed | cut -f1-4 | \
 sort -V -k1,1 -k2,2 | uniq > all_genes.bed
+"""
+
+
+"""
+
+cd /hpc/users/richtf01/chdiTrios/Felix/wgs/bed_annotations/hg19_all/
+# combine TF binding site annotations
+ls *ata4*
+# confirm no headers
+head -n1 *ata4*
+cat *ata4* | sort -V -k1,1 -k2,2 | cut -f1-3 | bedtools merge > any_gata4.bed
+
+ls *kx2*
+# confirm no headers
+head -n1 *kx2*
+cat *kx2* | sort -V -k1,1 -k2,2 | cut -f1-3 | bedtools merge > any_nkx25.bed
+
+ls *bx5*
+# confirm no headers
+head -n1 *bx5*
+cat *bx5* | sort -V -k1,1 -k2,2 | cut -f1-3 | bedtools merge > any_tbx5.bed
+
+cat any_gata4.bed any_nkx25.bed any_tbx5.bed | sort -V -k1,1 -k2,2 | \
+    bedtools merge > all_tf.bed
+
 """
 
 
@@ -56,6 +84,11 @@ anno_hg19 = ("/hpc/users/richtf01/chdiTrios/Felix/wgs/bed_annotations/" +
 
 gene_bed_f = ("/sc/orga/projects/chdiTrios/Felix/dna_rna/" +
               "wgs_pcgc_2018_04/all_genes.bed")
+
+
+"""Removing mapping features that were excluded in the outlier analysis.
+"""
+
 gene_bed_obj = BedTool(gene_bed_f)
 
 print(gene_bed_obj.head())
@@ -87,14 +120,28 @@ print(gene_bed_obj.count())
 gene_bed_obj.saveas(re.sub(".bed", "_hi_mapping.bed", gene_bed_f))
 
 
+"""Overlapping the gene TSS bed file with each sorted/merged annotation.
+"""
+
+
 def overlap_gene_bed(bed_name, gene_bed_obj, out_dir):
     """Overlap annotations with 10 kbflanked gene TSSs."""
     print(bed_name)
+    if bed_name.endswith("human_acc_regions_heart_enh.bed"):
+        return "Never run: " + bed_name
     out_f = re.sub(".*/", out_dir, bed_name)
-    out_f = re.sub(".bed$", "_gene_ct.bed", out_f)
-    bed = BedTool(bed_name)
+    sorted_f = re.sub(".bed$", "_sorted.bed", out_f)
+    ct_out_f = re.sub(".bed$", "_gene_ct.bed", out_f)
+    if os.path.exists(ct_out_f):
+        return "Not rerun: " + bed_name
+    # sort the bed file (necessary for merging)
+    subprocess.call('sort -V -k1,1 -k2,2 {0} > {1}'.format(bed_name, sorted_f),
+                    shell=True)
+    bed = BedTool(sorted_f)
+    # merge the bed file before counting the intersection
+    bed = bed.merge()
     gene_bed_obj = gene_bed_obj.intersect(bed, wao=True)
-    gene_bed_obj.saveas(out_f)
+    gene_bed_obj.saveas(ct_out_f)
     return bed_name
 
 
@@ -108,37 +155,22 @@ gene_bed_obj = BedTool(re.sub(".bed", "_hi_mapping.bed", gene_bed_f))
 bed_iterable = glob.iglob(anno_hg19)
 partial_overlap_gene_bed = partial(
     overlap_gene_bed, gene_bed_obj=gene_bed_obj, out_dir=out_dir)
+# testing or running sequentially
+count = 0
+anno_completed = []
+for bed_name in bed_iterable:
+    bed_done = partial_overlap_gene_bed(bed_name)
+    anno_completed.append(bed_done)
+    count += 1
+    # if count > 3:
+    #     break
+
+[i for i in anno_completed if not i.startswith("Not")]
 pool = mp.Pool(processes=6)
 # print("Total available cores: " + str(mp.cpu_count()))
 anno_completed = pool.map(partial_overlap_gene_bed, bed_iterable)
 
-
-"""
-file_loc_list = [anno_hg19]
-
-
-bed_header = ["Chrom", "Start", "End", "Gene", "rm1", "rm2", "rm3",
-              "overlap_ct"]
-
-overlap_list = []
-count = 0
-for file_loc in file_loc_list:
-    bed_iterable = glob.iglob(file_loc)
-    for bed_name in bed_iterable:
-        print(bed_name)
-        out_f = re.sub(".*/", out_dir, bed_name)
-        out_f = re.sub(".bed$", "_gene_ct.bed", bed_name)
-        overlap_list.append(bed_name)
-        bed = BedTool(bed_name)
-        gene_bed_obj = gene_bed_obj.intersect(bed, wao=True)
-        count += 1
-        print(count)
-        # if count > 5:
-        #     break
-
-print(gene_bed_obj.head())
-print(gene_bed_obj.count())
-"""
+len(anno_completed)
 
 """Load and clean all overlap counts into a single dataframe/file.
 """
@@ -147,7 +179,8 @@ print(gene_bed_obj.count())
 def load_and_clean_cts(bed_file):
     """Load BED overlap data and clean column names."""
     # clean name
-    rep_w_blank = ".*/|.merged.sorted|.sorted|.bed$|.bed.gz$|.txt$|_gene_ct"
+    rep_w_blank = (".*/|.merged.sorted|.sorted|.bed$|.bed.gz$|.txt$|_gene_ct" +
+                   "|_sorted")
     bed_name = re.sub(rep_w_blank, "", bed_file)
     bed_name = re.sub("all_predictions", "cvdc_enhancers_dickel", bed_name)
     # use as column name
@@ -195,62 +228,16 @@ bed_df_list = pool.map(partial_load_and_clean_cts, bed_iterable)
 len(bed_df_list)
 bed_df = pd.concat(bed_df_list)
 
-# bed_df_list[1].iloc[0, :]
-# bed_df_list[0].head()
-# bed_df_list[0].index.get_level_values('A1BG')
-# bed_df_list[0].query('Gene == ')
-# bed_df_list[0]['A1BG']
-
-# bed_df = partial_load_and_clean_cts([i for i in bed_iterable][0])
-
-
-# cols_to_keep = ["Gene", "overlap_ct"]
-# # len([i for i in bed_iterable])
-# bed_df_list = []
-# count = 0
-# for bed_file in bed_iterable:
-#     # clean name
-#     rep_w_blank = ".*/|.merged.sorted|.sorted|.bed$|.bed.gz$|.txt$|_gene_ct"
-#     bed_name = re.sub(rep_w_blank, "", bed_file)
-#     bed_name = re.sub("all_predictions", "cvdc_enhancers_dickel", bed_name)
-#     # use as column name
-#     print(bed_name)
-#     bed_df = pd.read_table(bed_file, names=bed_header)
-#     print(bed_df)
-#     # print(bed_header)
-#     bed_df = bed_df[cols_to_keep]
-#     bed_df["anno"] = bed_name
-#     bed_df_list.append(bed_df)
-#     count += 1
-#     # if count > 3:
-#     #     break
-#     print(count)
-
-
-bed_df = pd.concat(bed_df_list)
-
 bed_df.columns
 bed_df.head()
 bed_df.shape
 
-# identify bed_df where first gene is not A1BG
-# bed_df_list[0].head()
-# for bed_df_i in bed_df_list:
 
 gene_bed_f = ("/sc/orga/projects/chdiTrios/Felix/dna_rna/" +
               "wgs_pcgc_2018_04/all_genes.bed")
 # saving
-bed_df.to_csv(re.sub(".bed", "_anno_cts_grouped.txt", gene_bed_f),
+bed_df.to_csv(re.sub(".bed", "_anno_cts_grouped_from_merged.txt", gene_bed_f),
               sep="\t")  # keep index after groupby so don't use index=False
 # _anno_cts.txt _anno_cts_grouped.txt
 # mp result shape: (26624244, 1)
 # non-mp results shape: (26624242, 1)
-
-# sum over evertyhing
-bed_df = bed_df.groupby(["Gene", "anno"]).sum()
-
-# clean column names
-# rep_w_blank = ".*/|.merged.sorted|.sorted|.bed$|.bed.gz$|.txt$"
-# anno_list = [re.sub(rep_w_blank, "", i) for i in file_loc_list]
-# anno_list = [re.sub("all_predictions", "cvdc_enhancers_dickel", i)
-#              for i in anno_list]
