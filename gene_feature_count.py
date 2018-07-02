@@ -116,6 +116,10 @@ anno_completed = pool.map(partial_overlap_gene_bed, bed_iterable)
 """
 file_loc_list = [anno_hg19]
 
+
+bed_header = ["Chrom", "Start", "End", "Gene", "rm1", "rm2", "rm3",
+              "overlap_ct"]
+
 overlap_list = []
 count = 0
 for file_loc in file_loc_list:
@@ -140,7 +144,7 @@ print(gene_bed_obj.count())
 """
 
 
-def load_and_clean_cts(bed_file, bed_header):
+def load_and_clean_cts(bed_file):
     """Load BED overlap data and clean column names."""
     # clean name
     rep_w_blank = ".*/|.merged.sorted|.sorted|.bed$|.bed.gz$|.txt$|_gene_ct"
@@ -148,36 +152,54 @@ def load_and_clean_cts(bed_file, bed_header):
     bed_name = re.sub("all_predictions", "cvdc_enhancers_dickel", bed_name)
     # use as column name
     print(bed_name)
-    bed_df = pd.read_table(bed_file, names=bed_header)
-    print(bed_df.head())
+    bed_df = pd.read_table(bed_file, header=None, index_col=False)
+    # names=bed_header
+    bed_col_count = bed_df.shape[1]
+    bed_header = ["Chrom", "Start", "End", "Gene", "overlap_ct"]
+    extra_coL_ct = 0
+    # get rid of all the extra/useless columns
+    while len(bed_header) < bed_col_count:
+        extra_coL_ct += 1
+        bed_header.insert(4, "rm" + str(extra_coL_ct))
+    bed_df.columns = bed_header
+    if not bed_df.Chrom.values[0].startswith("chr"):
+        print(bed_df.head())
+        raise ImportError()
     bed_df = bed_df[["Gene", "overlap_ct"]]
     bed_df["anno"] = bed_name
     bed_df = bed_df.groupby(["Gene", "anno"]).sum()
     return bed_df
 
 
-bed_header = ["Chrom", "Start", "End", "Gene", "rm1", "rm2", "rm3",
-              "overlap_ct"]
+out_dir = ("/hpc/users/richtf01/chdiTrios/Felix/wgs/bed_annotations/" +
+           "gene_feature_count_hg19/")
 bed_iterable = glob.iglob(out_dir + "*_gene_ct.bed")
 
-for bed_file_i in bed_iterable:
-    bed_df_i = load_and_clean_cts(bed_file_i, bed_header)
-    print(bed_df_i.head())
+# For Testing:
+# count = 0
+# for bed_file_i in bed_iterable:
+#     bed_df_i = load_and_clean_cts(bed_file_i)
+#     print(bed_df_i.head())
+#     print(bed_df_i.shape)
+#     count += 1
+#     if count > 10:
+#         break
 
 
-partial_load_and_clean_cts = partial(load_and_clean_cts, bed_header=bed_header)
+partial_load_and_clean_cts = partial(load_and_clean_cts)
+# keep partial code in case you want to add other arguments in future
 pool = mp.Pool(processes=6)
 # print("Total available cores: " + str(mp.cpu_count()))
 bed_df_list = pool.map(partial_load_and_clean_cts, bed_iterable)
+[bed_i.shape for bed_i in bed_df_list]
 len(bed_df_list)
 bed_df = pd.concat(bed_df_list)
 
-
-bed_df_list[1].iloc[0, :]
-bed_df_list[0].head()
-bed_df_list[0].index.get_level_values('A1BG')
-bed_df_list[0].query('Gene == ')
-bed_df_list[0]['A1BG']
+# bed_df_list[1].iloc[0, :]
+# bed_df_list[0].head()
+# bed_df_list[0].index.get_level_values('A1BG')
+# bed_df_list[0].query('Gene == ')
+# bed_df_list[0]['A1BG']
 
 # bed_df = partial_load_and_clean_cts([i for i in bed_iterable][0])
 
@@ -215,10 +237,11 @@ bed_df.shape
 # bed_df_list[0].head()
 # for bed_df_i in bed_df_list:
 
-
+gene_bed_f = ("/sc/orga/projects/chdiTrios/Felix/dna_rna/" +
+              "wgs_pcgc_2018_04/all_genes.bed")
 # saving
 bed_df.to_csv(re.sub(".bed", "_anno_cts_grouped.txt", gene_bed_f),
-              sep="\t")  # keep index after groupby index=False,
+              sep="\t")  # keep index after groupby so don't use index=False
 # _anno_cts.txt _anno_cts_grouped.txt
 # mp result shape: (26624244, 1)
 # non-mp results shape: (26624242, 1)
