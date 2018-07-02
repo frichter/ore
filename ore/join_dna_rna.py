@@ -38,7 +38,7 @@ class JoinedVarExpr(object):
     """Methods for creating the final DF."""
 
     def __init__(self, var_loc, expr_outs_loc, dna_rna_df_loc,
-                 variant_class, exon_class, refgene, ensgene,
+                 variant_class, exon_class, refgene, ensgene, max_tss_dist,
                  contigs, logger):
         """Load and join variants and outliers.
 
@@ -52,6 +52,7 @@ class JoinedVarExpr(object):
                 on (default None)
             exon_class (:obj:`str`): annovar EXON class to filter
                 on (default None)
+            max_tss_dist (:obj:`int`): maximum distance from TSS
             contigs (:obj:`list`): chromosomes that are in the VCF
             logger (:obj:`logging object`): Current logger
 
@@ -65,7 +66,7 @@ class JoinedVarExpr(object):
         else:
             logger.info("Loading variants...")
             self.load_vars(var_loc, contigs, variant_class, exon_class,
-                           refgene, ensgene, logger)
+                           refgene, ensgene, max_tss_dist, logger)
             logger.info("Loading outliers...")
             self.load_outliers(expr_outs_loc)
             logger.info("joining outliers with variants...")
@@ -80,7 +81,7 @@ class JoinedVarExpr(object):
             self.write_to_file(dna_rna_df_loc)
 
     def load_vars(self, var_loc, contigs, variant_class, exon_class,
-                  refgene, ensgene, logger):
+                  refgene, ensgene, max_tss_dist, logger):
         """Load and combine variant data.
 
         Attributes:
@@ -105,6 +106,8 @@ class JoinedVarExpr(object):
             var_df_per_chrom = pd.read_table(
                 var_loc % (chrom), dtype=dtype_specs)
             var_df_per_chrom.set_index(['gene', 'blinded_id'], inplace=True)
+            var_df_per_chrom = var_df_per_chrom.loc[
+                abs(var_df_per_chrom.tss_dist) <= max_tss_dist]
             if variant_class:
                 var_df_per_chrom = self.filter_refgene_ensgene(
                     var_df_per_chrom, variant_class, refgene, ensgene)

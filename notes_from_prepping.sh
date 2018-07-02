@@ -325,6 +325,8 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --processes 2
 
 
+# used 5e4, switch to 5e3 for analysis
+
 
     # --outlier_output "outliers_norm_SV5.txt" \
 

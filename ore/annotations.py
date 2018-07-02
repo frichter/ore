@@ -291,7 +291,9 @@ class Annotations(object):
         print("Writing to", self.final_var_loc % current_chrom)
         final_df.to_csv(self.final_var_loc % current_chrom, sep="\t",
                         index=False, float_format='%g')
+        print('-'*80)
         print("Done writing to", self.final_var_loc % current_chrom)
+        print('-'*80)
         return current_chrom
 
     def clean_annovar_results(self, current_chrom):
