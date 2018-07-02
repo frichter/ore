@@ -275,8 +275,6 @@ class Annotations(object):
         print("012 long joined with annotated DF size:", final_df.shape)
         print("Getting intra-cohort variant counts/frequency")
         final_df.reset_index(inplace=True)
-        print(final_df.head())
-        print(sys.getsizeof(final_df)/(1024**3), "Gb")
         final_df['var_id_count'] = final_df.groupby(
             'var_id')['GT'].transform('sum')
         # multiply by 2 for autosomes, 1 for sex chromosomes in MALES
@@ -289,6 +287,7 @@ class Annotations(object):
             print("Setting popmax AF to 0 (because not using ANNOVAR)")
             final_df['popmax_af'] = 0
         print("Writing to", self.final_var_loc % current_chrom)
+        print(sys.getsizeof(final_df)/(1024**3), "Gb")
         final_df.to_csv(self.final_var_loc % current_chrom, sep="\t",
                         index=False, float_format='%g')
         print('-'*80)
