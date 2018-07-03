@@ -125,9 +125,13 @@ def multiprocess_by_chrom_cmd(n_processes, contigs, mp_function):
     # chrom_iter = itertools.chain([str(i) for i in range(1, 23)], ["X"])
     chrom_iter = itertools.chain([str(i) for i in contigs])
     # , "Y"
-    pool = mp.Pool(processes=n_processes)
+    # pool = mp.Pool(processes=n_processes)
     # print("Total available cores: " + str(mp.cpu_count()))
-    chroms_completed = pool.map(mp_function, chrom_iter)
+    # chroms_completed = pool.map(mp_function, chrom_iter)
+    chroms_completed = []
+    for chrom_i in chrom_iter:
+        chrom_done = mp_function(chrom_i)
+        chroms_completed.append(chrom_done)
     return chroms_completed
 
 

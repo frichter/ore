@@ -264,6 +264,7 @@ class Annotations(object):
             # print("ANNOVAR joined w closest gene DF size:", anno_df.shape)
         final_df = self.remove_vars_in_unwanted_cols(anno_df)
         # print(final_df.head())
+        final_df = final_df.loc[abs(final_df.tss_dist) <= 1e4]
         print("Repeats and segdups removed DF size:", final_df.shape)
         print("Loading long 012 matrix for", current_chrom)
         long012_df = self.load_long_012_df(current_chrom)
