@@ -57,8 +57,7 @@ class Outliers(object):
         logger.debug(gene_expr_df.head())
         gene_expr_df.rename(columns={gene_expr_df.columns[0]: "gene"},
                             inplace=True)
-        logger.debug(gene_expr_df.columns.values[0])
-        logger.debug(gene_expr_df.shape)
+        # logger.debug(gene_expr_df.shape)
         # Convert gene expression data frame from wide to long:
         self.expr_long_df = pd.melt(
             gene_expr_df,
@@ -66,8 +65,8 @@ class Outliers(object):
             value_vars=gene_expr_df.columns[1:].tolist(),
             var_name='blinded_id',
             value_name='z_expr')
-        logger.debug(self.expr_long_df.head())
-        logger.debug(self.expr_long_df.shape)
+        # logger.debug(self.expr_long_df.head())
+        # logger.debug(self.expr_long_df.shape)
         # set the output file location
         self.expr_outs_loc = (output_prefix + "_outliers.txt")
         if outlier_postfix:
@@ -87,7 +86,7 @@ class Outliers(object):
         else:
             raise RNASeqError("'{}' is not a valid outlier distribution".
                               format(distribution))
-        logger.debug(self.least_extr_threshold)
+        # logger.debug(self.least_extr_threshold)
 
     def prepare_outliers(self, outlier_max, vcf_id_list, logger):
         """Obtain gene expression outliers.
@@ -110,12 +109,11 @@ class Outliers(object):
             return "Already made outlier file " + self.expr_outs_loc
         # only work with IDs in WGS that are also in the RNAseq
         lines_w_consistent_ids = self.expr_long_df.blinded_id.isin(vcf_id_list)
-        logger.debug(lines_w_consistent_ids.sum())
         if lines_w_consistent_ids.sum() == 0:
             raise RNASeqError("No overlapping IDs between RNAseq and VCF")
         self.expr_long_df = self.expr_long_df[lines_w_consistent_ids]
-        logger.debug(self.expr_long_df.head())
-        logger.debug(self.expr_long_df.shape)
+        # logger.debug(self.expr_long_df.head())
+        # logger.debug(self.expr_long_df.shape)
         # actually calculate the outliers
         expr_outlier_df = self.get_outliers(vcf_id_list)
         outs_per_id_file = re.sub('.txt', '_outliers_per_id_ALL',

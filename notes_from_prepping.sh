@@ -316,7 +316,7 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --max_outliers_per_id 1000 \
     --af_rare 5e-2 1e-2 1e-3 \
     --intracohort_rare_ac 5 \
-    --tss_dist 5e4 \
+    --tss_dist 5e3 \
     --annovar \
     --variant_class "UTR5" \
     --ensgene \
