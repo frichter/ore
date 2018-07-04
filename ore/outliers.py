@@ -110,8 +110,8 @@ class Outliers(object):
             return "Already made outlier file " + self.expr_outs_loc
         # only work with IDs in WGS that are also in the RNAseq
         lines_w_consistent_ids = self.expr_long_df.blinded_id.isin(vcf_id_list)
-        logger.debug(lines_w_consistent_ids)
-        if lines_w_consistent_ids.shape[0] == 0:
+        logger.debug(lines_w_consistent_ids.sum())
+        if lines_w_consistent_ids.sum() == 0:
             raise RNASeqError("No overlapping IDs between RNAseq and VCF")
         self.expr_long_df = self.expr_long_df[lines_w_consistent_ids]
         logger.debug(self.expr_long_df.head())
