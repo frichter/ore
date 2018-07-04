@@ -254,17 +254,18 @@ class Annotations(object):
         anno_df = anno_df.set_index('var_id')
         # print(anno_df.head())
         if self.use_annovar:
-            # print("Cleaning ANNOVAR results for", current_chrom)
+            print("Cleaning ANNOVAR results for", current_chrom)
             annovar_df = self.clean_annovar_results(current_chrom)
             # print(annovar_df.head())
             # print("ANNOVAR DF size:", annovar_df.shape)
-            # print("Joining ANNOVAR with annotations for", current_chrom)
+            print("Joining ANNOVAR with annotations for", current_chrom)
             anno_df = annovar_df.set_index('var_id').join(anno_df, how='inner')
             # print(anno_df.head())
             # print("ANNOVAR joined w closest gene DF size:", anno_df.shape)
         final_df = self.remove_vars_in_unwanted_cols(anno_df)
         # print(final_df.head())
-        final_df = final_df.loc[abs(final_df.tss_dist) <= 1e4]
+        # limit file size here:
+        # final_df = final_df.loc[abs(final_df.tss_dist) <= 1e4]
         print("Repeats and segdups removed DF size:", final_df.shape)
         print("Loading long 012 matrix for", current_chrom)
         long012_df = self.load_long_012_df(current_chrom)
@@ -288,6 +289,7 @@ class Annotations(object):
             print("Setting popmax AF to 0 (because not using ANNOVAR)")
             final_df['popmax_af'] = 0
         print("Writing to", self.final_var_loc % current_chrom)
+        print("Dataframe current memory use:")
         print(sys.getsizeof(final_df)/(1024**3), "Gb")
         final_df.to_csv(self.final_var_loc % current_chrom, sep="\t",
                         index=False, float_format='%g')

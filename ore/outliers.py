@@ -182,9 +182,10 @@ class Outliers(object):
 
         TODO:
             All three lines raise a SettingWithCopyWarning when the column
-            already exists in the dataframe. Unclear why
+            already exists in the dataframe. Unclear why or if this is an issue
 
         """
+        # print("(Re)calculating z-scores per gene...")
         print("Calculating z-score outliers....")
         self.expr_long_df.loc[:, "z_abs"] = abs(self.expr_long_df.z_expr)
         self.expr_long_df.loc[:, "expr_outlier"] = (
@@ -253,6 +254,8 @@ class Outliers(object):
 
         """
         print("Identifying most extreme outlier per gene...")
+        print(self.expr_long_df.head())
+        print(self.expr_long_df.shape)
         expr_outlier_df = applyParallel(self.expr_long_df.groupby(
             'gene'), self.find_most_extreme_expr_outlier_per_gene)
         expr_outlier_df['expr_outlier_neg'] = (
