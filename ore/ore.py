@@ -107,7 +107,8 @@ def associate_outliers(args):
                            logger=logger)
     print("Outliers initialized...")
     outlier_obj.prepare_outliers(outlier_max=args.max_outliers_per_id,
-                                 vcf_id_list=variants_obj.vcf_obj.id_list)
+                                 vcf_id_list=variants_obj.vcf_obj.id_list,
+                                 logger=logger)
     logger.info("Outliers prepared")
     # join outliers with variants
     dna_rna_df_loc = output_prefix + "_all_data.txt"
