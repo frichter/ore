@@ -275,9 +275,6 @@ class Outliers(object):
         Args:
             `gene_group`: long-format expression dataframe for a gene
 
-        TODO:
-            Only applies to normal distribution, either generalize to ranks
-            Or specify another way of identify max/min ranked per gene
         """
         gene_group['expr_outlier'] = (
             (gene_group.z_abs == max(gene_group.z_abs)) &
