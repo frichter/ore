@@ -104,6 +104,7 @@ def associate_outliers(args):
                            extrema=args.extrema,
                            distribution=args.distribution,
                            threshold=args.threshold,
+                           n_processes=args.processes,
                            logger=logger)
     print("Outliers initialized...")
     outlier_obj.prepare_outliers(outlier_max=args.max_outliers_per_id,
