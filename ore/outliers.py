@@ -23,7 +23,7 @@ class Outliers(object):
     """Methods and attributes of outliers."""
 
     def __init__(self, pheno_loc, output_prefix, outlier_postfix,
-                 extrema, distribution, threshold, logger):
+                 extrema, distribution, threshold, n_processes, logger):
         """Initialize outlier dataframe.
 
         Args:
@@ -33,6 +33,7 @@ class Outliers(object):
             extrema (:obj:`boolean`): T/F for using most extreme outlier
             distribution (:obj:`str`): type of outlier distribution considered
             threshold (:obj:`list`): list of outlier cut-off thresholds
+            n_processes (:obj:`int`): number of workers/cores to run at a time
             logger (:obj:`logging object`): Current logger
 
         Attributes:
@@ -55,6 +56,7 @@ class Outliers(object):
         gene_expr_df = pd.read_table(pheno_loc, low_memory=False)
         gene_expr_df = gene_expr_df.iloc[:, 3:]
         logger.debug(gene_expr_df.head())
+        self.n_processes = n_processes
         gene_expr_df.rename(columns={gene_expr_df.columns[0]: "gene"},
                             inplace=True)
         # logger.debug(gene_expr_df.shape)
@@ -161,8 +163,7 @@ class Outliers(object):
         if self.distribution == "normal":
             self.identify_outliers_from_normal()
         elif self.distribution == "rank":
-            self.identify_outliers_from_ranks(
-                self.expr_long_df, self.least_extr_threshold)
+            self.expr_long_df = self.identify_outliers_from_ranks()
         elif self.distribution == "custom":
             not_0_1 = ~self.expr_long_df.z_expr.isin([0, 1])
             if any(not_0_1):
@@ -199,7 +200,7 @@ class Outliers(object):
             self.expr_long_df.expr_outlier)
 
     @staticmethod
-    def identify_outliers_from_ranks(expr_long_df, least_extr_threshold):
+    def identify_outliers_from_ranks(self):
         """Identify outliers based on those more extreme than percentile.
 
         Args
@@ -207,19 +208,20 @@ class Outliers(object):
 
         """
         print("Calculating ranks...")
-        expr_long_df = applyParallel(expr_long_df.groupby(
-            'gene'), Outliers.calculate_ranks)
+        expr_long_df = applyParallel(self.expr_long_df.groupby(
+            'gene'), self.calculate_ranks,
+            self.n_processes)
         print("Ranks calculated, identifying outliers")
         min_expr_cut_off = min(set(expr_long_df.expr_rank))
-        if (least_extr_threshold <= min_expr_cut_off) or (
-                least_extr_threshold >= 0.5):
+        if (self.least_extr_threshold <= min_expr_cut_off) or (
+                self.least_extr_threshold >= 0.5):
             raise RNASeqError("The percentile cut-off specified ({}) is " +
                               "not between 0.5 and the minimum cut-off " +
                               "for this sample size, {}".format(
-                                least_extr_threshold, min_expr_cut_off))
-        hi_expr_cut_off = 1 - least_extr_threshold
+                                self.least_extr_threshold, min_expr_cut_off))
+        hi_expr_cut_off = 1 - self.least_extr_threshold
         expr_long_df["expr_outlier_neg"] = (
-            expr_long_df.expr_rank <= least_extr_threshold)
+            expr_long_df.expr_rank <= self.least_extr_threshold)
         expr_long_df["expr_outlier"] = (
             (expr_long_df.expr_rank >= hi_expr_cut_off) |
             expr_long_df.expr_outlier_neg)
@@ -261,7 +263,8 @@ class Outliers(object):
         print(self.expr_long_df.head())
         print(self.expr_long_df.shape)
         expr_outlier_df = applyParallel(self.expr_long_df.groupby(
-            'gene'), self.find_most_extreme_expr_outlier_per_gene)
+            'gene'), self.find_most_extreme_expr_outlier_per_gene,
+            self.n_processes)
         expr_outlier_df['expr_outlier_neg'] = (
             expr_outlier_df.expr_outlier_neg &
             expr_outlier_df.expr_outlier)

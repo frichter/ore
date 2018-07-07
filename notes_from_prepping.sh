@@ -300,7 +300,7 @@ python -m ore.ore --help
 python -m ore.ore --version
 
 PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/alzheimers"
-EXPR_F="$PARENT_DIR/expression/residuals_AMPAD_MSSM_GE_SV_17_tissue_36_with_disease_in_model_europeans_only.bed.gz"
+EXPR_F="$PARENT_DIR/expression/residuals_AMPAD_MSSM_GE_SV_17_tissue_36_with_disease_in_model_europeans_only_wgs_ids.bed.gz"
 VCF="$PARENT_DIR/wgs/ad_wgs_cp.vcf.gz"
 # ore_2018_06 ore_2018_05
 OUT_PREFIX="$PARENT_DIR/ore_2018_05/ad_ore"
