@@ -11,6 +11,7 @@
 
 
 import os
+import sys
 
 import pandas as pd
 
@@ -119,6 +120,7 @@ class JoinedVarExpr(object):
                 #                      'exon_func_ensgene'])
             var_df_per_chrom = var_df_per_chrom[cols_to_keep]
             list_.append(var_df_per_chrom)
+            logger.debug(sys.getsizeof(list_)/(1024**3), "Gb")
         logger.info("All contigs/chromosomes loaded")
         self.var_df = pd.concat(list_)
         logger.info(self.var_df.shape)
