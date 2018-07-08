@@ -305,7 +305,8 @@ VCF="$PARENT_DIR/wgs/ad_wgs_cp.vcf.gz"
 # ore_2018_06 ore_2018_05
 OUT_PREFIX="$PARENT_DIR/ore_2018_05/ad_ore"
 OUTLIER_OUT="$PARENT_DIR/ore_2018_05/most_extreme_outs_t36/ad_ore_outliers.txt"
-ENRICH_F="$PARENT_DIR/ore_2018_05/most_extreme_t36_enrich/ad_ore_utr5_ref_ens_10kb.txt"
+ENRICH_F="$PARENT_DIR/ore_2018_05/most_extreme_t36_enrich/ad_ore_all_10kb.txt"
+# ad_ore_utr5_ref_ens_10kb 
 
 time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --bed $EXPR_F \
@@ -319,14 +320,14 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --intracohort_rare_ac 5 \
     --tss_dist 1e4 \
     --annovar \
-    --ensgene \
-    --refgene \
-    --variant_class "UTR5" \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
     --processes 6
 
 
 # used 5e4, switch to 5e3 for analysis
+# --ensgene \
+# --refgene \
+# --variant_class "UTR5" \
 
 mv ad_ore_all_data.txt ad_ore_all_data_utr5_ref_ens.txt 
 mv ad_ore_rv_w_outliers.txt ad_ore_rv_w_outliers_utr5_ref_ens.txt 
