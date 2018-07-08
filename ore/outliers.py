@@ -72,7 +72,8 @@ class Outliers(object):
         # set the output file location
         self.expr_outs_loc = (output_prefix + "_outliers.txt")
         if outlier_postfix:
-            self.expr_outs_loc = (output_prefix + "_" + outlier_postfix)
+            self.expr_outs_loc = outlier_postfix
+            # self.expr_outs_loc = (output_prefix + "_" + outlier_postfix)
         # set states on which specific outlier definitions are being used
         self.extrema = extrema
         self.distribution = distribution

@@ -281,7 +281,7 @@ time tabix -p vcf ad_wgs_cp.vcf.gz
 ####################
 
 
-cd /sc/orga/projects/chdiTrios/Felix/alzheimers
+cd /sc/orga/projects/chdiTrios/Felix/alzheimers/ore_2018_05
 
 module load bedtools/2.27.0
 module load samtools/1.3
@@ -304,7 +304,7 @@ EXPR_F="$PARENT_DIR/expression/residuals_AMPAD_MSSM_GE_SV_17_tissue_36_with_dise
 VCF="$PARENT_DIR/wgs/ad_wgs_cp.vcf.gz"
 # ore_2018_06 ore_2018_05
 OUT_PREFIX="$PARENT_DIR/ore_2018_05/ad_ore"
-OUTLIER_OUT="$PARENT_DIR/ore_2018_05/most_extreme_outs_t36/ad_ore"
+OUTLIER_OUT="$PARENT_DIR/ore_2018_05/most_extreme_outs_t36/ad_ore_outliers.txt"
 ENRICH_F="$PARENT_DIR/ore_2018_05/most_extreme_t36_enrich/ad_ore_utr5_ref_ens_10kb.txt"
 
 time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
@@ -314,7 +314,6 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --distribution "normal" \
     --extrema \
     --threshold 2 \
-    --max_outliers_per_id 1000 \
     --af_rare 5e-2 1e-2 1e-3 \
     --intracohort_rare_ac 5 \
     --tss_dist 1e4 \
@@ -333,6 +332,7 @@ mv ad_ore_rv_w_outliers.txt ad_ore_rv_w_outliers_utr5_ref_ens.txt
 mv ad_ore_enrich_test.txt most_extreme_enrich/ad_ore_utr5_ref_ens_5kb.txt
 
     # --outlier_output "outliers_norm_SV5.txt" \
+    # --max_outliers_per_id 1000 \
 
 
 # fixing up results from a previous run
