@@ -304,7 +304,8 @@ EXPR_F="$PARENT_DIR/expression/residuals_AMPAD_MSSM_GE_SV_17_tissue_36_with_dise
 VCF="$PARENT_DIR/wgs/ad_wgs_cp.vcf.gz"
 # ore_2018_06 ore_2018_05
 OUT_PREFIX="$PARENT_DIR/ore_2018_05/ad_ore"
-ENRICH_F="$PARENT_DIR/ore_2018_05/ad_ore_enrich_test.txt"
+OUTLIER_OUT="$PARENT_DIR/ore_2018_05/most_extreme_outs_t36/ad_ore"
+ENRICH_F="$PARENT_DIR/ore_2018_05/most_extreme_t36_enrich/ad_ore_utr5_ref_ens_10kb.txt"
 
 time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --bed $EXPR_F \
@@ -316,17 +317,20 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --max_outliers_per_id 1000 \
     --af_rare 5e-2 1e-2 1e-3 \
     --intracohort_rare_ac 5 \
-    --tss_dist 5e3 \
+    --tss_dist 1e4 \
     --annovar \
-    --variant_class "UTR5" \
     --ensgene \
     --refgene \
+    --variant_class "UTR5" \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
     --processes 6
 
 
 # used 5e4, switch to 5e3 for analysis
 
+mv ad_ore_all_data.txt ad_ore_all_data_utr5_ref_ens.txt 
+mv ad_ore_rv_w_outliers.txt ad_ore_rv_w_outliers_utr5_ref_ens.txt 
+mv ad_ore_enrich_test.txt most_extreme_enrich/ad_ore_utr5_ref_ens_5kb.txt
 
     # --outlier_output "outliers_norm_SV5.txt" \
 
@@ -344,6 +348,13 @@ source venv_ore/bin/activate
 pip install --upgrade pip
 pip install ore
 deactivate
+
+# dealing with not being able to run chr2
+wc -l tmp_long_012_2b.txt
+60039647 tmp_long_012_2b.txt
+
+wc -l tmp_long_012_2.txt
+120079294 tmp_long_012_2.txt
 
 
 # Download ANNOVAR databases by (a) registering here:
