@@ -310,6 +310,7 @@ ENRICH_F="$PARENT_DIR/ore_2018_05/most_extreme_t36_enrich/ad_ore_utr5_ref_ens_10
 time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --bed $EXPR_F \
     --output $OUT_PREFIX \
+    --outlier_output $OUTLIER_OUT \
     --enrich_file $ENRICH_F \
     --distribution "normal" \
     --extrema \

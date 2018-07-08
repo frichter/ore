@@ -109,6 +109,7 @@ class Outliers(object):
 
         """
         if os.path.exists(self.expr_outs_loc):
+            logger.debug("Already made outlier file " + self.expr_outs_loc)
             return "Already made outlier file " + self.expr_outs_loc
         # only work with IDs in WGS that are also in the RNAseq
         lines_w_consistent_ids = self.expr_long_df.blinded_id.isin(vcf_id_list)
