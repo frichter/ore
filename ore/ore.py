@@ -106,7 +106,7 @@ def associate_outliers(args):
                            threshold=args.threshold,
                            n_processes=args.processes,
                            logger=logger)
-    print("Outliers initialized...")
+    logger.info("Outliers initialized...")
     outlier_obj.prepare_outliers(outlier_max=args.max_outliers_per_id,
                                  vcf_id_list=variants_obj.vcf_obj.id_list,
                                  logger=logger)
