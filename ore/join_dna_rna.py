@@ -113,11 +113,11 @@ class JoinedVarExpr(object):
                 var_df_per_chrom = self.filter_refgene_ensgene(
                     var_df_per_chrom, variant_class, refgene, ensgene)
                 # cols_to_keep.extend(['func_refgene', 'func_ensgene'])
-            if variant_class.startswith("exon") and exon_class:
-                var_df_per_chrom = self.filter_refgene_ensgene_exon(
-                    var_df_per_chrom, exon_class, refgene, ensgene)
-                # cols_to_keep.extend(['exon_func_refgene',
-                #                      'exon_func_ensgene'])
+                if variant_class.startswith("exon") and exon_class:
+                    var_df_per_chrom = self.filter_refgene_ensgene_exon(
+                        var_df_per_chrom, exon_class, refgene, ensgene)
+                    # cols_to_keep.extend(['exon_func_refgene',
+                    #                      'exon_func_ensgene'])
             var_df_per_chrom = var_df_per_chrom[cols_to_keep]
             list_.append(var_df_per_chrom)
             print(sys.getsizeof(var_df_per_chrom)/(1024**3), "Gb")
