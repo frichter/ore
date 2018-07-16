@@ -22,9 +22,9 @@ PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/alzheimers"
 EXPR_F="$PARENT_DIR/expression/residuals_AMPAD_MSSM_GE_SV_17_tissue_36_with_disease_in_model_europeans_only_new_z_wgs_ids.bed.gz"
 VCF="$PARENT_DIR/wgs/ad_wgs_cp.vcf.gz"
 # ore_2018_06 ore_2018_05
-OUT_PREFIX="$PARENT_DIR/ore_2018_06_job/ad_ore"
+OUT_PREFIX="$PARENT_DIR/ore_2018_05/ad_ore"
 OUTLIER_OUT="$PARENT_DIR/ore_2018_05/most_extreme_outs_t36/ad_ore_outliers.txt"
-ENRICH_F="$PARENT_DIR/ore_2018_05/most_extreme_t36_enrich/ad_ore_allvars_10kb.txt"
+ENRICH_F="$PARENT_DIR/ore_2018_05/most_extreme_t36_enrich/ad_ore_splicing_10kb.txt"
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 
@@ -44,6 +44,9 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --intracohort_rare_ac 5 \
     --tss_dist 1e3 2e3 5e3 1e4 \
     --annovar \
+    --refgene \
+    --ensgene \
+    --variant_class "splicing" \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
     --processes 5
 
