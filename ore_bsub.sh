@@ -39,7 +39,7 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --enrich_file $ENRICH_F \
     --distribution "normal" \
     --extrema \
-    --threshold 2 \
+    --threshold 2 2.5 3 4 \
     --af_rare 5e-2 1e-2 1e-3 1e-4 1e-5 \
     --intracohort_rare_ac 5 \
     --tss_dist 1e3 2e3 5e3 1e4 \
