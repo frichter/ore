@@ -60,6 +60,7 @@ class Outliers(object):
         gene_expr_df.rename(columns={gene_expr_df.columns[0]: "gene"},
                             inplace=True)
         # logger.debug(gene_expr_df.shape)
+        # gene_expr_df = recalculate_Zscore(gene_expr_df)
         # Convert gene expression data frame from wide to long:
         self.expr_long_df = pd.melt(
             gene_expr_df,
@@ -242,6 +243,16 @@ class Outliers(object):
         gene_group["expr_rank"] = gene_group["z_expr"].rank(method='average',
                                                             pct=True)
         return gene_group
+
+    @staticmethod
+    def recalculate_Zscore(expr_df):
+        """Re-calculate the z-score for expression data."""
+        expr_df.set_index(['gene'], inplace=True)
+        expr_df_mean = expr_df.mean(axis=1)
+        expr_df_std = expr_df.std(axis=1)
+        expr_df = expr_df.sub(expr_df_mean, axis=0)
+        expr_df = expr_df.div(expr_df_std, axis=0)
+        return expr_df
 
     def test_normality(self):
         """Check if each gene has normal distribution.
