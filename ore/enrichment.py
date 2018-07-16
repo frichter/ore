@@ -56,6 +56,8 @@ class Enrich(object):
             n_processes (:obj:`int`): number of processes to use
 
         """
+        # print("Anno column final index:", self.joined_df.shape[1] - 5)
+        # anno_list = [i for i in range(11, self.joined_df.shape[1] - 5)]
         if isinstance(expr_cut_off_vec, float):
             expr_cut_off_vec = [expr_cut_off_vec]
         if isinstance(tss_cut_off_vec, float):
@@ -92,6 +94,18 @@ class Enrich(object):
         """
         print("Calculating enrichment for", cut_off_tuple)
         enrich_df = copy.deepcopy(self.joined_df)
+        """
+        # only use if filtering by annotation:
+        current_anno = list(enrich_df)[cut_off_tuple[3]]
+        print("current column:", current_anno)
+        in_anno = enrich_df.loc[:, current_anno] == 1
+        # keep only a specific annotation
+        enrich_df = enrich_df.loc[in_anno]
+        # remove annotation column index number from tuple
+        cut_off_tuple = tuple(list(cut_off_tuple)[:-1])
+        if enrich_df.shape[0] == 0:
+            return "NA_line: no overlaps with " + current_anno
+        """
         # replace af_cut_off with intra-cohort minimum if former is
         # smaller than latter
         print(cut_off_tuple)
@@ -107,7 +121,7 @@ class Enrich(object):
         out_list = list(cut_off_tuple)
         # out_list.extend(var_list)
         out_list.extend(gene_list)
-        return "\t".join([str(i) for i in out_list])
+        return "\t".join([str(i) for i in out_list])  # + "\t" + current_anno
 
     @staticmethod
     def identify_rows_to_keep(joined_df, max_intrapop_af, max_vcf_af,
@@ -170,7 +184,8 @@ class Enrich(object):
                            "rare_not_out", "rare_out",
                            "not_rare_not_out_neg", "not_rare_out_neg",
                            "rare_not_out_neg", "rare_out_neg",
-                           "gene_or", "gene_p", "gene_neg_or", "gene_neg_p"]
+                           "gene_or", "gene_p", "gene_neg_or", "gene_neg_p",
+                           "annotation"]
             enrich_f.write("\t".join(header_list) + "\n")
             for out_line in out_line_list:
                 if not out_line.startswith("NA_line"):

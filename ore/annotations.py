@@ -385,6 +385,8 @@ class Annotations(object):
         # clean column names
         rep_w_blank = ".*/|.merged.sorted|.sorted|.bed$|.bed.gz$|.txt$"
         anno_list = [re.sub(rep_w_blank, "", i) for i in anno_list]
+        anno_list = [re.sub("all_predictions", "cvdc_enhancers_dickel", i)
+                     for i in anno_list]
         anno_col_names = ["Chrom", "Start0", "End0", "Ref", "Alt", "VCF_af",
                           "gene_TSS", "gene", "gene_strand", "tss_dist",
                           "var_id"]
@@ -413,6 +415,10 @@ class Annotations(object):
 
         """
         unwanted_cols = ['hg19_segdup', 'hg19_lcr_hs37d5']
+        # unwanted_cols = ['segdup', 'LCR-hs37d5_chr',
+        #                  'mappability1_300', 'genes.MUC.HLA',
+        #                  'dac_blacklist', 'encode_duke_blacklist',
+        #                  'rmsk', 'pseudoautosomal_XY']
         try:
             unwanted_vars_df = joined_anno_df.loc[:, unwanted_cols] == 0
         except KeyError:
