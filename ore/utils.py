@@ -179,7 +179,10 @@ def anno_file_locations():
     dac_blacklist = data_dir + "dac_blacklist.bed"
     duke_blacklist = data_dir + "encode_duke_blacklist.bed"
     pseudoauto_XY = data_dir + "pseudoautosomal_XY.bed"
+    # anno_hg19 = ("/hpc/users/richtf01/chdiTrios/Felix/wgs/bed_annotations/" +
+    #              "hg19_all/*.bed")
     file_loc_list = [rmsk, segdup, lcr, map300, hla_muc, dac_blacklist,
                      duke_blacklist, pseudoauto_XY]
     file_loc_list = [segdup, lcr]
+    # file_loc_list = [anno_hg19]
     return file_loc_list
