@@ -24,6 +24,8 @@ ENRICH_F="$PARENT_DIR/atrial_ore_per_anno_10kb.txt"
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 
+python -m ore.ore --version
+
 # upstream and downstream (together) all annovar or subset
 python -m ore.ore --vcf $VCF \
     --bed $EXPR_F \
