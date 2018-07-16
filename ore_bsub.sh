@@ -1,7 +1,7 @@
-#BSUB -W 10:00
+#BSUB -W 5:00
 #BSUB -q alloc
 #BUSB -n 8
-#BSUB -R "rusage[mem=10000]"
+#BSUB -R "rusage[mem=20000]"
 #BSUB -P acc_chdiTrios
 #BSUB -J ad_ore_allvars
 #BSUB -m mothra
