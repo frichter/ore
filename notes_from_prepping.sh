@@ -305,7 +305,7 @@ VCF="$PARENT_DIR/wgs/ad_wgs_cp.vcf.gz"
 # ore_2018_06 ore_2018_05
 OUT_PREFIX="$PARENT_DIR/ore_2018_05/ad_ore"
 OUTLIER_OUT="$PARENT_DIR/ore_2018_05/most_extreme_outs_t36/ad_ore_outliers.txt"
-ENRICH_F="$PARENT_DIR/ore_2018_05/most_extreme_t36_enrich/ad_ore_upstream_ref_10kb.txt"
+ENRICH_F="$PARENT_DIR/ore_2018_05/most_extreme_t36_enrich/ad_ore_upstream_ref_ens_10kb.txt"
 # ad_ore_utr5_ref_ens_10kb ad_ore_all_10kb
 
 time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
@@ -315,12 +315,13 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --enrich_file $ENRICH_F \
     --distribution "normal" \
     --extrema \
-    --threshold 2 \
+    --threshold 2 3 4 \
     --af_rare 5e-2 1e-2 1e-3 1e-4 1e-5 \
     --intracohort_rare_ac 5 \
     --tss_dist 1e3 2e3 5e3 1e4 \
     --annovar \
     --refgene \
+    --ensgene \
     --variant_class "upstream" \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
     --processes 5
@@ -334,10 +335,11 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
 grep "\sUTR5\s" ad_ore_rv_w_outliers_allvars_10kb.txt | wc -l
 grep "\supstream\s" ad_ore_rv_w_outliers_allvars_10kb.txt | wc -l
 
-mv ad_ore_all_data.txt ad_ore_all_data_allvars_10kb.txt
-# ad_ore_all_data_utr5_ref_ens_10kb 
-mv ad_ore_rv_w_outliers.txt ad_ore_rv_w_outliers_allvars_10kb.txt 
-mv ad_ore_enrich_test.txt most_extreme_enrich/ad_ore_utr5_ref_ens_5kb.txt
+mv ad_ore_all_data.txt ad_ore_all_data_utr5_ref_ens_10kb.txt
+mv ad_ore_rv_w_outliers.txt ad_ore_rv_w_outliers_utr5_ref_ens_10kb.txt 
+
+
+# mv ad_ore_enrich_test.txt most_extreme_enrich/ad_ore_utr5_ref_ens_5kb.txt
 
     # --max_outliers_per_id 1000 \
 
