@@ -16,24 +16,9 @@ import gzip
 
 import pysam
 
-
-class Error(Exception):
-    """Base class for exceptions in this module."""
-
-    pass
-
-
-class VCFError(Error):
-    """Exception raised for errors in this module.
-
-    Attributes:
-        message -- explanation of the error
-
-    """
-
-    def __init__(self, message):
-        """Assign error explanation to object."""
-        self.message = message
+from .vcf_utils import (
+    VCFError, replace_multiGT_with_bialleleGT, convert_to_012,
+    get_info_af, calculate_depth_and_AAR)
 
 
 class VCF(object):
@@ -85,48 +70,6 @@ class VCF(object):
         tbx_handle = pysam.TabixFile(self.vcf_file_loc)
         self.contigs = tbx_handle.contigs
         tbx_handle.close()
-
-    @staticmethod
-    def prepare_vcf_per_chrom(current_chrom, gq, dp, aar, vcf_loc,
-                              current_chrom_file_loc):
-        """Convert VCF to allele-ID pairs in long format.
-
-        Creates an instance of the encapsulating class and runs all the
-            high level methods
-
-        Args:
-            current_chrom (:obj:`str`): current chromosome
-            vcf_loc (:obj:`str`): location of vcf being analyzed
-            current_chrom_file_loc (:obj:`str`): location of output file
-
-        Returns:
-            current_chrom (:obj:`str`): chromosome that was completed (possibly
-                with prefix fail_)
-
-        TODO:
-            This is a high level function that can receive a lot of different
-                errors. Figure out how to raise the same error after the
-                except and
-            Send excluded_ct (and other sanity checks) to a log file
-
-        """
-        vcf_obj = VCF(vcf_loc)
-        vcf_obj.load_vcf()
-        # remove parents: vcf_obj.remove_ids_wo_re_pattern(".*(-01|-02)$")
-        if vcf_obj.ucsc_ref_genome:
-            out_file = current_chrom_file_loc % current_chrom
-        else:
-            out_file = current_chrom_file_loc % ("chr" + current_chrom)
-        if os.path.exists(out_file):
-            # print("LONG format already done for chromosome", current_chrom)
-            return "Not_rerun_" + current_chrom
-        print("Starting chromosome", current_chrom)
-        excluded_ct = vcf_obj.loop_over_vcf(current_chrom,
-                                            current_chrom_file_loc,
-                                            gq, dp, aar)
-        print("Total genotypes (var x ID) excluded for", current_chrom,
-              "is", excluded_ct)
-        return current_chrom
 
     def load_vcf(self):
         """Load VCF header and IDs.
@@ -225,6 +168,7 @@ class VCF(object):
         else:
             print("No genome assembly found in VCF header, defaulting to",
                   self.ref_assembly)
+        print("Using the following reference genome:", self.ref_assembly)
 
     def loop_over_vcf(self, current_chrom, current_chrom_file_loc,
                       gq, dp, aar):
@@ -252,19 +196,15 @@ class VCF(object):
         tbx_handle = pysam.TabixFile(self.vcf_file_loc)
         self.declare_output_file_names(current_chrom_file_loc)
         self.gt_excluded_count = 0
-        if self.ucsc_ref_genome:
-            current_chrom = "chr" + current_chrom
         # longest chrom length is less than 3e8
         for line in tbx_handle.fetch(current_chrom, 0, 5e8):
             # str(, 'utf-8')
             self.parse_line(line)
-            # * indicates alt allele is structural variant (skip these)
-            if '*' in self.line_dict["ALT"]:
-                pass
-            else:
-                # process each alternate allele separately
-                # important if file is multi-allelic per line
-                for self.alt_allele in self.alt_allele_list:
+            # process each alternate allele separately
+            # important if file is multi-allelic per line
+            for self.alt_allele in self.alt_allele_list:
+                # * indicates alt allele is structural variant (skip these)
+                if self.alt_allele is not '*':
                     self.parse_allele()
                     self.send_allele_ID_pair_to_file()
             self.track_portion_done()
@@ -303,6 +243,9 @@ class VCF(object):
         Raises:
             :obj:`VCFError`: if no alternate alleles are listed
 
+        TODO:
+            Deal with multi-allelic AF for the info field
+
         """
         line_list = line.strip().split("\t")    # str(, 'utf-8')
         self.line_dict = dict(zip(self.header_list, line_list))
@@ -313,7 +256,8 @@ class VCF(object):
                                self.line_count + self.line_dict["#CHROM"] +
                                " " + self.line_dict["POS"])
         except VCFError:
-            self.line_dict["FILTER"] = "no_alt_alleles "
+            self.line_dict["FILTER"] = "alt_allele_error"
+        self.vcf_af_list = get_info_af(self.line_dict, self.alt_allele_list)
 
     def track_portion_done(self):
         """Calculate fraction done.
@@ -344,8 +288,11 @@ class VCF(object):
             Confirm essential Keys are in ft_field_names (AD, GT, GQ)
 
         """
+        alt_allele_index = self.alt_allele_list.index(self.alt_allele)
         # obtain the value of the allele genotype used in the FORMAT field
-        self.alt_allele_gt = int(self.alt_allele_list.index(self.alt_allele))+1
+        alt_allele_gt = int(alt_allele_index)+1
+        # obtain the vcf allele frequency for the allele
+        self.vcf_af = self.vcf_af_list[alt_allele_index]
         # keep subset corresponding to id_list
         self.id_format_dict = {k: self.line_dict[k] for k in
                                self.line_dict.keys() & set(self.id_list)}
@@ -362,172 +309,14 @@ class VCF(object):
                 else:
                     # unclear why this format field did
                     self.id_format_dict[id_i] = "unk_error, " + ft_field
-        self.replace_multi_gt_with_biallelic_gt()
-        self.calculate_depth_and_AAR()
+        self.id_format_dict = replace_multiGT_with_bialleleGT(
+            self.id_format_dict, alt_allele_gt, self.line_dict)
+        self.id_format_dict = calculate_depth_and_AAR(
+            self.id_format_dict, self.line_dict)
         # convert genotypes to a single number (homo = 0 (from 0/0) or
         # 2 (from 1/1), het = 1 (from 1/0 or 0/1))
-        self.convert_to_012()
-
-    def replace_multi_gt_with_biallelic_gt(self):
-        """Replace multi-allelic to bi-allelic genotypes.
-
-        Replace multi-allelic GTs (e.g., 2, 3, 4, etc) with
-            bi-allelic GTs (i.e., 1) if there is a match between
-            the current allele you are looping over
-
-        TODO
-            check if genotype is format other than number1/number2 or ./.
-            Confirm it works with phased data (i.e., |)
-
-        """
-        # loop over proband (gt_id) and genotype from FORMAT field (gt_value)
-        for ft_id, ft_field_dict in self.id_format_dict.items():
-            try:
-                gt_split_list = ft_field_dict["GT"].split("/")
-                alt_allele_gt_str = str(self.alt_allele_gt)
-                if gt_split_list[0] == alt_allele_gt_str:
-                    gt_split_list[0] = "1"
-                elif gt_split_list[0] == ".":
-                    pass
-                else:
-                    gt_split_list[0] = "0"
-                if gt_split_list[1] == alt_allele_gt_str:
-                    gt_split_list[1] = "1"
-                elif gt_split_list[1] == ".":
-                    pass
-                else:
-                    gt_split_list[1] = "0"
-                gt_value_bi = "/".join(gt_split_list)
-                self.id_format_dict[ft_id]["GT"] = gt_value_bi
-            except KeyError:
-                # if AD is not a field. should raise error and Exit program
-                raise VCFError("No GT field in FORMAT column on line " +
-                               self.line_count + self.line_dict["#CHROM"] +
-                               " " + self.line_dict["POS"] + " " + ft_id)
-            except TypeError:
-                pass
-                # ft_field_dict is not a dict (expected with not enough info)
-            except IndexError:
-                # because AD does not have all alleles listed for some reason
-                raise VCFError("GT field in FORMAT column does not have ref" +
-                               "and alt genotype on line " + self.line_count +
-                               self.line_dict["#CHROM"] + " " +
-                               self.line_dict["POS"] + " " + ft_id)
-
-    def calculate_depth_and_AAR(self):
-        """Split up the FORMAT field into a list for easier filtering."""
-        for ft_id, ft_field_dict in self.id_format_dict.items():
-            try:
-                ft_field_dict["AD"] = [int(i) for i in
-                                       ft_field_dict["AD"].split(",")]
-                ft_field_dict["New_DP"] = (ft_field_dict["AD"][0] +
-                                           ft_field_dict["AD"][1])
-                # use the ref+alt depth (new_dp) to calculate alt allelic ratio
-                if ft_field_dict["New_DP"] > 0:
-                    ft_field_dict["AAR"] = (ft_field_dict["AD"][0] /
-                                            ft_field_dict["New_DP"])
-                else:
-                    ft_field_dict["AAR"] = 0
-                self.id_format_dict[ft_id] = ft_field_dict
-            except KeyError:
-                # if AD is not a field. should raise error and Exit program
-                raise VCFError("No AD field in FORMAT column on line " +
-                               str(self.line_count) +
-                               str(self.line_dict["#CHROM"]) +
-                               " " + str(self.line_dict["POS"]) + " " + ft_id)
-            except ValueError:
-                ft_field_dict["New_DP"] = 0
-                ft_field_dict["AAR"] = 0
-                pass
-                # could occur because comma-separated element of
-                # ft_field_dict["AD"] is not int
-            except TypeError:
-                pass
-                # ft_field_dict not a dict (expected with not enough info)
-            except IndexError:
-                # because AD does not have all alleles listed for some reason
-                raise VCFError("AD field in FORMAT column does not have ref" +
-                               "and alt depth on line " +
-                               str(self.line_count) +
-                               str(self.line_dict["#CHROM"]) +
-                               " " + str(self.line_dict["POS"]) + " " + ft_id)
-
-    def convert_to_012(self):
-        """Prepare 012 genotypes from x/y genotypes.
-
-        convert 0/0, 1/0, 0/1, and 1/1 to 0, 1, 1, and 2 respectively
-            use -1 if the allele fails one of the filters (GQ < 30,
-            DP < 7, AAR > 0.8 or AAR < 0.2)
-
-        Attributes:
-            gt_dict_12 (:obj:`dict`): IDs (keys) mapped to the final genotype
-            gq, dp, aar
-
-        TODO
-            errors
-            make sure it works with phased data
-            UNIT TEST cases with missing GT/AAR/etc
-
-        """
-        gq, dp, aar = self.vcf_filters
-        # . should be gt -1
-        self.gt_dict_12 = {}
-        for gt_id, ft_field_dict in self.id_format_dict.items():
-            try:
-                gt = ft_field_dict["GT"]
-                # if GT is not a field. should raise error and Exit program
-                # should be checked in `replace_multi_gt_with_biallelic_gt`
-                pass_filter = True
-                if gt.startswith("1/0") or gt.startswith("0/1"):
-                    final_gt = "1"
-                elif gt.startswith("1/1"):
-                    final_gt = "2"
-                elif gt.startswith("0/0"):
-                    final_gt = "0"
-                else:
-                    final_gt = gt
-                # Filter for GQ >= 30
-                if int(ft_field_dict["GQ"]) < gq:
-                    pass_filter = False
-                # Filter for depth >= 7; New_DP or DP
-                if int(ft_field_dict["New_DP"]) < dp:
-                    pass_filter = False
-                # Filter for heterozygous allelic ratio [0.2, 0.8]
-                if final_gt == "1":
-                    if (ft_field_dict["AAR"] > aar[1]) or (ft_field_dict["AAR"]
-                                                           < aar[0]):
-                        pass_filter = False
-                if not pass_filter:
-                    final_gt = "-1"
-            except ValueError:
-                # if ft_field_dict["DP"] == '.':
-                #     final_gt = "-1"  # or maybe set to "NA"
-                # else:
-                print(gt_id, ft_field_dict)
-                raise VCFError("Unrecognized ValueError on line " +
-                               str(self.line_count) +
-                               str(self.line_dict["#CHROM"]) +
-                               " " + str(self.line_dict["POS"]) +
-                               " " + gt_id)
-            except KeyError:
-                raise VCFError("No AAR/GQ/DP field in FORMAT column on line " +
-                               str(self.line_count) +
-                               str(self.line_dict["#CHROM"]) +
-                               " " + str(self.line_dict["POS"]) + " " + gt_id)
-                # if GT is not a field. should raise error and Exit program
-            except TypeError:
-                # print(gt_id, ft_field_dict)
-                if isinstance(ft_field_dict, str):
-                    final_gt = ft_field_dict
-                else:
-                    print(gt_id, ft_field_dict)
-                    raise VCFError("Unrecognized TypeError on line " +
-                                   str(self.line_count) +
-                                   str(self.line_dict["#CHROM"]) +
-                                   " " + str(self.line_dict["POS"]) +
-                                   " " + gt_id)
-            finally:
-                self.gt_dict_12[gt_id] = final_gt
+        self.gt_dict_12 = convert_to_012(
+            self.id_format_dict, self.vcf_filters, self.line_dict)
 
     def send_allele_ID_pair_to_file(self):
         """Write each allele-ID pair to a line in the file.
@@ -540,8 +329,6 @@ class VCF(object):
         """
         any_var_w_12_gt = False
         self.output_chrom = self.line_dict["#CHROM"]
-        if not self.ucsc_ref_genome:
-            self.output_chrom = "chr" + self.output_chrom
         for gt_id, gt in self.gt_dict_12.items():
             if gt in '1' or gt in '2':
                 self.format_allele_ID_pair_output_line(gt_id, gt)
@@ -595,6 +382,8 @@ class VCF(object):
                                       self.line_dict["REF"],
                                       self.alt_allele,
                                       var_id])
+        if not self.ucsc_ref_genome:
+            annovar_out_line = "chr" + annovar_out_line
         annovar_out_loc = self.annovar_file_loc % self.output_chrom
         with open(annovar_out_loc, 'a') as chrom_f:
             chrom_f.write(annovar_out_line + "\n")  # possibly use _ =
@@ -604,7 +393,48 @@ class VCF(object):
                                   zero_based_start,
                                   deletion_end,
                                   self.line_dict["REF"],
-                                  self.alt_allele])
+                                  self.alt_allele,
+                                  self.vcf_af])
         bed_out_loc = self.bed_file_loc % self.output_chrom
         with open(bed_out_loc, 'a') as chrom_f:
             chrom_f.write(bed_out_line + "\n")  # possibly use _ =
+
+
+def prepare_vcf_per_chrom(current_chrom, gq, dp, aar, vcf_loc,
+                          current_chrom_file_loc):
+    """Convert VCF to allele-ID pairs in long format.
+
+    Creates an instance of the encapsulating class and runs all the
+        high level methods
+
+    Args:
+        current_chrom (:obj:`str`): current chromosome
+        vcf_loc (:obj:`str`): location of vcf being analyzed
+        current_chrom_file_loc (:obj:`str`): location of output file
+
+    Returns:
+        current_chrom (:obj:`str`): chromosome that was completed (possibly
+            with prefix fail_ or Not_rerun_)
+
+    TODO:
+        This is a high level function that can receive a lot of different
+            errors. Figure out how to raise the same error after the
+            except and
+        Send excluded_ct (and other sanity checks) to a log file
+
+    """
+    vcf_obj = VCF(vcf_loc)
+    vcf_obj.load_vcf()
+    # remove parents: vcf_obj.remove_ids_wo_re_pattern(".*(-01|-02)$")
+    out_file = current_chrom_file_loc % current_chrom
+    if os.path.exists(out_file):
+        # print("LONG format already done for chromosome", current_chrom)
+        return "Not_rerun_" + current_chrom
+    print("Starting chromosome", current_chrom)
+    print("Using " + vcf_obj.ref_assembly + " " + str(vcf_obj.ucsc_ref_genome))
+    excluded_ct = vcf_obj.loop_over_vcf(current_chrom,
+                                        current_chrom_file_loc,
+                                        gq, dp, aar)
+    print("Total genotypes (var x ID) excluded for", current_chrom,
+          "is", excluded_ct)
+    return current_chrom

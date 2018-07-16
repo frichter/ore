@@ -23,7 +23,7 @@ class Outliers(object):
     """Methods and attributes of outliers."""
 
     def __init__(self, pheno_loc, output_prefix, outlier_postfix,
-                 extrema, distribution, threshold):
+                 extrema, distribution, threshold, n_processes, logger):
         """Initialize outlier dataframe.
 
         Args:
@@ -33,6 +33,8 @@ class Outliers(object):
             extrema (:obj:`boolean`): T/F for using most extreme outlier
             distribution (:obj:`str`): type of outlier distribution considered
             threshold (:obj:`list`): list of outlier cut-off thresholds
+            n_processes (:obj:`int`): number of workers/cores to run at a time
+            logger (:obj:`logging object`): Current logger
 
         Attributes:
             expr_long_df (:obj:`DataFrame`): RNAseq expression in long format
@@ -53,17 +55,25 @@ class Outliers(object):
         """
         gene_expr_df = pd.read_table(pheno_loc, low_memory=False)
         gene_expr_df = gene_expr_df.iloc[:, 3:]
+        # logger.debug(gene_expr_df.head())
+        self.n_processes = n_processes
+        gene_expr_df.rename(columns={gene_expr_df.columns[0]: "gene"},
+                            inplace=True)
+        # logger.debug(gene_expr_df.shape)
         # Convert gene expression data frame from wide to long:
         self.expr_long_df = pd.melt(
             gene_expr_df,
-            id_vars='gene',
+            id_vars='gene',  # gene_expr_df.columns.values[0],  # 'gene',
             value_vars=gene_expr_df.columns[1:].tolist(),
             var_name='blinded_id',
             value_name='z_expr')
+        # logger.debug(self.expr_long_df.head())
+        # logger.debug(self.expr_long_df.shape)
         # set the output file location
         self.expr_outs_loc = (output_prefix + "_outliers.txt")
         if outlier_postfix:
-            self.expr_outs_loc = (output_prefix + "_" + outlier_postfix)
+            self.expr_outs_loc = outlier_postfix
+            # self.expr_outs_loc = (output_prefix + "_" + outlier_postfix)
         # set states on which specific outlier definitions are being used
         self.extrema = extrema
         self.distribution = distribution
@@ -79,13 +89,15 @@ class Outliers(object):
         else:
             raise RNASeqError("'{}' is not a valid outlier distribution".
                               format(distribution))
+        # logger.debug(self.least_extr_threshold)
 
-    def prepare_outliers(self, outlier_max, vcf_id_list):
+    def prepare_outliers(self, outlier_max, vcf_id_list, logger):
         """Obtain gene expression outliers.
 
         Args:
             outlier_max (:obj:`int`): maximum number of outliers per ID
             vcf_id_list (:obj:`list`): list of Blinded IDs with WGS
+            logger (:obj:`logging object`): Current logger
 
         Check if expression outlier file already exists. If it does not,
             use `get_outliers` to obtain outliers using only IDs
@@ -97,12 +109,15 @@ class Outliers(object):
 
         """
         if os.path.exists(self.expr_outs_loc):
+            print("Already made outlier file " + self.expr_outs_loc)
             return "Already made outlier file " + self.expr_outs_loc
         # only work with IDs in WGS that are also in the RNAseq
         lines_w_consistent_ids = self.expr_long_df.blinded_id.isin(vcf_id_list)
-        if lines_w_consistent_ids.shape[0] == 0:
+        if lines_w_consistent_ids.sum() == 0:
             raise RNASeqError("No overlapping IDs between RNAseq and VCF")
         self.expr_long_df = self.expr_long_df[lines_w_consistent_ids]
+        # logger.debug(self.expr_long_df.head())
+        # logger.debug(self.expr_long_df.shape)
         # actually calculate the outliers
         expr_outlier_df = self.get_outliers(vcf_id_list)
         outs_per_id_file = re.sub('.txt', '_outliers_per_id_ALL',
@@ -150,14 +165,15 @@ class Outliers(object):
         if self.distribution == "normal":
             self.identify_outliers_from_normal()
         elif self.distribution == "rank":
-            self.identify_outliers_from_ranks(
-                self.expr_long_df, self.least_extr_threshold)
+            self.expr_long_df = self.identify_outliers_from_ranks()
         elif self.distribution == "custom":
             not_0_1 = ~self.expr_long_df.z_expr.isin([0, 1])
             if any(not_0_1):
-                print(self.expr_long_df[not_0_1])
+                print(self.expr_long_df[not_0_1].head())
                 raise RNASeqError("The values above were not 0 or 1")
             self.expr_long_df["expr_outlier"] = self.expr_long_df.z_expr == 1
+            # set expr_outlier_neg as 0 for custom
+            self.expr_long_df["expr_outlier_neg"] = 0
         else:
             raise RNASeqError("'{}' is not a valid outlier distribution".
                               format(self.distribution))
@@ -173,9 +189,10 @@ class Outliers(object):
 
         TODO:
             All three lines raise a SettingWithCopyWarning when the column
-            already exists in the dataframe. Unclear why
+            already exists in the dataframe. Unclear why or if this is an issue
 
         """
+        # print("(Re)calculating z-scores per gene...")
         print("Calculating z-score outliers....")
         self.expr_long_df.loc[:, "z_abs"] = abs(self.expr_long_df.z_expr)
         self.expr_long_df.loc[:, "expr_outlier"] = (
@@ -184,8 +201,7 @@ class Outliers(object):
             (self.expr_long_df.z_expr < 0) &
             self.expr_long_df.expr_outlier)
 
-    @staticmethod
-    def identify_outliers_from_ranks(expr_long_df, least_extr_threshold):
+    def identify_outliers_from_ranks(self):
         """Identify outliers based on those more extreme than percentile.
 
         Args
@@ -193,19 +209,20 @@ class Outliers(object):
 
         """
         print("Calculating ranks...")
-        expr_long_df = applyParallel(expr_long_df.groupby(
-            'gene'), Outliers.calculate_ranks)
+        expr_long_df = applyParallel(self.expr_long_df.groupby(
+            'gene'), self.calculate_ranks,
+            self.n_processes)
         print("Ranks calculated, identifying outliers")
         min_expr_cut_off = min(set(expr_long_df.expr_rank))
-        if (least_extr_threshold <= min_expr_cut_off) or (
-                least_extr_threshold >= 0.5):
+        if (self.least_extr_threshold <= min_expr_cut_off) or (
+                self.least_extr_threshold >= 0.5):
             raise RNASeqError("The percentile cut-off specified ({}) is " +
                               "not between 0.5 and the minimum cut-off " +
                               "for this sample size, {}".format(
-                                least_extr_threshold, min_expr_cut_off))
-        hi_expr_cut_off = 1 - least_extr_threshold
+                                self.least_extr_threshold, min_expr_cut_off))
+        hi_expr_cut_off = 1 - self.least_extr_threshold
         expr_long_df["expr_outlier_neg"] = (
-            expr_long_df.expr_rank <= least_extr_threshold)
+            expr_long_df.expr_rank <= self.least_extr_threshold)
         expr_long_df["expr_outlier"] = (
             (expr_long_df.expr_rank >= hi_expr_cut_off) |
             expr_long_df.expr_outlier_neg)
@@ -229,7 +246,8 @@ class Outliers(object):
     def test_normality(self):
         """Check if each gene has normal distribution.
 
-        Options include QQ-plots, shapiro-wilk test and others.
+        TODO:
+            Options include QQ-plots, shapiro-wilk test and others.
 
         """
         return True
@@ -243,8 +261,11 @@ class Outliers(object):
 
         """
         print("Identifying most extreme outlier per gene...")
+        print(self.expr_long_df.head())
+        print(self.expr_long_df.shape)
         expr_outlier_df = applyParallel(self.expr_long_df.groupby(
-            'gene'), self.find_most_extreme_expr_outlier_per_gene)
+            'gene'), self.find_most_extreme_expr_outlier_per_gene,
+            self.n_processes)
         expr_outlier_df['expr_outlier_neg'] = (
             expr_outlier_df.expr_outlier_neg &
             expr_outlier_df.expr_outlier)
@@ -262,9 +283,6 @@ class Outliers(object):
         Args:
             `gene_group`: long-format expression dataframe for a gene
 
-        TODO:
-            Only applies to normal distribution, either generalize to ranks
-            Or specify another way of identify max/min ranked per gene
         """
         gene_group['expr_outlier'] = (
             (gene_group.z_abs == max(gene_group.z_abs)) &

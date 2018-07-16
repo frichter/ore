@@ -13,7 +13,7 @@ import os
 
 from functools import partial
 
-from .vcf import VCF
+from .vcf import VCF, prepare_vcf_per_chrom
 from .annotations import Annotations
 from .genes import Genes, RNASeqError
 from .utils import prepare_directory, multiprocess_by_chrom_cmd
@@ -80,6 +80,8 @@ class Variants(object):
             set(self.gene_obj.contigs) & set(self.vcf_obj.contigs))
         if self.gene_obj.ucsc_ref_genome is not self.vcf_obj.ucsc_ref_genome:
             raise RNASeqError("Genome mismatch between VCF and RNAseq")
+        if len(self.combined_contigs) == 0:
+            raise RNASeqError("No overlapping chromosomes in VCF and RNAseq")
         logger.info("Gene object loaded...")
 
     def extract_variants_from_vcf(self, gq, dp, aar):
@@ -99,7 +101,7 @@ class Variants(object):
         # assign the constant variables to `prepare_vcf_per_chrom` in
         # preparation for multiprocessing
         partial_prepare_vcf_per_chrom = partial(
-            self.vcf_obj.prepare_vcf_per_chrom,
+            prepare_vcf_per_chrom,
             gq=gq, dp=dp, aar=aar,
             vcf_loc=self.vcf_loc,
             current_chrom_file_loc=self.vcf_obj.current_chrom_file_loc)

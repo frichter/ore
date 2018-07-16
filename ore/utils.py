@@ -59,6 +59,36 @@ def checkCPUcount(n_processes):
         raise ValueError
 
 
+def check_variant_inputs(args):
+    """Confirm variant-related inputs.
+
+    Args:
+        args (:obj:`argparse object`): contains user inputs
+
+    """
+    # TSS distance > 0
+    if any([i <= 0 for i in args.tss_dist]):
+        print("TSS distance must be greater than 0")
+        raise ValueError
+    if args.upstream and args.downstream:
+        print("Cannot use BOTH --upstream and --downstream")
+        raise ValueError
+
+
+def check_ANNOVAR_inputs(args):
+    """Confirm that ANNOVAR related inputs are available."""
+    if args.annovar:
+        if not os.path.exists(args.annovar_dir + "table_annovar.pl"):
+            print("table_annovar.pl does not exist in", args.annovar_dir)
+            raise FileNotFoundError
+        if not os.path.exists(args.annovar_dir + "annotate_variation.pl"):
+            print("annotate_variation.pl does not exist in", args.annovar_dir)
+            raise FileNotFoundError
+        # list of inputs needed for ANNOVAR in humandb directory
+        # provide code to install if not available
+        # what inputs are needed in humandb?
+
+
 def prepare_directory(new_dir, clean_run=False):
     """Prepare per chromosome directory FOR NEW RUN.
 
@@ -92,16 +122,18 @@ def multiprocess_by_chrom_cmd(n_processes, contigs, mp_function):
             processed by `mp_function`
 
     """
-    # chrom_iter = itertools.chain([str(i) for i in range(1, 23)], ["X"])
     chrom_iter = itertools.chain([str(i) for i in contigs])
-    # , "Y"
     pool = mp.Pool(processes=n_processes)
-    # print("Total available cores: " + str(mp.cpu_count()))
+    print("Using {} out of {} cores".format(n_processes, mp.cpu_count()))
     chroms_completed = pool.map(mp_function, chrom_iter)
+    # chroms_completed = []
+    # for chrom_i in chrom_iter:
+    #     chrom_done = mp_function(chrom_i)
+    #     chroms_completed.append(chrom_done)
     return chroms_completed
 
 
-def applyParallel(dfGrouped, func):
+def applyParallel(dfGrouped, func, n_processes):
     """Parallelize the pandas apply function.
 
     Source:
@@ -111,6 +143,7 @@ def applyParallel(dfGrouped, func):
         dfGrouped (:obj:`DataFrame`): grouped dataframe, where
             `func` is to be applied to each group separately
         func (:obj:`int`):
+        n_processes (:obj:`int`): number of workers/cores to run at a time
 
     Returns:
         pd.concat(ret_list) (:obj:`DataFrame`): `dfGrouped` with function
@@ -118,8 +151,9 @@ def applyParallel(dfGrouped, func):
 
     """
     # from multiprocessing import Pool, cpu_count
-    print("Using all {} cores".format(mp.cpu_count()))
-    with mp.Pool(mp.cpu_count()) as p:
+    print("Using {} out of {} cores".format(n_processes, mp.cpu_count()))
+    # print("Total available cores: " + str(mp.cpu_count()))
+    with mp.Pool(processes=n_processes) as p:
         ret_list = p.map(func, [group for name, group in dfGrouped])
     try:
         return pd.concat(ret_list)
@@ -145,10 +179,7 @@ def anno_file_locations():
     dac_blacklist = data_dir + "dac_blacklist.bed"
     duke_blacklist = data_dir + "encode_duke_blacklist.bed"
     pseudoauto_XY = data_dir + "pseudoautosomal_XY.bed"
-    anno_hg19 = ("/hpc/users/richtf01/chdiTrios/Felix/wgs/bed_annotations/" +
-                 "hg19_all/*.bed")
     file_loc_list = [rmsk, segdup, lcr, map300, hla_muc, dac_blacklist,
                      duke_blacklist, pseudoauto_XY]
     file_loc_list = [segdup, lcr]
-    file_loc_list = [anno_hg19]
     return file_loc_list

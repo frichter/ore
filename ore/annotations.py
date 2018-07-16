@@ -14,6 +14,7 @@ import os
 import re
 import subprocess
 import glob
+import sys
 
 import pandas as pd
 
@@ -118,7 +119,7 @@ class Annotations(object):
             :obj:`AnnotationError`: if ANNOVAR command fails to execute
 
         """
-        infile = self.annovar_file_loc % ("chr" + current_chrom)
+        infile = self.annovar_file_loc % (current_chrom)  # "chr" +
         annovar_out_loc = re.sub(".txt", "", infile)
         if os.path.exists(annovar_out_loc + ".hg19_multianno.txt"):
             # print("ANNOVAR already done for %s" % infile)
@@ -152,7 +153,7 @@ class Annotations(object):
                 because of too little disk space for intermediate files)
 
         """
-        current_chrom = "chr" + current_chrom
+        # current_chrom = "chr" + current_chrom
         anno_out_loc = self.anno_out_loc % current_chrom
         anno_out_list_loc = self.anno_out_list_loc % current_chrom
         if os.path.exists(anno_out_loc):
@@ -170,6 +171,12 @@ class Annotations(object):
             for bed_name in bed_iterable:
                 overlap_list.append(bed_name)
                 bed = BedTool(bed_name)
+                if not current_chrom.startswith("chr"):
+                    # bed file needs chr removed
+                    bed = bed.each(self.remove_chr_prefix)
+                    # need to save generator-based bed first
+                    # https://github.com/daler/pybedtools/issues/172
+                    bed = bed.saveas()
                 try:
                     var_bed_obj = var_bed_obj.intersect(bed, c=True)
                 except pybedtools.helpers.BEDToolsError as bed_error:
@@ -221,6 +228,12 @@ class Annotations(object):
             "Overlapping {} annotation files with variants on {}".format(
                 count, current_chrom))
 
+    @staticmethod
+    def remove_chr_prefix(bed):
+        """Remove chr prefix from chromosomes in a BedTools object."""
+        bed.chrom = re.sub("chr", "", bed.chrom)
+        return bed
+
     def get_final_set_of_variants(self, current_chrom):
         """Process ANNOVAR, annotation overlap, and 012 results.
 
@@ -231,7 +244,7 @@ class Annotations(object):
             current_chrom (:obj:`str`): region of genome completed (b37 format)
 
         """
-        current_chrom = "chr" + current_chrom
+        # current_chrom = "chr" + current_chrom
         if os.path.exists(self.final_var_loc % current_chrom):
             # print("Final variants already prepared for %s" % current_chrom)
             return "Not_rerun_" + current_chrom
@@ -239,21 +252,29 @@ class Annotations(object):
         anno_df = self.import_vars_close_to_gene(current_chrom)
         # print("Closest gene DF size:", anno_df.shape)
         anno_df = anno_df.set_index('var_id')
+        # print(anno_df.head())
         if self.use_annovar:
             print("Cleaning ANNOVAR results for", current_chrom)
             annovar_df = self.clean_annovar_results(current_chrom)
+            # print(annovar_df.head())
             # print("ANNOVAR DF size:", annovar_df.shape)
             print("Joining ANNOVAR with annotations for", current_chrom)
             anno_df = annovar_df.set_index('var_id').join(anno_df, how='inner')
+            # print(anno_df.head())
             # print("ANNOVAR joined w closest gene DF size:", anno_df.shape)
-        clean_df = self.remove_vars_in_unwanted_cols(anno_df)
-        # print("Repeats and segdups removed DF size:", clean_df.shape)
+        final_df = self.remove_vars_in_unwanted_cols(anno_df)
+        # print(final_df.head())
+        # limit file size here:
+        # final_df = final_df.loc[abs(final_df.tss_dist) <= 1e4]
+        print("Repeats and segdups removed DF size:", final_df.shape)
         print("Loading long 012 matrix for", current_chrom)
         long012_df = self.load_long_012_df(current_chrom)
-        # print("012 long DF size:", long012_df.shape)
+        # print(long012_df.head())
+        print("012 long DF size:", long012_df.shape)
         print("Joining long 012 with annotations", current_chrom)
-        final_df = clean_df.join(long012_df.set_index('var_id'), how='inner')
-        # print("012 long joined with annotated DF size:", final_df.shape)
+        final_df = final_df.join(long012_df.set_index('var_id'), how='inner')
+        # print(final_df.head())
+        print("012 long joined with annotated DF size:", final_df.shape)
         print("Getting intra-cohort variant counts/frequency")
         final_df.reset_index(inplace=True)
         final_df['var_id_count'] = final_df.groupby(
@@ -265,14 +286,16 @@ class Annotations(object):
         id_ct = len(set(final_df.blinded_id)) * 2
         final_df['var_id_freq'] = final_df.var_id_count/id_ct
         if not self.use_annovar:
-            print("Setting popmax AF to 0 and annovar_func to NAs" +
-                  "(because not using ANNOVAR)")
+            print("Setting popmax AF to 0 (because not using ANNOVAR)")
             final_df['popmax_af'] = 0
-            final_df["annovar_func"] = "NA"
         print("Writing to", self.final_var_loc % current_chrom)
+        print("Dataframe current memory use:")
+        print(sys.getsizeof(final_df)/(1024**3), "Gb")
         final_df.to_csv(self.final_var_loc % current_chrom, sep="\t",
-                        index=False)
+                        index=False, float_format='%g')
+        print('-'*80)
         print("Done writing to", self.final_var_loc % current_chrom)
+        print('-'*80)
         return current_chrom
 
     def clean_annovar_results(self, current_chrom):
@@ -298,13 +321,17 @@ class Annotations(object):
         Returns:
             current_chrom (:obj:`str`): region of genome completed (b37 format)
 
+        TODO:
+            low_memory is deprecated so instead specify any ambiguous dtypes
+            https://stackoverflow.com/questions/24251219/pandas-read-csv-low-memory-and-dtype-options
+
         """
         annovar_out_loc = re.sub("txt$", "hg19_multianno.txt",
                                  self.annovar_file_loc % current_chrom)
         try:
             annovar_df = pd.read_table(annovar_out_loc, low_memory=False)
         except pd.errors.ParserError as pandas_import_error:
-                print("")
+                print("Couldn't import ANNOVAR results")
                 raise pandas_import_error
         # rename and keep only some of the columns
         col_rename_dict = {"Otherinfo": "var_id",
@@ -358,13 +385,13 @@ class Annotations(object):
         # clean column names
         rep_w_blank = ".*/|.merged.sorted|.sorted|.bed$|.bed.gz$|.txt$"
         anno_list = [re.sub(rep_w_blank, "", i) for i in anno_list]
-        anno_list = [re.sub("all_predictions", "cvdc_enhancers_dickel", i)
-                     for i in anno_list]
-        anno_col_names = ["Chrom", "Start0", "End0", "Ref", "Alt", "gene_TSS",
-                          "gene", "gene_strand", "tss_dist", "var_id"]
+        anno_col_names = ["Chrom", "Start0", "End0", "Ref", "Alt", "VCF_af",
+                          "gene_TSS", "gene", "gene_strand", "tss_dist",
+                          "var_id"]
         anno_col_names.extend(anno_list)
+        dtype_specs = {'Chrom': 'str'}
         anno_df = pd.read_table(anno_out_loc, header=None,
-                                names=anno_col_names)
+                                names=anno_col_names, dtype=dtype_specs)
         # filter for only enhancers (for now)
         # anno_df = anno_df[anno_df.cvdc_enhancers_dickel > 0]
         return anno_df
@@ -385,12 +412,7 @@ class Annotations(object):
             Un-hardcode this/customize which columns to remove
 
         """
-        unwanted_cols = [
-            # 'hg19_segdup', 'hg19_lcr_hs37d5']
-            'segdup', 'LCR-hs37d5_chr',
-            'mappability1_300', 'genes.MUC.HLA', 'dac_blacklist',
-            'encode_duke_blacklist',
-            'rmsk', 'pseudoautosomal_XY']
+        unwanted_cols = ['hg19_segdup', 'hg19_lcr_hs37d5']
         try:
             unwanted_vars_df = joined_anno_df.loc[:, unwanted_cols] == 0
         except KeyError:
@@ -414,8 +436,12 @@ class Annotations(object):
 
         """
         long_col_names = ['loc_id', 'blinded_id', 'GT', 'Ref', 'Alt']
+        # GT should be int so you can sum all GTs for AC
+        dtype_specs = {'loc_id': 'str', 'blinded_id': 'str'}
+        # loc_id uses 1-based start location
         long012_df = pd.read_table(self.long012_loc % current_chrom,
-                                   header=None, names=long_col_names)
+                                   header=None, names=long_col_names,
+                                   dtype=dtype_specs)
         long012_df["var_id"] = (long012_df.loc_id.str.
                                 cat(long012_df.Ref.astype(str), sep='.').
                                 str.cat(long012_df.Alt, sep='.'))
