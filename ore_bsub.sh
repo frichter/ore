@@ -1,5 +1,5 @@
-#BSUB -W 02:00
-#BSUB -q expressalloc
+#BSUB -W 10:00
+#BSUB -q alloc
 #BUSB -n 8
 #BSUB -R "rusage[mem=10000]"
 #BSUB -P acc_chdiTrios
@@ -24,7 +24,7 @@ VCF="$PARENT_DIR/wgs/ad_wgs_cp.vcf.gz"
 # ore_2018_06 ore_2018_05
 OUT_PREFIX="$PARENT_DIR/ore_2018_06_job/ad_ore"
 OUTLIER_OUT="$PARENT_DIR/ore_2018_05/most_extreme_outs_t36/ad_ore_outliers.txt"
-ENRICH_F="$PARENT_DIR/ore_2018_05/most_extreme_t36_enrich/ad_ore_upstream_ref_10kb.txt"
+ENRICH_F="$PARENT_DIR/ore_2018_05/most_extreme_t36_enrich/ad_ore_allvars_10kb.txt"
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 
@@ -44,11 +44,13 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --intracohort_rare_ac 5 \
     --tss_dist 1e3 2e3 5e3 1e4 \
     --annovar \
-    --refgene \
-    --variant_class "upstream" \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
     --processes 5
 
+
+# --refgene \
+# --ensgene \
+# --variant_class "ncRNA" \
 
 
 # cd /sc/orga/projects/chdiTrios/Felix/alzheimers
