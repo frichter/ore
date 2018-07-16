@@ -15,21 +15,12 @@ module load python/3.5.0
 module load py_packages/3.5
 
 
-PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/alzheimers"
-EXPR_F="$PARENT_DIR/expression/residuals_AMPAD_MSSM_GE_SV_17_tissue_36_with_disease_in_model_europeans_only_new_z_wgs_ids.bed.gz"
-VCF="$PARENT_DIR/wgs/ad_wgs_cp.vcf.gz"
-# ore_2018_06 ore_2018_05
-OUT_PREFIX="$PARENT_DIR/ore_2018_06_job/ad_ore"
-OUTLIER_OUT="$PARENT_DIR/ore_2018_05/most_extreme_outs_t36/ad_ore_outliers.txt"
-ENRICH_F="$PARENT_DIR/ore_2018_05/most_extreme_t36_enrich/ad_ore_upstream_ref_10kb.txt"
-
-
 PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_07"
 VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_atrial_ids.norm.vcf.gz"
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_5_SVs_hg19.bed.gz"
 OUT_PREFIX="$PARENT_DIR/atrial_ore"
 OUTLIER_OUT="$PARENT_DIR/atrial_ore_SV5_utliers_most_extreme.txt"
-ENRICH_F="$PARENT_DIR/atrial_ore_ref_10kb.txt"
+ENRICH_F="$PARENT_DIR/atrial_ore_per_anno_10kb.txt"
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 

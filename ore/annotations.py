@@ -174,7 +174,7 @@ class Annotations(object):
                 if not current_chrom.startswith("chr"):
                     # bed file needs chr removed
                     bed = bed.each(self.remove_chr_prefix)
-                    # need to save generator-based bed first
+                    # need to save generator-based bed first in temp directory
                     # https://github.com/daler/pybedtools/issues/172
                     bed = bed.saveas()
                 try:
