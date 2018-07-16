@@ -113,7 +113,7 @@ class JoinedVarExpr(object):
                 var_df_per_chrom = self.filter_refgene_ensgene(
                     var_df_per_chrom, variant_class, refgene, ensgene)
                 # cols_to_keep.extend(['func_refgene', 'func_ensgene'])
-                if variant_class.startswith("exon") and exon_class:
+                if variant_class.startswith("exonic") and exon_class:
                     var_df_per_chrom = self.filter_refgene_ensgene_exon(
                         var_df_per_chrom, exon_class, refgene, ensgene)
                     # cols_to_keep.extend(['exon_func_refgene',
