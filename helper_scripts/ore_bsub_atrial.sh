@@ -33,6 +33,7 @@ python -m ore.ore --vcf $VCF \
     --outlier_output $OUTLIER_OUT \
     --enrich_file $ENRICH_F \
     --distribution "normal" \
+    --extrema \
     --threshold 2 \
     --max_outliers_per_id 1000 \
     --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
@@ -43,7 +44,7 @@ python -m ore.ore --vcf $VCF \
     --processes 5
 
 
-# --variant_class "ncRNA" \
+# --variant_class "UTR5" \
 # --ensgene \
 # --refgene \
 
