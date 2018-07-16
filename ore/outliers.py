@@ -201,7 +201,6 @@ class Outliers(object):
             (self.expr_long_df.z_expr < 0) &
             self.expr_long_df.expr_outlier)
 
-    @staticmethod
     def identify_outliers_from_ranks(self):
         """Identify outliers based on those more extreme than percentile.
 
