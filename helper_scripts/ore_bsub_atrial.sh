@@ -27,6 +27,8 @@ ENRICH_F="$PARENT_DIR/atrial_ore_per_anno_10kb.txt"
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 
+# confirm on correct branch:
+git status | head -n1
 python -m ore.ore --version
 
 # upstream and downstream (together) all annovar or subset
