@@ -59,10 +59,9 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
 #     --ensgene \
 #     --variant_class "exonic" \
 
-mv ad_ore_all_data.txt ad_ore_all_data_exonic_ref_ens_10kb.txt
-mv ad_ore_rv_w_outliers.txt ad_ore_rv_w_outliers_exonic_ref_ens_10kb.txt 
+mv ad_ore_all_data.txt ad_ore_all_data_exonic_synonymous_ref_ens_10kb.txt
+mv ad_ore_rv_w_outliers.txt ad_ore_rv_w_outliers_exonic_synonymous_ref_ens_10kb.txt 
 
-cp ad_ore_all_data_exonic_ref_ens_10kb.txt ad_ore_all_data.txt
 
 
 
