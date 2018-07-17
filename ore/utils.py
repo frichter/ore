@@ -183,6 +183,13 @@ def anno_file_locations():
     #              "hg19_all/*.bed")
     file_loc_list = [rmsk, segdup, lcr, map300, hla_muc, dac_blacklist,
                      duke_blacklist, pseudoauto_XY]
-    file_loc_list = [segdup, lcr]
+    # file_loc_list = [segdup, lcr]
     # file_loc_list = [anno_hg19]
+    file_loc_list.extend([
+        "deepheart_anno/human_data/dickel_2016_hg19/*bed",
+        "deepheart_anno/human_data/dickel_2016_lifted/*lifted_hg19.bed",
+        "deepheart_anno/human_data/encode/*.bed",
+        "deepheart_anno/human_data/roadmap_epigenomics/*.narrowPeak",
+        "deepheart_anno/mouse_lifted_hg19/*.bed",
+        "deepheart_anno/human_data/uw_gsms/*.bed"])
     return file_loc_list

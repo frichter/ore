@@ -8,6 +8,9 @@
 #BSUB -o atrial_outs.stdout
 #BSUB -e atrial_outs.stderr
 
+
+cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_07
+
 module load bedtools/2.27.0
 module load samtools/1.3
 module load bcftools/1.6
@@ -41,7 +44,7 @@ python -m ore.ore --vcf $VCF \
     --tss_dist 1e4 \
     --annovar \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 5
+    --processes 3
 
 
 # --variant_class "UTR5" \
