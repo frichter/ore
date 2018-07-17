@@ -26,12 +26,13 @@ VCF="$PARENT_DIR/wgs/ad_wgs_cp.vcf.gz"
 # ore_2018_06 ore_2018_05
 OUT_PREFIX="$PARENT_DIR/ore_2018_05/ad_ore"
 OUTLIER_OUT="$PARENT_DIR/ore_2018_05/most_extreme_outs_t36/ad_ore_outliers.txt"
-ENRICH_F="$PARENT_DIR/ore_2018_05/most_extreme_t36_enrich/ad_ore_exonic_10kb_check_CIS.txt"
+ENRICH_F="$PARENT_DIR/ore_2018_05/most_extreme_t36_enrich/ad_ore_exonic_synonymous_10kb.txt"
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 
 # upstream and downstream (together) all annovar or subset
 # ENRICH_F=$ENRICH_PREFIX"/tssBi_SV5_norm_ncRNA_refgene_ensgene.txt"
+git status | head -n1
 python -m ore.ore --version
 
 time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
