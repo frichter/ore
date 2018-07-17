@@ -113,8 +113,6 @@ class JoinedVarExpr(object):
                 var_df_per_chrom = self.filter_refgene_ensgene(
                     var_df_per_chrom, variant_class, refgene, ensgene)
                 # cols_to_keep.extend(['func_refgene', 'func_ensgene'])
-                print(var_df_per_chrom.head)
-                print(var_df_per_chrom.shape)
                 if variant_class.startswith("exonic") and exon_class:
                     var_df_per_chrom = self.filter_refgene_ensgene_exon(
                         var_df_per_chrom, exon_class, refgene, ensgene)
@@ -138,7 +136,6 @@ class JoinedVarExpr(object):
                                refgene, ensgene):
         """Filter for a refgene function, ensembl function or both."""
         variant_class = "^" + variant_class
-        print(variant_class)
         if refgene:
             vars_refgene = var_df_per_chrom.func_refgene.str.contains(
                 variant_class, regex=True)
@@ -173,21 +170,14 @@ class JoinedVarExpr(object):
 
         """
         exon_class = "^" + exon_class
-        print(exon_class)
         if refgene:
             vars_refgene = var_df_per_chrom.exon_func_refgene.str.contains(
                 exon_class, regex=True)
-            print(var_df_per_chrom.head)
-            print(var_df_per_chrom.shape)
             var_df_per_chrom = var_df_per_chrom[vars_refgene]
-            print(var_df_per_chrom.head)
-            print(var_df_per_chrom.shape)
         if ensgene:
             vars_ensgene = var_df_per_chrom.exon_func_ensgene.str.contains(
                 exon_class, regex=True)
             var_df_per_chrom = var_df_per_chrom[vars_ensgene]
-            print(var_df_per_chrom.head)
-            print(var_df_per_chrom.shape)
         return var_df_per_chrom
 
     def load_outliers(self, expr_outs_loc):
