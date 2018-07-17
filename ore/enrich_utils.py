@@ -56,7 +56,6 @@ def calculate_gene_enrichment(enrich_df):
     # neg_out_list = neg_out_tb.values.flatten().tolist()
     # while len(neg_out_list) < 4:
     #     neg_out_list.append("NA")
-    out_list.extend(neg_out_list)
     try:
         fet_or, fet_p = fisher_exact(out_tb)
         ci_lo, ci_hi = calculate_ci(fet_or, out_list)
@@ -67,8 +66,7 @@ def calculate_gene_enrichment(enrich_df):
         ci_neg_lo, ci_neg_hi = calculate_ci(fet_or_neg, neg_out_list)
     except ValueError:
         fet_or_neg, fet_p_neg, ci_neg_lo, ci_neg_hi = ("NA", "NA", "NA", "NA")
-    # if fet_or is numeric: calculate_ci()
-    # if fet_or_neg is numeric: calculate_ci()
+    out_list.extend(neg_out_list)
     out_list.extend([fet_or, fet_p, ci_lo, ci_hi, fet_or_neg,
                      fet_p_neg, ci_neg_lo, ci_neg_hi])
     return out_list
@@ -110,10 +108,11 @@ def flatten_crosstab(out_tb):
 def calculate_ci(odds_ratio, val_list):
     """Calculate confidence intervals from FET results."""
     print(val_list)
-    print(np.reciprocal(val_list))
-    print(sum(np.reciprocal(val_list)))
-    print(sum(np.reciprocal(val_list))**(1/2.0))
-    or_se = sum(np.reciprocal(val_list))**(1/2.0)
+    val_array = np.array(val_list).astype(float)
+    print(np.reciprocal(val_array))
+    print(sum(np.reciprocal(val_array)))
+    print(sum(np.reciprocal(val_array))**(1/2.0))
+    or_se = sum(np.reciprocal(val_array))**(1/2.0)
     ci = (np.exp(np.log(odds_ratio) - 1.96*or_se),
           np.exp(np.log(odds_ratio) + 1.96*or_se))
     return ci

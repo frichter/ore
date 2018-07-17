@@ -170,7 +170,9 @@ class Enrich(object):
                            "rare_not_out", "rare_out",
                            "not_rare_not_out_neg", "not_rare_out_neg",
                            "rare_not_out_neg", "rare_out_neg",
-                           "gene_or", "gene_p", "gene_neg_or", "gene_neg_p"]
+                           "gene_or", "gene_p", "gene_ci_lo", "gene_ci_hi",
+                           "gene_neg_or", "gene_neg_p", "gene_neg_ci_lo",
+                           "gene_neg_ci_hi"]
             enrich_f.write("\t".join(header_list) + "\n")
             for out_line in out_line_list:
                 if not out_line.startswith("NA_line"):
