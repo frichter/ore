@@ -200,6 +200,21 @@ class Outliers(object):
         self.expr_long_df.loc[:, "expr_outlier_neg"] = (
             (self.expr_long_df.z_expr < 0) &
             self.expr_long_df.expr_outlier)
+        """Remove genes where more than 10% of genes are outliers
+        print(self.expr_long_df.head())
+        print(self.expr_long_df.shape)
+        outs_per_gene_ct = self.expr_long_df.groupby(
+            'gene')['expr_outlier'].transform('sum')
+        outs_per_gene_reasonable = (0.1*len(ids_to_keep)) < outs_per_gene_ct
+        genes_to_rm = self.expr_long_df.loc[
+          ~outs_per_gene_reasonable, :]['gene'].unique()
+        print("More than 10% of samples have outliers more extreme than" +
+              "{} for these genes: {}".format(
+              str(self.least_extr_threshold), genes_to_rm)
+        self.expr_long_df = self.expr_long_df.loc[outs_per_gene_reasonable,:]
+        print(self.expr_long_df.head())
+        print(self.expr_long_df.shape)
+        """
 
     def identify_outliers_from_ranks(self):
         """Identify outliers based on those more extreme than percentile.
