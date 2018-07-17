@@ -172,7 +172,7 @@ class Annotations(object):
                 overlap_list.append(bed_name)
                 bed = BedTool(bed_name)
                 if not current_chrom.startswith("chr"):
-                    # bed file needs chr removed
+                    # bed file needs chr removed IF current_chrom is not chr
                     bed = bed.each(self.remove_chr_prefix)
                     # need to save generator-based bed first in temp directory
                     # https://github.com/daler/pybedtools/issues/172
