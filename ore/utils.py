@@ -175,21 +175,22 @@ def anno_file_locations():
     segdup = data_dir + "hg19_segdup.bed.gz"
     lcr = data_dir + "hg19_lcr_hs37d5.bed.gz"
     map300 = data_dir + "mappability300/mappability1_300.txt"
-    hla_muc = data_dir + "genome/genes.MUC.HLA.bed"
+    # hla_muc = data_dir + "genome/genes.MUC.HLA.bed"
     dac_blacklist = data_dir + "dac_blacklist.bed"
     duke_blacklist = data_dir + "encode_duke_blacklist.bed"
     pseudoauto_XY = data_dir + "pseudoautosomal_XY.bed"
     # anno_hg19 = ("/hpc/users/richtf01/chdiTrios/Felix/wgs/bed_annotations/" +
     #              "hg19_all/*.bed")
-    file_loc_list = [rmsk, segdup, lcr, map300, hla_muc, dac_blacklist,
+    file_loc_list = [rmsk, segdup, lcr, map300, dac_blacklist,  # hla_muc,
                      duke_blacklist, pseudoauto_XY]
     # file_loc_list = [segdup, lcr]
     # file_loc_list = [anno_hg19]
-    file_loc_list.extend([
+    file_loc_list = [
+        "hg19_mapping_2018_07/*bed",
         "deepheart_anno/human_data/dickel_2016_hg19/*bed",
         "deepheart_anno/human_data/dickel_2016_lifted/*lifted_hg19.bed",
         "deepheart_anno/human_data/encode/*.bed",
         "deepheart_anno/human_data/roadmap_epigenomics/*.narrowPeak",
         "deepheart_anno/mouse_lifted_hg19/*.bed",
-        "deepheart_anno/human_data/uw_gsms/*.bed"])
+        "deepheart_anno/human_data/uw_gsms/*.bed"]
     return file_loc_list
