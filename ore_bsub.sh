@@ -1,7 +1,7 @@
-#BSUB -W 5:00
+#BSUB -W 2:00
 #BSUB -q alloc
 #BUSB -n 8
-#BSUB -R "rusage[mem=20000]"
+#BSUB -R "rusage[mem=30000]"
 #BSUB -P acc_chdiTrios
 #BSUB -J ad_ore_allvars
 #BSUB -m mothra
@@ -44,13 +44,15 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --intracohort_rare_ac 5 \
     --tss_dist 1e3 2e3 5e3 1e4 \
     --annovar \
-    --refgene \
-    --ensgene \
-    --variant_class "exonic" \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
     --processes 5
 
 
+#    --refgene \
+#     --ensgene \
+#     --variant_class "exonic" \
+# mv ad_ore_all_data.txt ad_ore_all_data_splicing_ref_ens_10kb.txt
+# mv ad_ore_rv_w_outliers.txt ad_ore_rv_w_outliers_splicing_ref_ens_10kb.txt 
 
 
 
