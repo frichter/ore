@@ -42,19 +42,6 @@ def plot_outs_per_id(expr_outlier_df, outs_per_id_file):
 
 """Figure out plotting enrichmnt confidence intervals
 
-# from here: https://stats.stackexchange.com/a/2233
-# https://stats.stackexchange.com/questions/1405/statistical-test-for-difference-between-two-odds-ratios
-
-# loop over every line of dataframe
-from numpy import exp, log, reciprocal
-or_list = []
-ci_list = []
-enrich_df = pd.read_table()
-enrich_df_line_x = enrich_df.iloc[0:1, :].tolist
-or = enrich_df_line_x[11]
-or_se = sqrt(sum(reciprocal(enrich_df_line_x.iloc[3:7])))
-ci = (exp(log(or) - 1.96*or_se), exp(log(or) + 1.96*or_se))
-ci_list.append(ci)
 
 # plotting from here:
 # http://hamelg.blogspot.com/2015/11/python-for-data-analysis-part-23-point.html

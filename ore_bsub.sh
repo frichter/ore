@@ -49,6 +49,7 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --refgene \
     --ensgene \
     --variant_class "exonic" \
+    --exon_class "synonymous" \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
     --processes 5
 
@@ -56,7 +57,6 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
 #    --refgene \
 #     --ensgene \
 #     --variant_class "exonic" \
---exon_class "synonymous" \
 
 mv ad_ore_all_data.txt ad_ore_all_data_exonic_ref_ens_10kb.txt
 mv ad_ore_rv_w_outliers.txt ad_ore_rv_w_outliers_exonic_ref_ens_10kb.txt 

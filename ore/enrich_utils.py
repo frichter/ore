@@ -106,12 +106,14 @@ def flatten_crosstab(out_tb):
 
 
 def calculate_ci(odds_ratio, val_list):
-    """Calculate confidence intervals from FET results."""
-    print(val_list)
+    """Calculate confidence intervals from FET results.
+
+    Sources
+        https://stats.stackexchange.com/a/1483
+        https://stats.stackexchange.com/a/2233
+
+    """
     val_array = np.array(val_list).astype(float)
-    print(np.reciprocal(val_array))
-    print(sum(np.reciprocal(val_array)))
-    print(sum(np.reciprocal(val_array))**(1/2.0))
     or_se = sum(np.reciprocal(val_array))**(1/2.0)
     ci = (np.exp(np.log(odds_ratio) - 1.96*or_se),
           np.exp(np.log(odds_ratio) + 1.96*or_se))
