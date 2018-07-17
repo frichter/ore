@@ -193,4 +193,7 @@ def anno_file_locations():
         "deepheart_anno/human_data/roadmap_epigenomics/*.narrowPeak",
         "deepheart_anno/mouse_lifted_hg19/*.bed",
         "deepheart_anno/human_data/uw_gsms/*.bed"]
+    file_loc_list = ["/hpc/users/richtf01/chdiTrios/Felix/wgs/" +
+                     "bed_annotations/" + i for i in file_loc_list]
+    print(file_loc_list)
     return file_loc_list
