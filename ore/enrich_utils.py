@@ -109,6 +109,7 @@ def flatten_crosstab(out_tb):
 
 def calculate_ci(odds_ratio, val_list):
     """Calculate confidence intervals from FET results."""
+    print(val_list)
     print(np.reciprocal(val_list))
     print(sum(np.reciprocal(val_list)))
     print(sum(np.reciprocal(val_list))**(1/2.0))
