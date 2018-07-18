@@ -32,6 +32,7 @@ cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 
 # upstream and downstream (together) all annovar or subset
 # ENRICH_F=$ENRICH_PREFIX"/tssBi_SV5_norm_ncRNA_refgene_ensgene.txt"
+# git checkout alzheimers
 git status | head -n1
 python -m ore.ore --version
 
@@ -50,7 +51,6 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --refgene \
     --ensgene \
     --variant_class "exonic" \
-    --exon_class "synonymous" \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
     --processes 5
 
@@ -58,6 +58,7 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
 #    --refgene \
 #     --ensgene \
 #     --variant_class "exonic" \
+# --exon_class "synonymous" \
 
 mv ad_ore_all_data.txt ad_ore_all_data_exonic_synonymous_ref_ens_10kb.txt
 mv ad_ore_rv_w_outliers.txt ad_ore_rv_w_outliers_exonic_synonymous_ref_ens_10kb.txt 
