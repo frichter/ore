@@ -57,14 +57,16 @@ python -m ore.ore --vcf $VCF \
     --intracohort_rare_ac 5 \
     --tss_dist 1e4 \
     --annovar \
-    --variant_class "UTR5" \
-    --ensgene \
-    --refgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
     --processes 5
 
 
 
+# --ensgene \
+# --refgene \
+# --variant_class "UTR5" \
 
+mv vent_ore_all_data.txt vent_ore_all_data_utr5_ref_ens_10kb.txt
+mv vent_ore_rv_w_outliers.txt vent_ore_rv_w_outliers_utr5_ref_ens_10kb.txt 
 
 

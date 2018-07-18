@@ -53,3 +53,6 @@ python -m ore.ore --vcf $VCF \
 # --ensgene \
 # --refgene \
 
+mv atrial_ore_all_data.txt atrial_ore_all_data_allvars_ref_ens_10kb.txt
+mv atrial_ore_rv_w_outliers.txt atrial_ore_rv_w_outliers_allvars_ref_ens_10kb.txt 
+
