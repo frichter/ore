@@ -20,12 +20,8 @@
 
 ##################### PCGC Vent ##########################
 
-VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_vent_ids.norm.vcf.gz"
-EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_vent/residual_expr_5_SVs_hg19.bed.gz"
-OUT_PREFIX="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_04/wgs_vent"
-ENRICH_PREFIX="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_04/enrichment_results/wgs_vent"
-
 # vent_outliers_3
+cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_07
 
 module load bedtools/2.27.0
 module load samtools/1.3
@@ -33,26 +29,41 @@ module load bcftools/1.6
 module load python/3.5.0
 module load py_packages/3.5
 
+
+PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_07"
+VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_vent_ids.norm.vcf.gz"
+EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_vent/residual_expr_5_SVs_hg19.bed.gz"
+OUT_PREFIX="$PARENT_DIR/vent_ore"
+OUTLIER_OUT="$PARENT_DIR/vent_ore_SV5_utliers_most_extreme.txt"
+ENRICH_F="$PARENT_DIR/vent_ore_per_anno_10kb.txt"
+
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 
-# upstream and downstream (together) all annovar or subset
-ENRICH_F=$ENRICH_PREFIX"/tssBi_SV5_norm_ncRNA_refgene_ensgene.txt"
+# confirm on correct branch:
+# git checkout heart_ore_v27plus
+git status | head -n1
+python -m ore.ore --version
+
 python -m ore.ore --vcf $VCF \
     --bed $EXPR_F \
     --output $OUT_PREFIX \
-    --outlier_output "outliers_norm_SV5.txt" \
+    --outlier_output $OUTLIER_OUT \
     --enrich_file $ENRICH_F \
     --distribution "normal" \
-    --threshold 2 3 4 \
+    --extrema \
+    --threshold 2 2.5 3 4 \
     --max_outliers_per_id 1000 \
     --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
+    --intracohort_rare_ac 5 \
     --tss_dist 1e4 \
     --annovar \
-    --variant_class "ncRNA" \
+    --variant_class "UTR5" \
     --ensgene \
     --refgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 2
+    --processes 5
+
+
 
 
 
