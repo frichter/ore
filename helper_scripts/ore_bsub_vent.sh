@@ -58,7 +58,7 @@ python -m ore.ore --vcf $VCF \
     --tss_dist 1e4 \
     --annovar \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 5
+    --processes 2
 
 
 
