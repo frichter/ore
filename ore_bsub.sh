@@ -26,7 +26,7 @@ VCF="$PARENT_DIR/wgs/ad_wgs_cp.vcf.gz"
 # ore_2018_06 ore_2018_05
 OUT_PREFIX="$PARENT_DIR/ore_2018_05/ad_ore"
 OUTLIER_OUT="$PARENT_DIR/ore_2018_05/most_extreme_outs_t36/ad_ore_outliers.txt"
-ENRICH_F="$PARENT_DIR/ore_2018_05/most_extreme_t36_enrich/ad_ore_upstream_ens_ref_10kb.txt"
+ENRICH_F="$PARENT_DIR/ore_2018_05/most_extreme_t36_enrich/ad_ore_utr5_ens_ref_10kb.txt"
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 
@@ -50,7 +50,7 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --annovar \
     --refgene \
     --ensgene \
-    --variant_class "upstream" \
+    --variant_class "UTR5" \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
     --processes 5
 
