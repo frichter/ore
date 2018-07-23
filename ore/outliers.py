@@ -209,8 +209,8 @@ class Outliers(object):
         print(sum(outs_per_gene_reasonable))
         genes_to_rm = self.expr_long_df.loc[
           ~outs_per_gene_reasonable, :]['gene'].unique()
-        print("More than 1/10 samples have outliers more extreme than Z=" +
-              "{} for these genes: {}".format(
+        print("More than 1/10 samples have outliers more more extreme " +
+              "than Z={} for these genes: {}".format(
                   str(self.least_extr_threshold), genes_to_rm))
         print(self.expr_long_df.head())
         print(self.expr_long_df.shape)
