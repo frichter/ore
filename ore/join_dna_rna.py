@@ -101,7 +101,8 @@ class JoinedVarExpr(object):
                         'popmax_af', 'VCF_af', 'var_id_count', 'var_id_freq']
         # cols_to_keep.extend(['nkx2.5.mm9.hg19', 'regions_enh_E013'])
         cols_to_keep.extend(
-            ['any_gata4', 'any_nkx25', 'any_tbx5', 'all_tf'])
+            ['any_gata4', 'any_nkx25', 'any_tbx5', 'all_tf', 'any_ep300',
+             'any_polr2a', 'any_tbx3'])
         # , 'cvdc_enh_OR_prom'
         # cols_to_keep.extend(
         #     ["any_gata4", "any_nkx25", "any_tbx5", "Centipedehg19",
@@ -175,9 +176,12 @@ class JoinedVarExpr(object):
     @staticmethod
     def summarise_anno_cols(df):
         """Keep a few prespecified summary columns."""
-        any_gata4 = [col for col in df.columns if 'ata4' in col]
-        any_nkx25 = [col for col in df.columns if 'kx2' in col]
-        any_tbx5 = [col for col in df.columns if 'bx5' in col]
+        any_gata4 = [col for col in df.columns if 'ATA4' in col]  # ata4
+        any_nkx25 = [col for col in df.columns if 'KX2' in col]  # kx2
+        any_tbx5 = [col for col in df.columns if 'TBX5' in col]  # bx5
+        any_ep300 = [col for col in df.columns if 'EP300' in col]  # bx5
+        any_polr2a = [col for col in df.columns if 'POLR2A' in col]  # bx5
+        any_tbx3 = [col for col in df.columns if 'TBX3' in col]  # bx5
         print(any_gata4)
         print(any_nkx25)
         print(any_tbx5)
@@ -185,6 +189,9 @@ class JoinedVarExpr(object):
         df['any_gata4'] = df[any_gata4].sum(axis=1) > 0
         df['any_nkx25'] = df[any_nkx25].sum(axis=1) > 0
         df['any_tbx5'] = df[any_tbx5].sum(axis=1) > 0
+        df['any_ep300'] = df[any_ep300].sum(axis=1) > 0
+        df['any_polr2a'] = df[any_polr2a].sum(axis=1) > 0
+        df['any_tbx3'] = df[any_tbx3].sum(axis=1) > 0
         df['all_tf'] = df[all_tf].sum(axis=1) > 0
         # df['cvdc_enh_OR_prom'] = df[
         #     ['cvdc_enhancers_dickel',
