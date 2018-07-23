@@ -101,8 +101,8 @@ class JoinedVarExpr(object):
                         'popmax_af', 'VCF_af', 'var_id_count', 'var_id_freq']
         # cols_to_keep.extend(['nkx2.5.mm9.hg19', 'regions_enh_E013'])
         # cols_to_keep.extend(
-        #     ['any_gata4', 'any_nkx25', 'any_tbx5', 'all_tf',
-        #      'cvdc_enh_OR_prom'])
+        #     ['any_gata4', 'any_nkx25', 'any_tbx5', 'all_tf'])
+        # , 'cvdc_enh_OR_prom'
         # cols_to_keep.extend(
         #     ["any_gata4", "any_nkx25", "any_tbx5", "Centipedehg19",
         #      "genome.All_hg19_RS", "DNaseMasterMajority",
@@ -137,8 +137,6 @@ class JoinedVarExpr(object):
             var_df_per_chrom.set_index(['gene', 'blinded_id'], inplace=True)
             var_df_per_chrom = var_df_per_chrom.loc[
                 abs(var_df_per_chrom.tss_dist) <= max_tss_dist]
-            logger.info(var_df_per_chrom.head())
-            logger.info(var_df_per_chrom.shape)
             if variant_class:
                 var_df_per_chrom = self.filter_refgene_ensgene(
                     var_df_per_chrom, variant_class, refgene, ensgene)
@@ -153,9 +151,12 @@ class JoinedVarExpr(object):
             logger.info(len(cols_to_keep))
             if len(cols_to_keep) == 14:
                 cols_to_keep.extend(list(var_df_per_chrom)[18+325:-3])
+            logger.info(cols_to_keep)
             # modification for summing accross annotations
             var_df_per_chrom = self.summarise_anno_cols(var_df_per_chrom)
             var_df_per_chrom = var_df_per_chrom[cols_to_keep]
+            logger.info(var_df_per_chrom.head())
+            logger.info(var_df_per_chrom.shape)
             list_.append(var_df_per_chrom)
             print(sys.getsizeof(var_df_per_chrom)/(1024**3), "Gb")
         logger.info("All contigs/chromosomes loaded")
@@ -174,18 +175,22 @@ class JoinedVarExpr(object):
         any_gata4 = [col for col in df.columns if 'ata4' in col]
         any_nkx25 = [col for col in df.columns if 'kx2' in col]
         any_tbx5 = [col for col in df.columns if 'bx5' in col]
+        print(any_gata4)
+        print(any_nkx25)
+        print(any_tbx5)
         all_tf = any_gata4 + any_nkx25 + any_tbx5
         df['any_gata4'] = df[any_gata4].sum(axis=1) > 0
         df['any_nkx25'] = df[any_nkx25].sum(axis=1) > 0
         df['any_tbx5'] = df[any_tbx5].sum(axis=1) > 0
         df['all_tf'] = df[all_tf].sum(axis=1) > 0
-        df['cvdc_enh_OR_prom'] = df[
-            ['cvdc_enhancers_dickel', 'cvdc_promoters.lineID']].sum(axis=1) > 0
+        # df['cvdc_enh_OR_prom'] = df[
+        #     ['cvdc_enhancers_dickel',
+        #      'cvdc_promoters.lineID']].sum(axis=1) > 0
         df.any_gata4 = df.any_gata4.astype(int)
         df.any_nkx25 = df.any_nkx25.astype(int)
         df.any_tbx5 = df.any_tbx5.astype(int)
         df.all_tf = df.all_tf.astype(int)
-        df.cvdc_enh_OR_prom = df.cvdc_enh_OR_prom.astype(int)
+        # df.cvdc_enh_OR_prom = df.cvdc_enh_OR_prom.astype(int)
         return df
 
     @staticmethod
