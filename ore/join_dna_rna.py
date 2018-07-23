@@ -100,8 +100,8 @@ class JoinedVarExpr(object):
                         'exon_func_ensgene',
                         'popmax_af', 'VCF_af', 'var_id_count', 'var_id_freq']
         # cols_to_keep.extend(['nkx2.5.mm9.hg19', 'regions_enh_E013'])
-        # cols_to_keep.extend(
-        #     ['any_gata4', 'any_nkx25', 'any_tbx5', 'all_tf'])
+        cols_to_keep.extend(
+            ['any_gata4', 'any_nkx25', 'any_tbx5', 'all_tf'])
         # , 'cvdc_enh_OR_prom'
         # cols_to_keep.extend(
         #     ["any_gata4", "any_nkx25", "any_tbx5", "Centipedehg19",
@@ -134,6 +134,9 @@ class JoinedVarExpr(object):
             logger.info("Current chrom: " + chrom)  # "chr" +
             var_df_per_chrom = pd.read_table(
                 var_loc % (chrom), dtype=dtype_specs)
+            if var_df_per_chrom.empty:
+                logger.info("Empty dataframe for chromosome " + chrom)
+                raise JoinedDNAandRNAError("Empty dataframe for " + chrom)
             var_df_per_chrom.set_index(['gene', 'blinded_id'], inplace=True)
             var_df_per_chrom = var_df_per_chrom.loc[
                 abs(var_df_per_chrom.tss_dist) <= max_tss_dist]
@@ -143,14 +146,14 @@ class JoinedVarExpr(object):
                 if variant_class.startswith("exon") and exon_class:
                     var_df_per_chrom = self.filter_refgene_ensgene_exon(
                         var_df_per_chrom, exon_class, refgene, ensgene)
-            # [18:118] [118:218] [218:-3]
-            # last one is regions_enh_E013, total length is 371
             logger.info(var_df_per_chrom.head())
             logger.info(var_df_per_chrom.shape)
             logger.info(cols_to_keep)
             logger.info(len(cols_to_keep))
+            # [18:118] [118:218] [218:-3]
+            # last one is regions_enh_E013, total length is 371
             if len(cols_to_keep) == 14:
-                cols_to_keep.extend(list(var_df_per_chrom)[18+325:-3])
+                cols_to_keep.extend(list(var_df_per_chrom)[18:-3])
             logger.info(cols_to_keep)
             # modification for summing accross annotations
             var_df_per_chrom = self.summarise_anno_cols(var_df_per_chrom)
