@@ -137,6 +137,8 @@ class JoinedVarExpr(object):
             var_df_per_chrom.set_index(['gene', 'blinded_id'], inplace=True)
             var_df_per_chrom = var_df_per_chrom.loc[
                 abs(var_df_per_chrom.tss_dist) <= max_tss_dist]
+            logger.info(var_df_per_chrom.head())
+            logger.info(var_df_per_chrom.shape)
             if variant_class:
                 var_df_per_chrom = self.filter_refgene_ensgene(
                     var_df_per_chrom, variant_class, refgene, ensgene)
@@ -145,6 +147,10 @@ class JoinedVarExpr(object):
                         var_df_per_chrom, exon_class, refgene, ensgene)
             # [18:118] [118:218] [218:-3]
             # last one is regions_enh_E013, total length is 371
+            logger.info(var_df_per_chrom.head())
+            logger.info(var_df_per_chrom.shape)
+            logger.info(cols_to_keep)
+            logger.info(len(cols_to_keep))
             if len(cols_to_keep) == 14:
                 cols_to_keep.extend(list(var_df_per_chrom)[18+325:-3])
             # modification for summing accross annotations
