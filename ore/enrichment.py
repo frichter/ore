@@ -56,8 +56,11 @@ class Enrich(object):
             n_processes (:obj:`int`): number of processes to use
 
         """
-        # print("Anno column final index:", self.joined_df.shape[1] - 5)
-        # anno_list = [i for i in range(11, self.joined_df.shape[1] - 5)]
+        print("Anno column final index:", self.joined_df.shape[1] - 5)
+        anno_list = [i for i in range(16, self.joined_df.shape[1] - 5)]
+        print(anno_list)
+        print(list(self.joined_df)[anno_list[0]])
+        print(list(self.joined_df)[anno_list[-1]])
         if isinstance(expr_cut_off_vec, float):
             expr_cut_off_vec = [expr_cut_off_vec]
         if isinstance(tss_cut_off_vec, float):
