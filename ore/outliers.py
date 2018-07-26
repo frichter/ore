@@ -129,8 +129,6 @@ class Outliers(object):
         if outlier_max:
             outs_per_id = expr_outlier_df[[
                 'blinded_id', 'expr_outlier']].groupby('blinded_id').sum()
-            print(outs_per_id.expr_outlier >= outlier_max)
-            print(any(outs_per_id.expr_outlier >= outlier_max))
             while any(outs_per_id.expr_outlier >= outlier_max):
                 ids_to_keep = self.get_ids_w_low_out_ct(
                     expr_outlier_df, outlier_max)
@@ -142,6 +140,9 @@ class Outliers(object):
                 self.expr_long_df = self.expr_long_df[lines_w_consistent_ids]
                 expr_outlier_df = self.get_outliers(ids_to_keep)
                 plot_outs_per_id(expr_outlier_df, outs_per_id_file)
+                outs_per_id = expr_outlier_df[[
+                    'blinded_id', 'expr_outlier']].groupby('blinded_id').sum()
+                # print(any(outs_per_id.expr_outlier >= outlier_max))
         # write `expr_outlier_df` to file
         print("Saving outlier status dataframe to", self.expr_outs_loc)
         expr_outlier_df.to_csv(self.expr_outs_loc, sep="\t", index=False)
