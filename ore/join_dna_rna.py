@@ -147,10 +147,10 @@ class JoinedVarExpr(object):
                 if variant_class.startswith("exon") and exon_class:
                     var_df_per_chrom = self.filter_refgene_ensgene_exon(
                         var_df_per_chrom, exon_class, refgene, ensgene)
-            logger.info(var_df_per_chrom.head())
-            logger.info(var_df_per_chrom.shape)
-            logger.info(cols_to_keep)
-            logger.info(len(cols_to_keep))
+            # logger.info(var_df_per_chrom.head())
+            # logger.info(var_df_per_chrom.shape)
+            # logger.info(cols_to_keep)
+            # logger.info(len(cols_to_keep))
             # [18:118] [118:218] [218:-3]
             # last one is regions_enh_E013, total length is 371
             if len(cols_to_keep) == 14:
@@ -159,8 +159,8 @@ class JoinedVarExpr(object):
             # modification for summing accross annotations
             var_df_per_chrom = self.summarise_anno_cols(var_df_per_chrom)
             var_df_per_chrom = var_df_per_chrom[cols_to_keep]
-            logger.info(var_df_per_chrom.head())
-            logger.info(var_df_per_chrom.shape)
+            # logger.info(var_df_per_chrom.head())
+            # logger.info(var_df_per_chrom.shape)
             list_.append(var_df_per_chrom)
             print(sys.getsizeof(var_df_per_chrom)/(1024**3), "Gb")
         logger.info("All contigs/chromosomes loaded")
@@ -168,10 +168,10 @@ class JoinedVarExpr(object):
         logger.info(self.var_df.shape)
         if variant_class:
             logger.info("Considering variants in the following categories",
-                        set(self.var_df.func_refgene))
+                        ",".join(set(self.var_df.func_refgene)))
         if exon_class:
             logger.info("Only variants in the following EXONIC categories",
-                        set(self.var_df.exon_func_refgene))
+                        ",".join(set(self.var_df.exon_func_refgene)))
 
     @staticmethod
     def summarise_anno_cols(df):

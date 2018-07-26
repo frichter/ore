@@ -23,7 +23,7 @@ VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_atrial_ids.n
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_5_SVs_hg19.bed.gz"
 OUT_PREFIX="$PARENT_DIR/atrial_ore"
 OUTLIER_OUT="$PARENT_DIR/atrial_ore_SV5_outliers_most_extreme.txt"
-ENRICH_F="$PARENT_DIR/atrial_enrich_most_extreme/atrial_ref_ens_splicing_10kb.txt"
+ENRICH_F="$PARENT_DIR/atrial_enrich_most_extreme/atrial_ref_ens_UTR5_10kb.txt"
 # ore_per_anno_
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
@@ -50,13 +50,13 @@ python -m ore.ore --vcf $VCF \
     --ensgene \
     --refgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 3
+    --processes 5
 
 
 # --variant_class "UTR5" \
 # --ensgene \
 # --refgene \
 
-mv atrial_ore_all_data.txt atrial_ore_all_data_allvars_ref_ens_10kb.txt
-mv atrial_ore_rv_w_outliers.txt atrial_ore_rv_w_outliers_allvars_ref_ens_10kb.txt 
+mv atrial_ore_all_data.txt atrial_ore_all_data_utr5_ref_ens_10kb.txt
+mv atrial_ore_rv_w_outliers.txt atrial_ore_rv_w_outliers_utr5_ref_ens_10kb.txt 
 
