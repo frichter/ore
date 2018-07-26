@@ -102,8 +102,8 @@ class JoinedVarExpr(object):
                         'popmax_af', 'VCF_af', 'var_id_count', 'var_id_freq']
         # cols_to_keep.extend(['nkx2.5.mm9.hg19', 'regions_enh_E013'])
         cols_to_keep.extend(
-            ['any_gata4', 'any_nkx25', 'any_tbx5', 'all_tf', 'any_ep300',
-             'any_polr2a', 'any_tbx3'])
+            ['any_gata4', 'any_nkx25', 'any_ep300', 'any_tbx', 'other_tf',
+             'any_polr2a', 'all_tf'])  # 'any_tbx5', 'any_tbx3',
         # , 'cvdc_enh_OR_prom'
         # cols_to_keep.extend(
         #     ["any_gata4", "any_nkx25", "any_tbx5", "Centipedehg19",
