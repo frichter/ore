@@ -12,6 +12,7 @@
 
 import os
 import sys
+import re
 
 import pandas as pd
 
@@ -178,20 +179,28 @@ class JoinedVarExpr(object):
         """Keep a few prespecified summary columns."""
         any_gata4 = [col for col in df.columns if 'ATA4' in col]  # ata4
         any_nkx25 = [col for col in df.columns if 'KX2' in col]  # kx2
-        any_tbx5 = [col for col in df.columns if 'TBX5' in col]  # bx5
+        # any_tbx5 = [col for col in df.columns if 'TBX5' in col]  # bx5
         any_ep300 = [col for col in df.columns if 'EP300' in col]  # bx5
         any_polr2a = [col for col in df.columns if 'POLR2A' in col]  # bx5
-        any_tbx3 = [col for col in df.columns if 'TBX3' in col]  # bx5
+        any_tbx = [col for col in df.columns if 'TBX' in col]  # bx5
+        tf_search = re.compile('BRD4|EZH2|CTCF|SMARCA4|')
+        other_tf = [col for col in df.columns if tf_search.search(col)]  # bx5
         print(any_gata4)
         print(any_nkx25)
-        print(any_tbx5)
-        all_tf = any_gata4 + any_nkx25 + any_tbx5
+        # print(any_tbx5)
+        print(any_ep300)
+        print(any_polr2a)
+        print(any_tbx)
+        print(other_tf)
+        all_tf = (any_gata4 + any_nkx25 + any_ep300 + any_polr2a +  # any_tbx5
+                  any_tbx + other_tf)
         df['any_gata4'] = df[any_gata4].sum(axis=1) > 0
         df['any_nkx25'] = df[any_nkx25].sum(axis=1) > 0
-        df['any_tbx5'] = df[any_tbx5].sum(axis=1) > 0
+        # df['any_tbx5'] = df[any_tbx5].sum(axis=1) > 0
         df['any_ep300'] = df[any_ep300].sum(axis=1) > 0
         df['any_polr2a'] = df[any_polr2a].sum(axis=1) > 0
-        df['any_tbx3'] = df[any_tbx3].sum(axis=1) > 0
+        df['any_tbx'] = df[any_tbx].sum(axis=1) > 0
+        df['other_tf'] = df[other_tf].sum(axis=1) > 0
         df['all_tf'] = df[all_tf].sum(axis=1) > 0
         # df['cvdc_enh_OR_prom'] = df[
         #     ['cvdc_enhancers_dickel',
@@ -199,10 +208,11 @@ class JoinedVarExpr(object):
         # explicitly convert to integers
         df.any_gata4 = df.any_gata4.astype(int)
         df.any_nkx25 = df.any_nkx25.astype(int)
-        df.any_tbx5 = df.any_tbx5.astype(int)
+        # df.any_tbx5 = df.any_tbx5.astype(int)
         df.any_ep300 = df.any_ep300.astype(int)
         df.any_polr2a = df.any_polr2a.astype(int)
-        df.any_tbx3 = df.any_tbx3.astype(int)
+        df.any_tbx = df.any_tbx.astype(int)
+        df.other_tf = df.other_tf.astype(int)
         df.all_tf = df.all_tf.astype(int)
         # df.cvdc_enh_OR_prom = df.cvdc_enh_OR_prom.astype(int)
         return df
