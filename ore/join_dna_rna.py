@@ -207,6 +207,7 @@ class JoinedVarExpr(object):
     def filter_refgene_ensgene(var_df_per_chrom, variant_class,
                                refgene, ensgene):
         """Filter for a refgene function, ensembl function or both."""
+        variant_class = "^" + variant_class
         if refgene:
             vars_refgene = var_df_per_chrom.func_refgene.str.contains(
                 variant_class, regex=True)
@@ -221,6 +222,7 @@ class JoinedVarExpr(object):
     def filter_refgene_ensgene_exon(var_df_per_chrom, exon_class,
                                     refgene, ensgene):
         """Filter for a refgene function, ensembl function or both."""
+        exon_class = "^" + exon_class
         if refgene:
             vars_refgene = var_df_per_chrom.exon_func_refgene.str.contains(
                 exon_class, regex=True)

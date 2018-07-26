@@ -200,7 +200,7 @@ class Outliers(object):
         self.expr_long_df.loc[:, "expr_outlier_neg"] = (
             (self.expr_long_df.z_expr < 0) &
             self.expr_long_df.expr_outlier)
-        # """Remove genes where more than 10% of genes are outliers
+        """Remove genes where more than 10% of genes are outliers
         print(self.expr_long_df.head())
         print(self.expr_long_df.shape)
         outs_per_gene_ct = self.expr_long_df.groupby(
