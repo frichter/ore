@@ -183,7 +183,7 @@ class JoinedVarExpr(object):
         any_ep300 = [col for col in df.columns if 'EP300' in col]  # bx5
         any_polr2a = [col for col in df.columns if 'POLR2A' in col]  # bx5
         any_tbx = [col for col in df.columns if 'TBX' in col]  # bx5
-        tf_search = re.compile('BRD4|EZH2|CTCF|SMARCA4|')
+        tf_search = re.compile('BRD4|EZH2|CTCF|SMARCA4')
         other_tf = [col for col in df.columns if tf_search.search(col)]  # bx5
         print(any_gata4)
         print(any_nkx25)
