@@ -23,7 +23,7 @@ VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_atrial_ids.n
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_5_SVs_hg19.bed.gz"
 OUT_PREFIX="$PARENT_DIR/atrial_ore"
 OUTLIER_OUT="$PARENT_DIR/atrial_ore_SV5_outliers_most_extreme.txt"
-ENRICH_F="$PARENT_DIR/atrial_enrich_most_extreme/atrial_by_anno_10kb.txt"
+ENRICH_F="$PARENT_DIR/atrial_enrich_most_extreme/atrial_by_deepheart_anno_first100_10kb.txt"
 # ore_per_anno_
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
@@ -40,7 +40,7 @@ python -m ore.ore --vcf $VCF \
     --enrich_file $ENRICH_F \
     --distribution "normal" \
     --extrema \
-    --threshold 2 3 4 \
+    --threshold 2 3 \
     --max_outliers_per_id 1000 \
     --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
     --intracohort_rare_ac 5 \
@@ -54,6 +54,6 @@ python -m ore.ore --vcf $VCF \
 # --ensgene \
 # --refgene \
 
-mv atrial_ore_all_data.txt atrial_ore_all_data_allvars_10kb.txt
-mv atrial_ore_rv_w_outliers.txt atrial_ore_rv_w_outliers_allvars_10kb.txt 
+mv atrial_ore_all_data.txt atrial_ore_all_data_extrema_deepheart_tf_10kb.txt
+mv atrial_ore_rv_w_outliers.txt atrial_ore_rv_w_outliers_extrema_deepheart_tf_10kb.txt 
 

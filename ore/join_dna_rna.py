@@ -158,8 +158,9 @@ class JoinedVarExpr(object):
             # last one is regions_enh_E013, total length is 371
             print("Keeping {} columns".format(len(cols_to_keep)))
             if len(cols_to_keep) == 14:
-                cols_to_keep.extend(list(var_df_per_chrom)[18:-3])
+                cols_to_keep.extend(list(var_df_per_chrom)[18:118])
             logger.info(cols_to_keep)
+            print("Keeping {} columns".format(len(cols_to_keep)))
             # modification for summing accross annotations
             if 'any_gata4' in cols_to_keep:
                 var_df_per_chrom = self.summarise_anno_cols(var_df_per_chrom)
