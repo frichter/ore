@@ -196,9 +196,13 @@ class JoinedVarExpr(object):
         # df['cvdc_enh_OR_prom'] = df[
         #     ['cvdc_enhancers_dickel',
         #      'cvdc_promoters.lineID']].sum(axis=1) > 0
+        # explicitly convert to integers
         df.any_gata4 = df.any_gata4.astype(int)
         df.any_nkx25 = df.any_nkx25.astype(int)
         df.any_tbx5 = df.any_tbx5.astype(int)
+        df.any_ep300 = df.any_ep300.astype(int)
+        df.any_polr2a = df.any_polr2a.astype(int)
+        df.any_tbx3 = df.any_tbx3.astype(int)
         df.all_tf = df.all_tf.astype(int)
         # df.cvdc_enh_OR_prom = df.cvdc_enh_OR_prom.astype(int)
         return df

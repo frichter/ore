@@ -57,7 +57,7 @@ class Enrich(object):
 
         """
         print("Anno column final index:", self.joined_df.shape[1] - 5)
-        anno_list = [i for i in range(16, self.joined_df.shape[1] - 5)]
+        anno_list = [i for i in range(16, self.joined_df.shape[1] - 4)]
         print(anno_list)
         print(list(self.joined_df)[anno_list[0]])
         print(list(self.joined_df)[anno_list[-1]])
@@ -69,7 +69,8 @@ class Enrich(object):
             af_cut_off_vec = [af_cut_off_vec]
         cartesian_iter = itertools.product(expr_cut_off_vec,
                                            tss_cut_off_vec,
-                                           af_cut_off_vec)
+                                           af_cut_off_vec,
+                                           anno_list)
         # https://stackoverflow.com/questions/533905/get-the-cartesian-product-of-a-series-of-lists
         enrichment_per_tuple_partial = partial(
             self.enrichment_per_tuple,
@@ -97,18 +98,18 @@ class Enrich(object):
         """
         print("Calculating enrichment for", cut_off_tuple)
         enrich_df = copy.deepcopy(self.joined_df)
-        """
+        # """
         # only use if filtering by annotation:
         current_anno = list(enrich_df)[cut_off_tuple[3]]
         print("current column:", current_anno)
         in_anno = enrich_df.loc[:, current_anno] == 1
-        # keep only a specific annotation
+        # keep only rows/variants in a specific annotation
         enrich_df = enrich_df.loc[in_anno]
         # remove annotation column index number from tuple
         cut_off_tuple = tuple(list(cut_off_tuple)[:-1])
         if enrich_df.shape[0] == 0:
             return "NA_line: no overlaps with " + current_anno
-        """
+        # """
         # replace af_cut_off with intra-cohort minimum if former is
         # smaller than latter
         print(cut_off_tuple)
