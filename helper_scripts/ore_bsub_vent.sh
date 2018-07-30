@@ -58,11 +58,8 @@ python -m ore.ore --vcf $VCF \
     --intracohort_rare_ac 5 \
     --tss_dist 1e4 \
     --annovar \
-    --variant_class "splicing" \
-    --ensgene \
-    --refgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 2
+    --processes 5
 
 
 
