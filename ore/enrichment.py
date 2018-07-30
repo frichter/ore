@@ -139,8 +139,6 @@ class Enrich(object):
         expr_cut_off, tss_cut_off, af_cut_off = cut_off_tuple
         print("Parameters", expr_cut_off, tss_cut_off, af_cut_off)
         # classify as within x kb of TSS
-        print(abs(joined_df.tss_dist) <= tss_cut_off)
-        print(joined_df.head())
         joined_df["near_TSS"] = abs(joined_df.tss_dist) <= tss_cut_off
         joined_df = joined_df.loc[joined_df.near_TSS]
         # print("filtered by TSS:", joined_df.shape)
