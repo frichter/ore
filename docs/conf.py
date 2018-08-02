@@ -23,10 +23,14 @@ project = 'ORE'
 copyright = '2018, Felix Richter'
 author = 'Felix Richter'
 
+version = {}
+with open("../../ore/version.py") as fp:
+    exec(fp.read(), version)
+
 # The short X.Y version
-version = '0.1'
+version = version['__short_version__']
 # The full version, including alpha/beta/rc tags
-release = '0.1.6'
+release = version['__version__']
 
 
 # -- General configuration ---------------------------------------------------
@@ -193,4 +197,3 @@ texinfo_documents = [
 
 
 # -- Extension configuration -------------------------------------------------
-

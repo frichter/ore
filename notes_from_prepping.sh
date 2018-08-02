@@ -281,7 +281,7 @@ time tabix -p vcf ad_wgs_cp.vcf.gz
 ####################
 
 
-cd /sc/orga/projects/chdiTrios/Felix/alzheimers
+cd /sc/orga/projects/chdiTrios/Felix/alzheimers/ore_2018_05
 
 module load bedtools/2.27.0
 module load samtools/1.3
@@ -289,36 +289,61 @@ module load bcftools/1.6
 module load python/3.5.0
 module load py_packages/3.5
 
+# memory_profiler package not available in py_packages/3.6
+# module load python/3.6.2
+# module load py_packages/3.6
+
+
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 
 python -m ore.ore --help
 python -m ore.ore --version
 
 PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/alzheimers"
-EXPR_F="$PARENT_DIR/expression/residuals_AMPAD_MSSM_GE_SV_17_tissue_36_with_disease_in_model_europeans_only.bed.gz"
+EXPR_F="$PARENT_DIR/expression/residuals_AMPAD_MSSM_GE_SV_17_tissue_36_with_disease_in_model_europeans_only_new_z_wgs_ids.bed.gz"
 VCF="$PARENT_DIR/wgs/ad_wgs_cp.vcf.gz"
+# ore_2018_06 ore_2018_05
 OUT_PREFIX="$PARENT_DIR/ore_2018_05/ad_ore"
-ENRICH_F="$PARENT_DIR/ore_2018_05/ad_ore_enrich_test.txt"
+OUTLIER_OUT="$PARENT_DIR/ore_2018_05/most_extreme_outs_t36/ad_ore_outliers.txt"
+ENRICH_F="$PARENT_DIR/ore_2018_05/most_extreme_t36_enrich/ad_ore_upstream_ref_ens_10kb.txt"
+# ad_ore_utr5_ref_ens_10kb ad_ore_all_10kb
 
 time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --bed $EXPR_F \
     --output $OUT_PREFIX \
+    --outlier_output $OUTLIER_OUT \
     --enrich_file $ENRICH_F \
     --distribution "normal" \
     --extrema \
-    --threshold 2 \
-    --max_outliers_per_id 1000 \
-    --af_rare 5e-2 1e-2 1e-3 \
-    --tss_dist 5e4 \
+    --threshold 2 2.5 3 4 \
+    --af_rare 5e-2 1e-2 1e-3 1e-4 1e-5 \
+    --intracohort_rare_ac 5 \
+    --tss_dist 1e3 2e3 5e3 1e4 \
     --annovar \
-    --variant_class "UTR5" \
-    --ensgene \
-    --refgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 3
+    --processes 5
 
-    # --outlier_output "outliers_norm_SV5.txt" \
 
+# used 5e4, switch to 5e3 for analysis
+# --ensgene \
+# --refgene \
+# --variant_class "UTR5" \
+
+grep "\sUTR5\s" ad_ore_rv_w_outliers_allvars_10kb.txt | wc -l
+grep "\supstream\s" ad_ore_rv_w_outliers_allvars_10kb.txt | wc -l
+
+mv ad_ore_all_data.txt ad_ore_all_data_upstream_ref_ens_10kb.txt
+mv ad_ore_rv_w_outliers.txt ad_ore_rv_w_outliers_upstream_ref_ens_10kb.txt 
+
+
+# mv ad_ore_enrich_test.txt most_extreme_enrich/ad_ore_utr5_ref_ens_5kb.txt
+
+    # --max_outliers_per_id 1000 \
+
+
+# fixing up results from a previous run
+rename "chr" "" tmp_*
+time sed -i 's/chr//g' tmp_*
 
 ## run on node with internet
 screen -R -D ore
@@ -329,6 +354,13 @@ source venv_ore/bin/activate
 pip install --upgrade pip
 pip install ore
 deactivate
+
+# dealing with not being able to run chr2
+wc -l tmp_long_012_2b.txt
+60039647 tmp_long_012_2b.txt
+
+wc -l tmp_long_012_2.txt
+120079294 tmp_long_012_2.txt
 
 
 # Download ANNOVAR databases by (a) registering here:

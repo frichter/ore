@@ -173,10 +173,12 @@ class Genes(object):
         cols_to_use = [0, 1, 2, 3, 4, 5, 8, 9, 11, 12]
         bed_col_names = ["Chrom", "Start", "End", "Ref", "Alt", "VCF_af",
                          "gene_TSS", "gene", "gene_strand", "tss_dist"]
+        dtype_specs = {'Chrom': 'str'}
         var_df = pd.read_table(self.closest_gene_var_loc,
                                header=None,
                                usecols=cols_to_use,
-                               names=bed_col_names)
+                               names=bed_col_names,
+                               dtype=dtype_specs)
         # max TSS distance
         var_df = var_df.loc[abs(var_df.tss_dist) <= max_tss_dist]
         if upstream_only:
@@ -184,10 +186,16 @@ class Genes(object):
         elif downstream_only:
             var_df = var_df.loc[var_df.tss_dist > 0]
         # var_id should use 1-based start position
-        var_df.Start1b = var_df.Start + 1
+        var_df = var_df.assign(Start1b=var_df.Start + 1)
+        # var_df["Start1b"] = var_df.Start + 1
+        var_df.Chrom = var_df.Chrom.astype(str)
+        # print(var_df.Chrom.astype(str).str.cat(
+        #     var_df.Start1b.astype(str), sep='.'))
         var_df["var_id"] = (var_df.Chrom.str.cat(var_df.Start1b.
                             astype(str), sep='.').str.cat(var_df.Ref, sep='.').
                             str.cat(var_df.Alt, sep='.'))
+        var_df.drop("Start1b", 1, inplace=True)
+        print("variant IDs joined, writing to file...")
         var_df.to_csv(self.nearTSS_loc, sep="\t", header=False, index=False,
                       float_format='%g')
 

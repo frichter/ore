@@ -104,22 +104,25 @@ def associate_outliers(args):
                            extrema=args.extrema,
                            distribution=args.distribution,
                            threshold=args.threshold,
+                           n_processes=args.processes,
                            logger=logger)
-    print("Outliers initialized...")
+    logger.info("Outliers initialized...")
     outlier_obj.prepare_outliers(outlier_max=args.max_outliers_per_id,
-                                 vcf_id_list=variants_obj.vcf_obj.id_list)
+                                 vcf_id_list=variants_obj.vcf_obj.id_list,
+                                 logger=logger)
     logger.info("Outliers prepared")
     # join outliers with variants
     dna_rna_df_loc = output_prefix + "_all_data.txt"
     joined_obj = JoinedVarExpr(variants_obj.anno_obj.final_var_loc,
                                outlier_obj.expr_outs_loc,
-                               dna_rna_df_loc,
-                               args.variant_class,
-                               args.exon_class,
-                               args.refgene,
-                               args.ensgene,
-                               variants_obj.combined_contigs,
-                               logger)
+                               dna_rna_df_loc=dna_rna_df_loc,
+                               variant_class=args.variant_class,
+                               exon_class=args.exon_class,
+                               refgene=args.refgene,
+                               ensgene=args.ensgene,
+                               max_tss_dist=max_tss_dist,
+                               contigs=variants_obj.combined_contigs,
+                               logger=logger)
     # output final set of outliers and calculate enrichment
     rv_outlier_loc = output_prefix + "_rv_w_outliers.txt"
     # joined_df, enrich_loc, rv_outlier_loc, distribution
@@ -244,7 +247,7 @@ def main():
     opt_annovar.add_argument("--exon_class", help="Only variants with " +
                              "these exonic impacts will be considered",
                              default=None,
-                             choices=["nonsynonymous", "intergenic",
+                             choices=["nonsynonymous", "synonymous",
                                       "nonframeshift", "frameshift",
                                       "stopgain", "stoploss"])
     opt_annovar.add_argument("--refgene", default=False, action="store_true",
@@ -285,7 +288,9 @@ def main():
     args = parser.parse_args()
     cprof_cmd = ('associate_outliers(args)')
     OUT_FILE = (args.output + 'stats.out')
-    cProfile.run(cprof_cmd, OUT_FILE)
+    print(OUT_FILE)
+    cProfile.runctx(cprof_cmd, globals(), locals(), filename=OUT_FILE)
+    # cProfile.run(cprof_cmd, filename=OUT_FILE)
     time_profile = pstats.Stats(OUT_FILE)
     time_profile.strip_dirs().sort_stats('cumulative').print_stats(10)
     # associate_outliers(args)

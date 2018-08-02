@@ -122,16 +122,18 @@ def multiprocess_by_chrom_cmd(n_processes, contigs, mp_function):
             processed by `mp_function`
 
     """
-    # chrom_iter = itertools.chain([str(i) for i in range(1, 23)], ["X"])
     chrom_iter = itertools.chain([str(i) for i in contigs])
-    # , "Y"
     pool = mp.Pool(processes=n_processes)
-    # print("Total available cores: " + str(mp.cpu_count()))
+    print("Using {} out of {} cores".format(n_processes, mp.cpu_count()))
     chroms_completed = pool.map(mp_function, chrom_iter)
+    # chroms_completed = []
+    # for chrom_i in chrom_iter:
+    #     chrom_done = mp_function(chrom_i)
+    #     chroms_completed.append(chrom_done)
     return chroms_completed
 
 
-def applyParallel(dfGrouped, func):
+def applyParallel(dfGrouped, func, n_processes):
     """Parallelize the pandas apply function.
 
     Source:
@@ -141,6 +143,7 @@ def applyParallel(dfGrouped, func):
         dfGrouped (:obj:`DataFrame`): grouped dataframe, where
             `func` is to be applied to each group separately
         func (:obj:`int`):
+        n_processes (:obj:`int`): number of workers/cores to run at a time
 
     Returns:
         pd.concat(ret_list) (:obj:`DataFrame`): `dfGrouped` with function
@@ -148,8 +151,9 @@ def applyParallel(dfGrouped, func):
 
     """
     # from multiprocessing import Pool, cpu_count
-    print("Using all {} cores".format(mp.cpu_count()))
-    with mp.Pool(mp.cpu_count()) as p:
+    print("Using {} out of {} cores".format(n_processes, mp.cpu_count()))
+    # print("Total available cores: " + str(mp.cpu_count()))
+    with mp.Pool(processes=n_processes) as p:
         ret_list = p.map(func, [group for name, group in dfGrouped])
     try:
         return pd.concat(ret_list)

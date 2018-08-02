@@ -11,6 +11,7 @@
 
 
 import os
+import sys
 
 import pandas as pd
 
@@ -38,7 +39,7 @@ class JoinedVarExpr(object):
     """Methods for creating the final DF."""
 
     def __init__(self, var_loc, expr_outs_loc, dna_rna_df_loc,
-                 variant_class, exon_class, refgene, ensgene,
+                 variant_class, exon_class, refgene, ensgene, max_tss_dist,
                  contigs, logger):
         """Load and join variants and outliers.
 
@@ -52,6 +53,7 @@ class JoinedVarExpr(object):
                 on (default None)
             exon_class (:obj:`str`): annovar EXON class to filter
                 on (default None)
+            max_tss_dist (:obj:`int`): maximum distance from TSS
             contigs (:obj:`list`): chromosomes that are in the VCF
             logger (:obj:`logging object`): Current logger
 
@@ -65,22 +67,22 @@ class JoinedVarExpr(object):
         else:
             logger.info("Loading variants...")
             self.load_vars(var_loc, contigs, variant_class, exon_class,
-                           refgene, ensgene, logger)
+                           refgene, ensgene, max_tss_dist, logger)
             logger.info("Loading outliers...")
             self.load_outliers(expr_outs_loc)
             logger.info("joining outliers with variants...")
-            logger.debug(self.var_df.head())
-            logger.debug(self.var_df.index[:10])
-            logger.debug(self.var_df.shape)
-            logger.debug(self.expr_outlier_df.head())
-            logger.debug(self.expr_outlier_df.index[:10])
-            logger.debug(self.expr_outlier_df.shape)
+            # logger.debug(self.var_df.head())
+            # logger.debug(self.var_df.index[:10])
+            # logger.debug(self.var_df.shape)
+            # logger.debug(self.expr_outlier_df.head())
+            # logger.debug(self.expr_outlier_df.index[:10])
+            # logger.debug(self.expr_outlier_df.shape)
             self.df = self.var_df.join(self.expr_outlier_df, how='inner')
             self.df.reset_index(inplace=True)
             self.write_to_file(dna_rna_df_loc)
 
     def load_vars(self, var_loc, contigs, variant_class, exon_class,
-                  refgene, ensgene, logger):
+                  refgene, ensgene, max_tss_dist, logger):
         """Load and combine variant data.
 
         Attributes:
@@ -105,17 +107,20 @@ class JoinedVarExpr(object):
             var_df_per_chrom = pd.read_table(
                 var_loc % (chrom), dtype=dtype_specs)
             var_df_per_chrom.set_index(['gene', 'blinded_id'], inplace=True)
+            var_df_per_chrom = var_df_per_chrom.loc[
+                abs(var_df_per_chrom.tss_dist) <= max_tss_dist]
             if variant_class:
                 var_df_per_chrom = self.filter_refgene_ensgene(
                     var_df_per_chrom, variant_class, refgene, ensgene)
                 # cols_to_keep.extend(['func_refgene', 'func_ensgene'])
-            if exon_class:
-                var_df_per_chrom = self.filter_refgene_ensgene_exon(
-                    var_df_per_chrom, exon_class, refgene, ensgene)
-                # cols_to_keep.extend(['exon_func_refgene',
-                #                      'exon_func_ensgene'])
+                if variant_class.startswith("exonic") and exon_class:
+                    var_df_per_chrom = self.filter_refgene_ensgene_exon(
+                        var_df_per_chrom, exon_class, refgene, ensgene)
+                    # cols_to_keep.extend(['exon_func_refgene',
+                    #                      'exon_func_ensgene'])
             var_df_per_chrom = var_df_per_chrom[cols_to_keep]
             list_.append(var_df_per_chrom)
+            print(sys.getsizeof(var_df_per_chrom)/(1024**3), "Gb")
         logger.info("All contigs/chromosomes loaded")
         self.var_df = pd.concat(list_)
         logger.info(self.var_df.shape)
@@ -130,27 +135,48 @@ class JoinedVarExpr(object):
     def filter_refgene_ensgene(var_df_per_chrom, variant_class,
                                refgene, ensgene):
         """Filter for a refgene function, ensembl function or both."""
+        variant_class = "^" + variant_class
         if refgene:
             vars_refgene = var_df_per_chrom.func_refgene.str.contains(
-                variant_class)
+                variant_class, regex=True)
             var_df_per_chrom = var_df_per_chrom[vars_refgene]
         if ensgene:
             vars_ensgene = var_df_per_chrom.func_ensgene.str.contains(
-                variant_class)
+                variant_class, regex=True)
             var_df_per_chrom = var_df_per_chrom[vars_ensgene]
         return var_df_per_chrom
 
     @staticmethod
     def filter_refgene_ensgene_exon(var_df_per_chrom, exon_class,
                                     refgene, ensgene):
-        """Filter for a refgene function, ensembl function or both."""
+        """Filter for a refgene function, ensembl function or both.
+
+        Args:
+            var_df_per_chrom (:obj:`DataFrame`): all variants in a chromosome
+            variant_class (:obj:`str`): annovar variant class to filter
+                on (default None)
+            exon_class (:obj:`str`): annovar EXON class to filter
+                on (default None)
+            refgene (:obj:`boolean`): if used RefSeq to define variant classes
+            ensgene (:obj:`boolean`): using ENSEMBL to define variant classes
+
+        Returns:
+            var_df_per_chrom (:obj:`DataFrame`): only variants in the
+                desired `exon_class`
+
+        Description:
+            First prepends a ^ so that only the highest impact `exon_class`
+            is considered as the de-facto class for filtering.
+
+        """
+        exon_class = "^" + exon_class
         if refgene:
             vars_refgene = var_df_per_chrom.exon_func_refgene.str.contains(
-                exon_class)
+                exon_class, regex=True)
             var_df_per_chrom = var_df_per_chrom[vars_refgene]
         if ensgene:
             vars_ensgene = var_df_per_chrom.exon_func_ensgene.str.contains(
-                exon_class)
+                exon_class, regex=True)
             var_df_per_chrom = var_df_per_chrom[vars_ensgene]
         return var_df_per_chrom
 
