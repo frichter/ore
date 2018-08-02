@@ -23,7 +23,7 @@ from .outliers import Outliers
 from .join_dna_rna import JoinedVarExpr
 from .version import __version__
 
-# Profiling libraries:
+"""# Profiling libraries:
 import cProfile
 import pstats
 from memory_profiler import profile
@@ -31,9 +31,10 @@ from memory_profiler import profile
 # then uncomment @profile as well as cProfile and pstats
 # and append this command when running tool:
 # time mprof run --include-children --multiprocess
+"""
 
 
-@profile
+# @profile
 def associate_outliers(args):
     """Prepare and associate variants and outliers.
 
@@ -286,14 +287,14 @@ def main():
                           default=False, action="store_true")
     parser._action_groups.append(optional)
     args = parser.parse_args()
-    cprof_cmd = ('associate_outliers(args)')
-    OUT_FILE = (args.output + 'stats.out')
-    print(OUT_FILE)
-    cProfile.runctx(cprof_cmd, globals(), locals(), filename=OUT_FILE)
-    # cProfile.run(cprof_cmd, filename=OUT_FILE)
-    time_profile = pstats.Stats(OUT_FILE)
-    time_profile.strip_dirs().sort_stats('cumulative').print_stats(10)
-    # associate_outliers(args)
+    # cprof_cmd = ('associate_outliers(args)')
+    # OUT_FILE = (args.output + 'stats.out')
+    # print(OUT_FILE)
+    # cProfile.runctx(cprof_cmd, globals(), locals(), filename=OUT_FILE)
+    # # cProfile.run(cprof_cmd, filename=OUT_FILE)
+    # time_profile = pstats.Stats(OUT_FILE)
+    # time_profile.strip_dirs().sort_stats('cumulative').print_stats(10)
+    associate_outliers(args)
 
 
 if __name__ == "__main__":
