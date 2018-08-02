@@ -38,3 +38,23 @@ def plot_outs_per_id(expr_outlier_df, outs_per_id_file):
     plt.ylabel("Number of Samples")
     plt.savefig(outs_per_id_file + '.png')
     plt.close(fig)
+
+
+"""Figure out plotting enrichmnt confidence intervals
+
+
+# plotting from here:
+# http://hamelg.blogspot.com/2015/11/python-for-data-analysis-part-23-point.html
+plt.figure(figsize=(9,9))
+
+plt.errorbar(x=np.arange(0.1, 25, 1),
+             y=sample_means,
+             yerr=[(top-bot)/2 for top,bot in intervals],
+             fmt='o')
+
+plt.hlines(xmin=0, xmax=25,
+           y=43.0023,
+           linewidth=2.0,
+           color="red")
+
+"""

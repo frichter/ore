@@ -113,7 +113,7 @@ class JoinedVarExpr(object):
                 var_df_per_chrom = self.filter_refgene_ensgene(
                     var_df_per_chrom, variant_class, refgene, ensgene)
                 # cols_to_keep.extend(['func_refgene', 'func_ensgene'])
-                if variant_class.startswith("exon") and exon_class:
+                if variant_class.startswith("exonic") and exon_class:
                     var_df_per_chrom = self.filter_refgene_ensgene_exon(
                         var_df_per_chrom, exon_class, refgene, ensgene)
                     # cols_to_keep.extend(['exon_func_refgene',
@@ -135,6 +135,7 @@ class JoinedVarExpr(object):
     def filter_refgene_ensgene(var_df_per_chrom, variant_class,
                                refgene, ensgene):
         """Filter for a refgene function, ensembl function or both."""
+        variant_class = "^" + variant_class
         if refgene:
             vars_refgene = var_df_per_chrom.func_refgene.str.contains(
                 variant_class, regex=True)
@@ -148,7 +149,27 @@ class JoinedVarExpr(object):
     @staticmethod
     def filter_refgene_ensgene_exon(var_df_per_chrom, exon_class,
                                     refgene, ensgene):
-        """Filter for a refgene function, ensembl function or both."""
+        """Filter for a refgene function, ensembl function or both.
+
+        Args:
+            var_df_per_chrom (:obj:`DataFrame`): all variants in a chromosome
+            variant_class (:obj:`str`): annovar variant class to filter
+                on (default None)
+            exon_class (:obj:`str`): annovar EXON class to filter
+                on (default None)
+            refgene (:obj:`boolean`): if used RefSeq to define variant classes
+            ensgene (:obj:`boolean`): using ENSEMBL to define variant classes
+
+        Returns:
+            var_df_per_chrom (:obj:`DataFrame`): only variants in the
+                desired `exon_class`
+
+        Description:
+            First prepends a ^ so that only the highest impact `exon_class`
+            is considered as the de-facto class for filtering.
+
+        """
+        exon_class = "^" + exon_class
         if refgene:
             vars_refgene = var_df_per_chrom.exon_func_refgene.str.contains(
                 exon_class, regex=True)

@@ -248,7 +248,7 @@ def main():
     opt_annovar.add_argument("--exon_class", help="Only variants with " +
                              "these exonic impacts will be considered",
                              default=None,
-                             choices=["nonsynonymous", "intergenic",
+                             choices=["nonsynonymous", "synonymous",
                                       "nonframeshift", "frameshift",
                                       "stopgain", "stoploss"])
     opt_annovar.add_argument("--refgene", default=False, action="store_true",
