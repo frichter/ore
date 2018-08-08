@@ -84,12 +84,12 @@ class JoinedVarExpr(object):
             if overlapped_ids.sum() == 0:
                 raise JoinedDNAandRNAError("No overlapping IDs between" +
                                            "RNAseq and VCF")
-            # logger.debug(self.var_df.head())
-            # logger.debug(self.var_df.index[:10])
-            # logger.debug(self.var_df.shape)
-            # logger.debug(self.expr_outlier_df.head())
-            # logger.debug(self.expr_outlier_df.index[:10])
-            # logger.debug(self.expr_outlier_df.shape)
+            logger.debug(self.var_df.head())
+            logger.debug(self.var_df.index[:10])
+            logger.debug(self.var_df.shape)
+            logger.debug(self.expr_outlier_df.head())
+            logger.debug(self.expr_outlier_df.index[:10])
+            logger.debug(self.expr_outlier_df.shape)
             self.df = self.var_df.join(self.expr_outlier_df, how='inner')
             self.df.reset_index(inplace=True)
             self.write_to_file(dna_rna_df_loc)
