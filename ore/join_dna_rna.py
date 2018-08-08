@@ -125,11 +125,11 @@ class JoinedVarExpr(object):
         self.var_df = pd.concat(list_)
         logger.info(self.var_df.shape)
         if variant_class:
-            logger.info("Considering variants in the following categories",
-                        set(self.var_df.func_refgene))
+            logger.info("Considering variants in the following categories" +
+                        ",".join(set(self.var_df.func_refgene)))
         if exon_class:
-            logger.info("Only variants in the following EXONIC categories",
-                        set(self.var_df.exon_func_refgene))
+            logger.info("Only variants in the following EXONIC categories" +
+                        ",".join(set(self.var_df.exon_func_refgene)))
 
     @staticmethod
     def filter_refgene_ensgene(var_df_per_chrom, variant_class,
