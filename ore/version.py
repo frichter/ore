@@ -13,5 +13,5 @@ https://packaging.python.org/tutorials/distributing-packages/#semantic-versionin
 
 """
 
-__version__ = '0.1.28'
+__version__ = '0.1.29'
 __short_version__ = '0.1'
