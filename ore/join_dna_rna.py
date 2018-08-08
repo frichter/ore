@@ -75,6 +75,15 @@ class JoinedVarExpr(object):
             logger.info("Loading outliers...")
             self.load_outliers(expr_outs_loc)
             logger.info("joining outliers with variants...")
+            # confirm there are overlapping IDs
+            dna_ids = self.var_df.blinded_id.unique()
+            pheno_ids = self.expr_outlier_df.blinded_id.unique()
+            print(dna_ids)
+            print(pheno_ids)
+            overlapped_ids = dna_ids.isin(pheno_ids)
+            if overlapped_ids.sum() == 0:
+                raise JoinedDNAandRNAError("No overlapping IDs between" +
+                                           "RNAseq and VCF")
             # logger.debug(self.var_df.head())
             # logger.debug(self.var_df.index[:10])
             # logger.debug(self.var_df.shape)
