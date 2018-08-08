@@ -183,3 +183,63 @@ def anno_file_locations():
                      duke_blacklist, pseudoauto_XY]
     file_loc_list = [segdup, lcr]
     return file_loc_list
+
+
+def filter_refgene_ensgene(var_df_per_chrom, variant_class,
+                           refgene, ensgene):
+    """Filter for a refgene function, ensembl function or both."""
+    variant_class = "^" + variant_class
+    if refgene:
+        vars_refgene = var_df_per_chrom.func_refgene.str.contains(
+            variant_class, regex=True)
+        var_df_per_chrom = var_df_per_chrom[vars_refgene]
+    if ensgene:
+        vars_ensgene = var_df_per_chrom.func_ensgene.str.contains(
+            variant_class, regex=True)
+        var_df_per_chrom = var_df_per_chrom[vars_ensgene]
+    return var_df_per_chrom
+
+
+def filter_refgene_ensgene_exon(var_df_per_chrom, exon_class,
+                                refgene, ensgene):
+    """Filter for a refgene function, ensembl function or both.
+
+    Args:
+        var_df_per_chrom (:obj:`DataFrame`): all variants in a chromosome
+        variant_class (:obj:`str`): annovar variant class to filter
+            on (default None)
+        exon_class (:obj:`str`): annovar EXON class to filter
+            on (default None)
+        refgene (:obj:`boolean`): if used RefSeq to define variant classes
+        ensgene (:obj:`boolean`): using ENSEMBL to define variant classes
+
+    Returns:
+        var_df_per_chrom (:obj:`DataFrame`): only variants in the
+            desired `exon_class`
+
+    Description:
+        First prepends a ^ so that only the highest impact `exon_class`
+        is considered as the de-facto class for filtering.
+
+    """
+    exon_class = "^" + exon_class
+    if refgene:
+        vars_refgene = var_df_per_chrom.exon_func_refgene.str.contains(
+            exon_class, regex=True)
+        var_df_per_chrom = var_df_per_chrom[vars_refgene]
+    if ensgene:
+        vars_ensgene = var_df_per_chrom.exon_func_ensgene.str.contains(
+            exon_class, regex=True)
+        var_df_per_chrom = var_df_per_chrom[vars_ensgene]
+    return var_df_per_chrom
+
+
+def filter_variant_class(df, variant_class, exon_class, refgene, ensgene):
+    """Filter a dataframe for the desired variant classes."""
+    if variant_class:
+        df = filter_refgene_ensgene(
+            df, variant_class, refgene, ensgene)
+        if variant_class.startswith("exonic") and exon_class:
+            df = filter_refgene_ensgene_exon(
+                df, exon_class, refgene, ensgene)
+    return df

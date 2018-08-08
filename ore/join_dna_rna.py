@@ -15,6 +15,8 @@ import sys
 
 import pandas as pd
 
+from .utils import filter_variant_class
+
 
 class Error(Exception):
     """Base class for exceptions in this module."""
@@ -64,6 +66,8 @@ class JoinedVarExpr(object):
         if os.path.exists(dna_rna_df_loc):
             logger.info("Already joined data")
             self.df = pd.read_table(dna_rna_df_loc)
+            self.df = filter_variant_class(self.df, variant_class, exon_class,
+                                           refgene, ensgene)
         else:
             logger.info("Loading variants...")
             self.load_vars(var_loc, contigs, variant_class, exon_class,
@@ -109,15 +113,8 @@ class JoinedVarExpr(object):
             var_df_per_chrom.set_index(['gene', 'blinded_id'], inplace=True)
             var_df_per_chrom = var_df_per_chrom.loc[
                 abs(var_df_per_chrom.tss_dist) <= max_tss_dist]
-            if variant_class:
-                var_df_per_chrom = self.filter_refgene_ensgene(
-                    var_df_per_chrom, variant_class, refgene, ensgene)
-                # cols_to_keep.extend(['func_refgene', 'func_ensgene'])
-                if variant_class.startswith("exonic") and exon_class:
-                    var_df_per_chrom = self.filter_refgene_ensgene_exon(
-                        var_df_per_chrom, exon_class, refgene, ensgene)
-                    # cols_to_keep.extend(['exon_func_refgene',
-                    #                      'exon_func_ensgene'])
+            var_df_per_chrom = filter_variant_class(
+                var_df_per_chrom, variant_class, exon_class, refgene, ensgene)
             var_df_per_chrom = var_df_per_chrom[cols_to_keep]
             list_.append(var_df_per_chrom)
             print(sys.getsizeof(var_df_per_chrom)/(1024**3), "Gb")
@@ -130,55 +127,6 @@ class JoinedVarExpr(object):
         if exon_class:
             logger.info("Only variants in the following EXONIC categories" +
                         ",".join(set(self.var_df.exon_func_refgene)))
-
-    @staticmethod
-    def filter_refgene_ensgene(var_df_per_chrom, variant_class,
-                               refgene, ensgene):
-        """Filter for a refgene function, ensembl function or both."""
-        variant_class = "^" + variant_class
-        if refgene:
-            vars_refgene = var_df_per_chrom.func_refgene.str.contains(
-                variant_class, regex=True)
-            var_df_per_chrom = var_df_per_chrom[vars_refgene]
-        if ensgene:
-            vars_ensgene = var_df_per_chrom.func_ensgene.str.contains(
-                variant_class, regex=True)
-            var_df_per_chrom = var_df_per_chrom[vars_ensgene]
-        return var_df_per_chrom
-
-    @staticmethod
-    def filter_refgene_ensgene_exon(var_df_per_chrom, exon_class,
-                                    refgene, ensgene):
-        """Filter for a refgene function, ensembl function or both.
-
-        Args:
-            var_df_per_chrom (:obj:`DataFrame`): all variants in a chromosome
-            variant_class (:obj:`str`): annovar variant class to filter
-                on (default None)
-            exon_class (:obj:`str`): annovar EXON class to filter
-                on (default None)
-            refgene (:obj:`boolean`): if used RefSeq to define variant classes
-            ensgene (:obj:`boolean`): using ENSEMBL to define variant classes
-
-        Returns:
-            var_df_per_chrom (:obj:`DataFrame`): only variants in the
-                desired `exon_class`
-
-        Description:
-            First prepends a ^ so that only the highest impact `exon_class`
-            is considered as the de-facto class for filtering.
-
-        """
-        exon_class = "^" + exon_class
-        if refgene:
-            vars_refgene = var_df_per_chrom.exon_func_refgene.str.contains(
-                exon_class, regex=True)
-            var_df_per_chrom = var_df_per_chrom[vars_refgene]
-        if ensgene:
-            vars_ensgene = var_df_per_chrom.exon_func_ensgene.str.contains(
-                exon_class, regex=True)
-            var_df_per_chrom = var_df_per_chrom[vars_ensgene]
-        return var_df_per_chrom
 
     def load_outliers(self, expr_outs_loc):
         """Load expression outlier dataframe.
