@@ -76,20 +76,21 @@ class JoinedVarExpr(object):
             self.load_outliers(expr_outs_loc)
             logger.info("joining outliers with variants...")
             # confirm there are overlapping IDs
-            dna_ids = self.var_df.blinded_id.unique()
-            pheno_ids = self.expr_outlier_df.blinded_id.unique()
+            logger.debug(self.var_df.head())
+            # logger.debug(self.var_df.index[:10])
+            logger.debug(self.var_df.shape)
+            logger.debug(self.expr_outlier_df.head())
+            # logger.debug(self.expr_outlier_df.index[:10])
+            logger.debug(self.expr_outlier_df.shape)
+            dna_ids = self.var_df.index.levels[1]
             print(dna_ids)
+            pheno_ids = self.expr_outlier_df.index.levels[1]
             print(pheno_ids)
             overlapped_ids = dna_ids.isin(pheno_ids)
+            print(overlapped_ids.sum())
             if overlapped_ids.sum() == 0:
                 raise JoinedDNAandRNAError("No overlapping IDs between" +
                                            "RNAseq and VCF")
-            logger.debug(self.var_df.head())
-            logger.debug(self.var_df.index[:10])
-            logger.debug(self.var_df.shape)
-            logger.debug(self.expr_outlier_df.head())
-            logger.debug(self.expr_outlier_df.index[:10])
-            logger.debug(self.expr_outlier_df.shape)
             self.df = self.var_df.join(self.expr_outlier_df, how='inner')
             self.df.reset_index(inplace=True)
             self.write_to_file(dna_rna_df_loc)
@@ -124,7 +125,7 @@ class JoinedVarExpr(object):
                 abs(var_df_per_chrom.tss_dist) <= max_tss_dist]
             var_df_per_chrom = filter_variant_class(
                 var_df_per_chrom, variant_class, exon_class, refgene, ensgene)
-            var_df_per_chrom = var_df_per_chrom[cols_to_keep]
+            var_df_per_chrom = var_df_per_chrom.reindex(columns=cols_to_keep)
             list_.append(var_df_per_chrom)
             print(sys.getsizeof(var_df_per_chrom)/(1024**3), "Gb")
         logger.info("All contigs/chromosomes loaded")
