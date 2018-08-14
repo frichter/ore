@@ -26,11 +26,10 @@ version = {}
 with open('../ore/version.py', 'r') as fp:
     exec(fp.read(), version)
 
-print(version)
-# The short X.Y version
-version = version['__short_version__']
 # The full version, including alpha/beta/rc tags
 release = version['__version__']
+# The short X.Y version
+version = version['__short_version__']
 
 
 # -- General configuration ---------------------------------------------------
