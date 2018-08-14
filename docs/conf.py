@@ -16,7 +16,7 @@ import os
 import sys
 import glob
 sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath('../'))
+# sys.path.insert(0, os.path.abspath('../'))
 
 print("testing print")
 print(", ".join([i for i in glob.iglob("*")]))
@@ -31,6 +31,7 @@ version = {}
 with open("../ore/version.py") as fp:
     exec(fp.read(), version)
 
+print(version)
 # The short X.Y version
 version = version['__short_version__']
 # The full version, including alpha/beta/rc tags
