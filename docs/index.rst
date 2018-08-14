@@ -86,13 +86,12 @@ Tracker`_. Alternatively, contact Felix Richter at <felix.richter@icahn.mssm.edu
 
 
 
-..
-    Indices and tables
-    ~~~~~~~~~~~~~~~~~~~
+Indices and tables
+~~~~~~~~~~~~~~~~~~~
 
-    * :ref:`genindex`
-    * :ref:`modindex`
-    * :ref:`search`
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
 
 
 .. _Issue Tracker: https://github.com/frichter/ore/issues
