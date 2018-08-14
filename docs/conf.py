@@ -14,6 +14,7 @@
 
 import os
 import sys
+sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('..'))
 
 
@@ -24,7 +25,7 @@ copyright = '2018, Felix Richter'
 author = 'Felix Richter'
 
 version = {}
-with open("ore/version.py") as fp:
+with open("../../ore/version.py") as fp:
     exec(fp.read(), version)
 
 # The short X.Y version
