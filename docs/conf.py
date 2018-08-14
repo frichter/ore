@@ -14,12 +14,7 @@
 
 import os
 import sys
-import glob
 sys.path.insert(0, os.path.abspath('.'))
-# sys.path.insert(0, os.path.abspath('../'))
-
-print("testing print")
-print(", ".join([i for i in glob.iglob("*")]))
 
 # -- Project information -----------------------------------------------------
 
@@ -28,7 +23,7 @@ copyright = '2018, Felix Richter'
 author = 'Felix Richter'
 
 version = {}
-with open("../ore/version.py") as fp:
+with open('../ore/version.py', 'r') as fp:
     exec(fp.read(), version)
 
 print(version)
@@ -100,11 +95,11 @@ color = {'skyblue': '#1ad1ff',
          'black': '#000000'}
 
 html_theme_options = {
-    # 'logo' : "logos/ore_logo.png", # found in _static/logos
-    'github_user': "frichter",
-    'github_repo': "ore",
+    # 'logo' : 'logos/ore_logo.png', # found in _static/logos
+    'github_user': 'frichter',
+    'github_repo': 'ore',
     'github_banner': False,
-    # 'touch_icon': "logos/ios_home.png" # iOS home button icon
+    # 'touch_icon': 'logos/ios_home.png' # iOS home button icon
     'sidebar_collapse': False,
     'sidebar_includehidden': True,
     # colors
@@ -113,8 +108,8 @@ html_theme_options = {
     'link_hover': color['skyblue'],
     'gray_1': color['black'],
     # typography
-    'font_family': "Helvetica"
-    # 'font_family': "'PT Sans', Helvetica, Arial, 'sans-serif'",
+    'font_family': 'Helvetica'
+    # 'font_family': ''PT Sans', Helvetica, Arial, 'sans-serif'',
     }
 
 # Add any paths that contain custom static files (such as style sheets) here,
