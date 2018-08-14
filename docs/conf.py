@@ -24,7 +24,7 @@ copyright = '2018, Felix Richter'
 author = 'Felix Richter'
 
 version = {}
-with open("../../ore/version.py") as fp:
+with open("ore/version.py") as fp:
     exec(fp.read(), version)
 
 # The short X.Y version
