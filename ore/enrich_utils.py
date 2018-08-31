@@ -20,11 +20,42 @@ def calculate_var_enrichment(enrich_df):
     out_tb = pd.crosstab(enrich_df.rare_variant_status,
                          enrich_df.expr_outlier)
     print(out_tb)
+    out_list = flatten_crosstab(out_tb)
+    # only keep subset of genes that are negative expression outliers
+    # enrich_df_neg = enrich_df[enrich_df.gene_has_NEG_out_w_vars]
     neg_out_tb = pd.crosstab(enrich_df.rare_variant_status,
                              enrich_df.expr_outlier_neg)
-    (fet_or, fet_p), (fet_or_neg, fet_p_neg) = (
-        fisher_exact(out_tb), fisher_exact(neg_out_tb))
-    return [fet_or, fet_p, fet_or_neg, fet_p_neg]
+    print(neg_out_tb)
+    neg_out_list = flatten_crosstab(neg_out_tb)
+    # now positive outliers
+    # enrich_df_pos = enrich_df[enrich_df.gene_has_POS_out_w_vars]
+    pos_out_tb = pd.crosstab(enrich_df.rare_variant_status,
+                             enrich_df.expr_outlier_pos)
+    print(pos_out_tb)
+    pos_out_list = flatten_crosstab(pos_out_tb)
+    print(pos_out_list)
+    # now perform the actual calculations (if possible)
+    try:
+        fet_or, fet_p = fisher_exact(out_tb)
+        ci_lo, ci_hi = calculate_ci(fet_or, out_list)
+    except ValueError:
+        fet_or, fet_p, ci_lo, ci_hi = ("NA", "NA", "NA", "NA")
+    try:
+        fet_or_neg, fet_p_neg = fisher_exact(neg_out_tb)
+        ci_neg_lo, ci_neg_hi = calculate_ci(fet_or_neg, neg_out_list)
+    except ValueError:
+        fet_or_neg, fet_p_neg, ci_neg_lo, ci_neg_hi = ("NA", "NA", "NA", "NA")
+    try:
+        fet_or_pos, fet_p_pos = fisher_exact(pos_out_tb)
+        ci_pos_lo, ci_pos_hi = calculate_ci(fet_or_pos, pos_out_list)
+    except ValueError:
+        fet_or_pos, fet_p_pos, ci_pos_lo, ci_pos_hi = ("NA", "NA", "NA", "NA")
+    out_list.extend(neg_out_list)
+    out_list.extend(pos_out_list)
+    out_list.extend([fet_or, fet_p, ci_lo, ci_hi, fet_or_neg,
+                     fet_p_neg, ci_neg_lo, ci_neg_hi,
+                     fet_or_pos, fet_p_pos, ci_pos_lo, ci_pos_hi])
+    return out_list
 
 
 def calculate_gene_enrichment(enrich_df):
@@ -38,24 +69,28 @@ def calculate_gene_enrichment(enrich_df):
         ['gene', 'blinded_id'])['rare_variant_status'].transform('sum') > 0
     enrich_df = enrich_df.loc[:, [
         'gene', 'blinded_id', 'expr_outlier', 'expr_outlier_neg',
-        'gene_has_NEG_out_w_vars', 'gene_has_rare_var']
+        'gene_has_NEG_out_w_vars', 'expr_outlier_pos',
+        'gene_has_POS_out_w_vars',
+        'gene_has_rare_var']
         ].drop_duplicates(keep='first')
     out_tb = pd.crosstab(enrich_df.gene_has_rare_var,
                          enrich_df.expr_outlier)
     print(out_tb)
     out_list = flatten_crosstab(out_tb)
-    # out_list = out_tb.values.flatten().tolist()
-    # while len(out_list) < 4:
-    #     out_list.append("NA")
-    # only keep subset of genes with low expression outliers
-    enrich_df = enrich_df[enrich_df.gene_has_NEG_out_w_vars]
-    neg_out_tb = pd.crosstab(enrich_df.gene_has_rare_var,
-                             enrich_df.expr_outlier_neg)
+    # only keep subset of genes that are negative expression outliers
+    enrich_df_neg = enrich_df[enrich_df.gene_has_NEG_out_w_vars]
+    neg_out_tb = pd.crosstab(enrich_df_neg.gene_has_rare_var,
+                             enrich_df_neg.expr_outlier_neg)
     print(neg_out_tb)
     neg_out_list = flatten_crosstab(neg_out_tb)
-    # neg_out_list = neg_out_tb.values.flatten().tolist()
-    # while len(neg_out_list) < 4:
-    #     neg_out_list.append("NA")
+    # now positive outliers
+    enrich_df_pos = enrich_df[enrich_df.gene_has_POS_out_w_vars]
+    pos_out_tb = pd.crosstab(enrich_df_pos.gene_has_rare_var,
+                             enrich_df_pos.expr_outlier_pos)
+    print(pos_out_tb)
+    pos_out_list = flatten_crosstab(pos_out_tb)
+    print(pos_out_list)
+    # now perform the actual calculations (if possible)
     try:
         fet_or, fet_p = fisher_exact(out_tb)
         ci_lo, ci_hi = calculate_ci(fet_or, out_list)
@@ -66,9 +101,16 @@ def calculate_gene_enrichment(enrich_df):
         ci_neg_lo, ci_neg_hi = calculate_ci(fet_or_neg, neg_out_list)
     except ValueError:
         fet_or_neg, fet_p_neg, ci_neg_lo, ci_neg_hi = ("NA", "NA", "NA", "NA")
+    try:
+        fet_or_pos, fet_p_pos = fisher_exact(pos_out_tb)
+        ci_pos_lo, ci_pos_hi = calculate_ci(fet_or_pos, pos_out_list)
+    except ValueError:
+        fet_or_pos, fet_p_pos, ci_pos_lo, ci_pos_hi = ("NA", "NA", "NA", "NA")
     out_list.extend(neg_out_list)
+    out_list.extend(pos_out_list)
     out_list.extend([fet_or, fet_p, ci_lo, ci_hi, fet_or_neg,
-                     fet_p_neg, ci_neg_lo, ci_neg_hi])
+                     fet_p_neg, ci_neg_lo, ci_neg_hi,
+                     fet_or_pos, fet_p_pos, ci_pos_lo, ci_pos_hi])
     return out_list
 
 

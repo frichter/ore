@@ -13,10 +13,10 @@
 import itertools
 import copy
 from functools import partial
+import re
 # from multiprocessing import Pool, cpu_count
 
-from .enrich_utils import calculate_gene_enrichment
-# from .enrich_utils import calculate_var_enrichment
+from .enrich_utils import calculate_gene_enrichment, calculate_var_enrichment
 
 
 class Enrich(object):
@@ -74,13 +74,16 @@ class Enrich(object):
         # with Pool(n_processes) as p:
         #     out_line_list = p.map(enrichment_per_tuple_partial,
         #                           cartesian_iter)
-        out_line_list = []
+        var_out_line_list = []
+        gene_out_line_list = []
         for cut_off_tuple in cartesian_iter:
             print(cut_off_tuple)
-            out_list = enrichment_per_tuple_partial(cut_off_tuple)
-            print(out_list)
-            out_line_list.append(out_list)
-        self.write_enrichment_to_file(out_line_list)
+            var_out_line, gene_out_line = enrichment_per_tuple_partial(
+                cut_off_tuple)
+            var_out_line_list.append(var_out_line)
+            gene_out_line_list.append(gene_out_line)
+        self.write_enrichment_to_file(var_out_line_list, "variant")
+        self.write_enrichment_to_file(gene_out_line_list, "gene")
 
     def enrichment_per_tuple(self, cut_off_tuple, af_vcf=False,
                              intracohort_rare_ac=None):
@@ -102,12 +105,17 @@ class Enrich(object):
             enrich_df, max_intrapop_af, max_vcf_af,
             af_vcf, intracohort_rare_ac,
             self.distribution, cut_off_tuple)
-        # var_list = calculate_var_enrichment(enrich_df)
+        # variant-centric enrichment
+        var_list = calculate_var_enrichment(enrich_df)
+        var_out_list = list(cut_off_tuple)
+        var_out_list.extend(var_list)
+        var_out_line = "\t".join([str(i) for i in var_out_list])
+        # gene-centric enrichment
         gene_list = calculate_gene_enrichment(enrich_df)
-        out_list = list(cut_off_tuple)
-        # out_list.extend(var_list)
-        out_list.extend(gene_list)
-        return "\t".join([str(i) for i in out_list])
+        gene_out_list = list(cut_off_tuple)
+        gene_out_list.extend(gene_list)
+        gene_out_line = "\t".join([str(i) for i in gene_out_list])
+        return var_out_line, gene_out_line
 
     @staticmethod
     def identify_rows_to_keep(joined_df, max_intrapop_af, max_vcf_af,
@@ -130,6 +138,8 @@ class Enrich(object):
                 joined_df.z_abs >= expr_cut_off) & joined_df.expr_outlier
             joined_df.expr_outlier_neg = (joined_df.expr_outlier &
                                           joined_df.expr_outlier_neg)
+            joined_df.expr_outlier_pos = (
+                (~joined_df.expr_outlier_neg) & joined_df.expr_outlier)
         elif distribution == "rank":
             hi_expr_cut_off = 1 - expr_cut_off
             joined_df.loc[:, "expr_outlier_neg"] = (
@@ -138,14 +148,26 @@ class Enrich(object):
             joined_df.loc[:, "expr_outlier"] = (
                 (joined_df.expr_rank >= hi_expr_cut_off) |
                 joined_df.expr_outlier_neg) & joined_df.expr_outlier
+            joined_df.expr_outlier_pos = (
+                (~joined_df.expr_outlier_neg) & joined_df.expr_outlier)
         # expression outliers should be preset as 0 and 1 for custom
         # i.e., there should be no parameter iteration in this dimension
         # else: raise error
+        # https://stackoverflow.com/a/33750531
         # only keep if there is any outlier in the gene
-        joined_df.loc[:, 'gene_has_out_w_vars'] = joined_df.groupby(
-            'gene')['expr_outlier'].transform('sum') > 0
-        joined_df.loc[:, 'gene_has_NEG_out_w_vars'] = joined_df.groupby(
-            'gene')['expr_outlier_neg'].transform('sum') > 0
+        # joined_df.loc[:, 'gene_has_out_w_vars'] = joined_df.groupby(
+        #     'gene')['expr_outlier'].transform('sum') > 0
+        # joined_df.loc[:, 'gene_has_NEG_out_w_vars'] = joined_df.groupby(
+        #     'gene')['expr_outlier_neg'].transform('sum') > 0
+        joined_df = joined_df.assign(
+            gene_has_out_w_vars=joined_df.groupby(
+                'gene')['expr_outlier'].transform('sum') > 0)
+        joined_df = joined_df.assign(
+            gene_has_NEG_out_w_vars=joined_df.groupby(
+                'gene')['expr_outlier_neg'].transform('sum') > 0)
+        joined_df = joined_df.assign(
+            gene_has_POS_out_w_vars=joined_df.groupby(
+                'gene')['expr_outlier_pos'].transform('sum') > 0)
         joined_df = joined_df.loc[joined_df.gene_has_out_w_vars]
         # classify as rare/common
         rare_variant_status = joined_df.popmax_af <= af_cut_off
@@ -158,21 +180,26 @@ class Enrich(object):
         else:
             rare_variant_status = rare_variant_status & (
                 joined_df.intra_cohort_af <= max_intrapop_af)
-        joined_df.loc[:, "rare_variant_status"] = rare_variant_status
+        joined_df = joined_df.assign(rare_variant_status=rare_variant_status)
+        # joined_df.loc[:, "rare_variant_status"] = rare_variant_status
         return joined_df
 
-    def write_enrichment_to_file(self, out_line_list):
+    def write_enrichment_to_file(self, out_line_list, category):
         """Write the enrichment results to a file."""
-        with open(self.enrich_loc, 'w') as enrich_f:
+        enrich_loc = re.sub(".txt$", "_" + category + ".txt", self.enrich_loc)
+        with open(enrich_loc, 'w') as enrich_f:
             header_list = ["expr_cut_off", "tss_cut_off", "af_cut_off",
-                           # "var_or", "var_p", "var_neg_or", "var_neg_p",
                            "not_rare_not_out", "not_rare_out",
                            "rare_not_out", "rare_out",
                            "not_rare_not_out_neg", "not_rare_out_neg",
                            "rare_not_out_neg", "rare_out_neg",
-                           "gene_or", "gene_p", "gene_ci_lo", "gene_ci_hi",
-                           "gene_neg_or", "gene_neg_p", "gene_neg_ci_lo",
-                           "gene_neg_ci_hi"]
+                           "not_rare_not_out_pos", "not_rare_out_pos",
+                           "rare_not_out_pos", "rare_out_pos",
+                           "or", "p", "ci_lo", "ci_hi",
+                           "neg_or", "neg_p", "neg_ci_lo",
+                           "neg_ci_hi",
+                           "pos_or", "pos_p", "pos_ci_lo",
+                           "pos_ci_hi"]
             enrich_f.write("\t".join(header_list) + "\n")
             for out_line in out_line_list:
                 if not out_line.startswith("NA_line"):
