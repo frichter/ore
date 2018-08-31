@@ -60,7 +60,7 @@ def associate_outliers(args):
         output_prefix = re.sub("(.*/|.vcf.gz)", "", args.vcf)
     logger = initialize_logger(log_file=output_prefix + "_ore.log",
                                logAppName="ore_status")
-    checkCPUcount(args.processes)
+    n_processes = checkCPUcount(args.processes)
     check_variant_inputs(args)
     check_ANNOVAR_inputs(args)
     variants_obj = Variants(args.vcf, args.bed,
@@ -68,7 +68,7 @@ def associate_outliers(args):
                             use_annovar=args.annovar,
                             annovar_dir=args.annovar_dir,
                             humandb_dir=args.humandb_dir,
-                            n_processes=args.processes,
+                            n_processes=n_processes,
                             clean_run=args.clean_run,
                             logger=logger)
     chroms_completed = variants_obj.extract_variants_from_vcf(
@@ -106,7 +106,7 @@ def associate_outliers(args):
                            extrema=args.extrema,
                            distribution=args.distribution,
                            threshold=args.threshold,
-                           n_processes=args.processes,
+                           n_processes=n_processes,
                            logger=logger)
     logger.info("Outliers initialized...")
     outlier_obj.prepare_outliers(outlier_max=args.max_outliers_per_id,
@@ -144,7 +144,7 @@ def associate_outliers(args):
         af_vcf=args.af_vcf,
         intracohort_rare_ac=args.intracohort_rare_ac)
     logger.info("Printed final set of outliers with rare variants")
-    enrich_obj.loop_enrichment(n_processes=args.processes,
+    enrich_obj.loop_enrichment(n_processes=n_processes,
                                expr_cut_off_vec=args.threshold,
                                tss_cut_off_vec=args.tss_dist,
                                af_cut_off_vec=args.af_rare,

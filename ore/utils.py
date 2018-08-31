@@ -56,7 +56,9 @@ def checkCPUcount(n_processes):
     if n_processes > mp.cpu_count():
         print("Current machine only has {} cores, but input was {}".format(
               mp.cpu_count(), n_processes))
-        raise ValueError
+        # raise ValueError
+        n_processes = mp.cpu_count() - 1
+    return n_processes
 
 
 def check_variant_inputs(args):
