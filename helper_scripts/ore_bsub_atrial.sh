@@ -1,6 +1,6 @@
 #BSUB -W 6:00
 #BSUB -q expressalloc
-#BUSB -n 12
+#BUSB -n 25
 #BSUB -R "rusage[mem=10000]"
 #BSUB -P acc_chdiTrios
 #BSUB -J atrial_outs
@@ -18,7 +18,7 @@ module load python/3.5.0
 module load py_packages/3.5
 
 
-PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08"
+PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08_bsub"
 VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_atrial_ids.norm.vcf.gz"
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_5_SVs_hg19.bed.gz"
 OUT_PREFIX="$PARENT_DIR/atrial_ore"
@@ -38,7 +38,7 @@ ANNO_LIST="$TF_DIR/factorbookMotif/YY1.sorted.bed $TF_DIR/factorbookMotif/CTCF.s
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 
 # confirm on correct branch:
-git status | head -n1
+# git status | head -n1
 python -m ore.ore --version
 
 # upstream and downstream (together) all annovar or subset
@@ -58,13 +58,13 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --tss_dist 1e4 \
     --annovar \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 8
+    --processes 20
 
 
 # --variant_class "UTR5" \
 # --ensgene \
 # --refgene \
 
-mv atrial_ore_all_data.txt atrial_ore_all_data_extrema_deepheart_first100anno_10kb.txt
-mv atrial_ore_rv_w_outliers.txt atrial_ore_rv_w_outliers_extrema_deepheart_first100anno_10kb.txt 
+# mv atrial_ore_all_data.txt atrial_ore_all_data_extrema_deepheart_first100anno_10kb.txt
+# mv atrial_ore_rv_w_outliers.txt atrial_ore_rv_w_outliers_extrema_deepheart_first100anno_10kb.txt 
 
