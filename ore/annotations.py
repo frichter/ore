@@ -139,7 +139,7 @@ class Annotations(object):
         subprocess.call(annovar_cmd, shell=True)
         return current_chrom
 
-    def overlap_w_annotations(self, current_chrom):
+    def overlap_w_annotations(self, current_chrom, annotations):
         """Overlap variants with annotations.
 
         Args:
@@ -159,7 +159,8 @@ class Annotations(object):
         if os.path.exists(anno_out_loc):
             # print("Overlap w annotations already done for", current_chrom)
             return "Not_rerun_" + current_chrom
-        file_loc_list = anno_file_locations()
+        file_loc_list = anno_file_locations(annotations)
+        print(file_loc_list)
         self.confirm_annotation_locations(file_loc_list, current_chrom)
         count = 0
         pybedtools.set_tempdir('pybedtools_temp_dir/')
@@ -172,9 +173,9 @@ class Annotations(object):
                 overlap_list.append(bed_name)
                 bed = BedTool(bed_name)
                 if not current_chrom.startswith("chr"):
-                    # bed file needs chr removed
+                    # bed file needs chr removed IF current_chrom is not chr
                     bed = bed.each(self.remove_chr_prefix)
-                    # need to save generator-based bed first
+                    # need to save generator-based bed first in temp directory
                     # https://github.com/daler/pybedtools/issues/172
                     bed = bed.saveas()
                 try:
@@ -385,6 +386,9 @@ class Annotations(object):
         # clean column names
         rep_w_blank = ".*/|.merged.sorted|.sorted|.bed$|.bed.gz$|.txt$"
         anno_list = [re.sub(rep_w_blank, "", i) for i in anno_list]
+        # anno_list = [re.sub("all_predictions", "cvdc_enhancers_dickel", i)
+        #              for i in anno_list]
+        print(anno_list)
         anno_col_names = ["Chrom", "Start0", "End0", "Ref", "Alt", "VCF_af",
                           "gene_TSS", "gene", "gene_strand", "tss_dist",
                           "var_id"]
@@ -392,8 +396,6 @@ class Annotations(object):
         dtype_specs = {'Chrom': 'str'}
         anno_df = pd.read_table(anno_out_loc, header=None,
                                 names=anno_col_names, dtype=dtype_specs)
-        # filter for only enhancers (for now)
-        # anno_df = anno_df[anno_df.cvdc_enhancers_dickel > 0]
         return anno_df
 
     def remove_vars_in_unwanted_cols(self, joined_anno_df):
@@ -413,6 +415,10 @@ class Annotations(object):
 
         """
         unwanted_cols = ['hg19_segdup', 'hg19_lcr_hs37d5']
+        # unwanted_cols = ['hg19_genomicSuperDups_99', 'LCR-hs37d5',
+        #                  'encode_dac_blacklist_hg19',
+        #                  'encode_duke_blacklist_hg19',
+        #                  'hg19_300bp_mapping1']
         try:
             unwanted_vars_df = joined_anno_df.loc[:, unwanted_cols] == 0
         except KeyError:

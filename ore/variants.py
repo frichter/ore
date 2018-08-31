@@ -152,7 +152,7 @@ class Variants(object):
             partial_assign_genes)
         return chroms_completed
 
-    def overlap_w_annotations_wrapper(self):
+    def overlap_w_annotations_wrapper(self, annotations):
         """Overlap variants with noncoding annotations.
 
         Returns:
@@ -160,10 +160,12 @@ class Variants(object):
                 long format (or failed)
 
         """
+        partial_overlap_w_annotations = partial(
+            self.anno_obj.overlap_w_annotations, annotations=annotations)
         chroms_completed = multiprocess_by_chrom_cmd(
             self.n_processes,
             self.combined_contigs,
-            self.anno_obj.overlap_w_annotations)
+            partial_overlap_w_annotations)
         return chroms_completed
 
     def finalize_variants(self):

@@ -68,8 +68,8 @@ class Outliers(object):
             value_vars=gene_expr_df.columns[1:].tolist(),
             var_name='blinded_id',
             value_name='z_expr')
-        # logger.debug(self.expr_long_df.head())
-        # logger.debug(self.expr_long_df.shape)
+        logger.debug(self.expr_long_df.head())
+        logger.debug(self.expr_long_df.shape)
         # set the output file location
         self.expr_outs_loc = (output_prefix + "_outliers.txt")
         if outlier_postfix:
@@ -121,6 +121,8 @@ class Outliers(object):
         # logger.debug(self.expr_long_df.shape)
         # actually calculate the outliers
         expr_outlier_df = self.get_outliers(vcf_id_list)
+        print(expr_outlier_df.head())
+        print(expr_outlier_df.shape)
         outs_per_id_file = re.sub('.txt', '_outliers_per_id_ALL',
                                   self.expr_outs_loc)
         plot_outs_per_id(expr_outlier_df, outs_per_id_file)
@@ -128,16 +130,22 @@ class Outliers(object):
                                   self.expr_outs_loc)
         # determine which IDs have too many outliers (and remove these)
         if outlier_max:
-            ids_to_keep = self.get_ids_w_low_out_ct(
-                expr_outlier_df, outlier_max)
-            lines_w_consistent_ids = self.expr_long_df.blinded_id.isin(
-                ids_to_keep)
-            if lines_w_consistent_ids.shape[0] == 0:
-                raise RNASeqError("No IDs with less than {} outliers".format(
-                    outlier_max))
-            self.expr_long_df = self.expr_long_df[lines_w_consistent_ids]
-            expr_outlier_df = self.get_outliers(ids_to_keep)
-            plot_outs_per_id(expr_outlier_df, outs_per_id_file)
+            outs_per_id = expr_outlier_df[[
+                'blinded_id', 'expr_outlier']].groupby('blinded_id').sum()
+            while any(outs_per_id.expr_outlier >= outlier_max):
+                ids_to_keep = self.get_ids_w_low_out_ct(
+                    expr_outlier_df, outlier_max)
+                lines_w_consistent_ids = self.expr_long_df.blinded_id.isin(
+                    ids_to_keep)
+                if lines_w_consistent_ids.shape[0] == 0:
+                    raise RNASeqError("No IDs with <{} outliers".format(
+                        outlier_max))
+                self.expr_long_df = self.expr_long_df[lines_w_consistent_ids]
+                expr_outlier_df = self.get_outliers(ids_to_keep)
+                plot_outs_per_id(expr_outlier_df, outs_per_id_file)
+                outs_per_id = expr_outlier_df[[
+                    'blinded_id', 'expr_outlier']].groupby('blinded_id').sum()
+                # print(any(outs_per_id.expr_outlier >= outlier_max))
         # write `expr_outlier_df` to file
         print("Saving outlier status dataframe to", self.expr_outs_loc)
         expr_outlier_df.to_csv(self.expr_outs_loc, sep="\t", index=False)
@@ -164,7 +172,7 @@ class Outliers(object):
 
         """
         if self.distribution == "normal":
-            self.identify_outliers_from_normal()
+            self.identify_outliers_from_normal(ids_to_keep)
         elif self.distribution == "rank":
             self.expr_long_df = self.identify_outliers_from_ranks()
         elif self.distribution == "custom":
@@ -183,10 +191,12 @@ class Outliers(object):
             expr_outlier_df = self.find_most_extreme_expr_outlier()
         else:
             expr_outlier_df = self.expr_long_df
-        expr_outlier_df.reset_index(inplace=True)
+        # print(expr_outlier_df.head())
+        # print(expr_outlier_df.shape)
+        # expr_outlier_df.reset_index(inplace=True)
         return expr_outlier_df
 
-    def identify_outliers_from_normal(self):
+    def identify_outliers_from_normal(self, ids_to_keep):
         """Identify outliers more extreme than a z-score threshold.
 
         TODO:
@@ -206,6 +216,22 @@ class Outliers(object):
         self.expr_long_df = self.expr_long_df.assign(
             expr_outlier_pos=(self.expr_long_df.z_expr > 0) &
             self.expr_long_df.expr_outlier)
+        """Remove genes where more than 10% of genes are outliers
+        print(self.expr_long_df.head())
+        print(self.expr_long_df.shape)
+        outs_per_gene_ct = self.expr_long_df.groupby(
+            'gene')['expr_outlier'].transform('sum')
+        outs_per_gene_reasonable = (0.1*len(ids_to_keep)) < outs_per_gene_ct
+        print(sum(outs_per_gene_reasonable))
+        genes_to_rm = self.expr_long_df.loc[
+          ~outs_per_gene_reasonable, :]['gene'].unique()
+        print("More than 1/10 samples have outliers more more extreme " +
+              "than Z={} for these genes: {}".format(
+                  str(self.least_extr_threshold), genes_to_rm))
+        print(self.expr_long_df.head())
+        print(self.expr_long_df.shape)
+        self.expr_long_df = self.expr_long_df.loc[outs_per_gene_reasonable, :]
+        # """
 
     def identify_outliers_from_ranks(self):
         """Identify outliers based on those more extreme than percentile.
@@ -226,6 +252,11 @@ class Outliers(object):
                               "not between 0.5 and the minimum cut-off " +
                               "for this sample size, {}".format(
                                 self.least_extr_threshold, min_expr_cut_off))
+            # print(("The percentile cut-off specified ({}) is " +
+            #        "not between 0.5 and the minimum cut-off " +
+            #        "for this sample size, {}").format(
+            #        self.least_extr_threshold, min_expr_cut_off))
+            # self.least_extr_threshold = min_expr_cut_off
         hi_expr_cut_off = 1 - self.least_extr_threshold
         expr_long_df["expr_outlier_neg"] = (
             expr_long_df.expr_rank <= self.least_extr_threshold)

@@ -91,7 +91,8 @@ def associate_outliers(args):
     logger.info("Closest gene found for the following chromosomes..\n" +
                 ", ".join(chroms_completed) + "\n")
     # other annotations
-    chroms_completed = variants_obj.overlap_w_annotations_wrapper()
+    chroms_completed = variants_obj.overlap_w_annotations_wrapper(
+        args.annotations)
     logger.info("Overlaps with other bed files done for...\n" +
                 ", ".join(chroms_completed) + "\n")
     # finalize variants (join variants with gene expression locations)
@@ -122,6 +123,7 @@ def associate_outliers(args):
                                refgene=args.refgene,
                                ensgene=args.ensgene,
                                max_tss_dist=max_tss_dist,
+                               annotations=args.annotations,
                                contigs=variants_obj.combined_contigs,
                                logger=logger)
     # output final set of outliers and calculate enrichment
@@ -133,7 +135,8 @@ def associate_outliers(args):
     enrich_obj = Enrich(joined_obj.df,
                         enrich_file,
                         rv_outlier_loc,
-                        args.distribution)
+                        args.distribution,
+                        args.annotations)
     enrich_obj.write_rvs_w_outs_to_file(
         out_cut_off=outlier_obj.least_extr_threshold,
         tss_cut_off=max_tss_dist,
@@ -226,6 +229,13 @@ def main():
                          help="Only variants UPstream of TSS")
     opt_var.add_argument("--downstream", default=False, action="store_true",
                          help="Only variants DOWNstream of TSS")
+    opt_var.add_argument("--annotations", default=None,
+                         required=False,
+                         nargs='*',
+                         # type=argparse.FileType('r'),
+                         type=str,
+                         help="Space separated list of BED files" +
+                         "(bgzip+tabix files and regex patterns okay)")
     # opt_var.add_argument("--rm_low_mapping", default=False,
     #                      action="store_true", help="Remove variants in " +
     #                      "segmental duplications, low " +

@@ -28,7 +28,8 @@ class Enrich(object):
 
     """
 
-    def __init__(self, joined_df, enrich_loc, rv_outlier_loc, distribution):
+    def __init__(self, joined_df, enrich_loc, rv_outlier_loc, distribution,
+                 annotations):
         """Load and join variants and outliers.
 
         Args:
@@ -46,6 +47,7 @@ class Enrich(object):
         self.enrich_loc = enrich_loc
         self.distribution = distribution
         self.rv_outlier_loc = rv_outlier_loc
+        self.annotations = annotations
 
     def loop_enrichment(self, n_processes, expr_cut_off_vec,
                         tss_cut_off_vec, af_cut_off_vec,
@@ -56,15 +58,30 @@ class Enrich(object):
             n_processes (:obj:`int`): number of processes to use
 
         """
+        if self.annotations:
+            print("Anno column final index:", self.joined_df.shape[1])
+            anno_list = [i for i in range(21, self.joined_df.shape[1])]
+            self.joined_df["all_vars"] = 1
+            anno_list.append(-1)
+            print(self.joined_df.head())
+            print(anno_list)
+            print(list(self.joined_df)[anno_list[0]])
+            print(list(self.joined_df)[anno_list[-1]])
         if isinstance(expr_cut_off_vec, float):
             expr_cut_off_vec = [expr_cut_off_vec]
         if isinstance(tss_cut_off_vec, float):
             tss_cut_off_vec = [tss_cut_off_vec]
         if isinstance(af_cut_off_vec, float):
             af_cut_off_vec = [af_cut_off_vec]
-        cartesian_iter = itertools.product(expr_cut_off_vec,
-                                           tss_cut_off_vec,
-                                           af_cut_off_vec)
+        if self.annotations:
+            cartesian_iter = itertools.product(expr_cut_off_vec,
+                                               tss_cut_off_vec,
+                                               af_cut_off_vec,
+                                               anno_list)
+        else:
+            cartesian_iter = itertools.product(expr_cut_off_vec,
+                                               tss_cut_off_vec,
+                                               af_cut_off_vec)
         # https://stackoverflow.com/questions/533905/get-the-cartesian-product-of-a-series-of-lists
         enrichment_per_tuple_partial = partial(
             self.enrichment_per_tuple,
@@ -95,6 +112,18 @@ class Enrich(object):
         """
         print("Calculating enrichment for", cut_off_tuple)
         enrich_df = copy.deepcopy(self.joined_df)
+        # Filtering for annotaiton here:
+        if self.annotations:
+            # only use if filtering by annotation:
+            current_anno = list(enrich_df)[cut_off_tuple[3]]
+            print("current column:", current_anno)
+            in_anno = enrich_df.loc[:, current_anno] == 1
+            # keep only rows/variants in a specific annotation
+            enrich_df = enrich_df.loc[in_anno]
+            # remove annotation column index number from tuple
+            cut_off_tuple = tuple(list(cut_off_tuple)[:-1])
+            if enrich_df.shape[0] == 0:
+                return "NA_line: no overlaps with " + current_anno
         # replace af_cut_off with intra-cohort minimum if former is
         # smaller than latter
         print(cut_off_tuple)
@@ -109,11 +138,15 @@ class Enrich(object):
         var_list = calculate_var_enrichment(enrich_df)
         var_out_list = list(cut_off_tuple)
         var_out_list.extend(var_list)
-        var_out_line = "\t".join([str(i) for i in var_out_list])
         # gene-centric enrichment
         gene_list = calculate_gene_enrichment(enrich_df)
         gene_out_list = list(cut_off_tuple)
         gene_out_list.extend(gene_list)
+        if self.annotations:
+            var_out_list.insert(0, current_anno)
+            gene_out_list.insert(0, current_anno)
+        # convert list to a string
+        var_out_line = "\t".join([str(i) for i in var_out_list])
         gene_out_line = "\t".join([str(i) for i in gene_out_list])
         return var_out_line, gene_out_line
 
@@ -200,6 +233,8 @@ class Enrich(object):
                            "neg_ci_hi",
                            "pos_or", "pos_p", "pos_ci_lo",
                            "pos_ci_hi"]
+            if self.annotations:
+                header_list.insert(0, "annotation")
             enrich_f.write("\t".join(header_list) + "\n")
             for out_line in out_line_list:
                 if not out_line.startswith("NA_line"):
@@ -243,6 +278,9 @@ class Enrich(object):
 
         Args:
             `out_cut_off`
+
+        TODO:
+            Remove index column in output (figure out where this is being made)
 
         """
         cut_off_tuple = (out_cut_off, tss_cut_off, af_cut_off)
