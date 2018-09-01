@@ -76,9 +76,16 @@ class JoinedVarExpr(object):
         else:
             logger.info("Loading variants...")
             if annotations:
+                anno_list = annotations
+                anno_list = [re.sub("Conserved_TF_sites/", "Conserved_TF_", i)
+                             for i in anno_list]
+                anno_list = [re.sub("TfbsClustered_split/", "TfbsClust_", i)
+                             for i in anno_list]
+                anno_list = [re.sub("factorbookMotif/", "factorbookMotif_", i)
+                             for i in anno_list]
                 rep_w_blank = ".*/|.merged.sorted|.sorted|.bed$|.bed.gz$|.txt$"
                 self.anno_list = [re.sub(rep_w_blank, "", i)
-                                  for i in annotations]
+                                  for i in anno_list]
             else:
                 self.anno_list = None
             self.load_vars(var_loc, contigs, variant_class, exon_class,

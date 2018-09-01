@@ -1,7 +1,7 @@
 #BSUB -W 6:00
-#BSUB -q expressalloc
-#BUSB -n 25
-#BSUB -R "rusage[mem=10000]"
+#BSUB -q alloc
+#BUSB -n 12
+#BSUB -R "rusage[mem=5000]"
 #BSUB -P acc_chdiTrios
 #BSUB -J atrial_outs
 #BSUB -m mothra
@@ -58,7 +58,7 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --tss_dist 1e4 \
     --annovar \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 20
+    --processes 12
 
 
 # --variant_class "UTR5" \

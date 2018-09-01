@@ -23,7 +23,7 @@ from .outliers import Outliers
 from .join_dna_rna import JoinedVarExpr
 from .version import __version__
 
-# """# Profiling libraries:
+"""# Profiling libraries:
 import cProfile
 import pstats
 from memory_profiler import profile
@@ -33,8 +33,11 @@ from memory_profiler import profile
 # time mprof run --include-children --multiprocess
 # """
 
+# import matplotlib
+# matplotlib.use('Agg')
 
-@profile
+
+# @profile
 def associate_outliers(args):
     """Prepare and associate variants and outliers.
 
@@ -106,6 +109,7 @@ def associate_outliers(args):
                            extrema=args.extrema,
                            distribution=args.distribution,
                            threshold=args.threshold,
+                           cov=args.cov,
                            n_processes=n_processes,
                            logger=logger)
     logger.info("Outliers initialized...")
@@ -162,19 +166,26 @@ def main():
 
     """
     parser = argparse.ArgumentParser(
-        description="ORE (Outlier-RV enrichment): Associate " +
-        "outliers with rare variants.",
-        epilog="Felix Richter <felix.richter@icahn.mssm.edu>")
+        description="\x1b[1;32;40mORE\x1b[0m" +
+        ": \x1b[1;32;40mO\x1b[0mutlier-\x1b[1;32;40mR\x1b[0mV " +
+        "\x1b[1;32;40mE\x1b[0mnrichment",
+        epilog="Felix Richter <felix.richter@icahn.mssm.edu>\n" +
+        "Documentation: https://ore.readthedocs.io/\n" +
+        "Version: " + __version__,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     optional = parser._action_groups.pop()
     parser.add_argument("--version", action="version",
                         version="%(prog)s {}".format(__version__))
     # Arguments for file locations
-    required = parser.add_argument_group('Required arguments')
+    required = parser.add_argument_group('\x1b[1;32;40mRequired files\x1b[0m')
     required.add_argument("-v", "--vcf", help="Location of VCF file. Must " +
                           "be tabixed!", required=True)
     required.add_argument("-b", "--bed", help="Gene expression file " +
                           "location. Must be tabixed!", required=True)
-    optional_files = parser.add_argument_group('Optional file locations')
+    optional_files = parser.add_argument_group(
+        '\x1b[1;32;40mOptional file locations\x1b[0m')
+    optional_files.add_argument("--cov", help="Outlier filename " +
+                                "(default is VCF prefix)")
     optional_files.add_argument("-o", "--output", help="Output prefix " +
                                 "(default is VCF prefix)")
     optional_files.add_argument("--outlier_output", help="Outlier filename " +
@@ -183,7 +194,8 @@ def main():
                                 "enrichment odds ratios and p-values " +
                                 "(default is VCF prefix)")
     # Arguments for expression outliers
-    opt_out_args = parser.add_argument_group('Optional outlier arguments')
+    opt_out_args = parser.add_argument_group(
+        '\x1b[1;32;40mOptional outlier arguments\x1b[0m')
     opt_out_args.add_argument("--extrema", default=False,  # "-e",
                               action="store_true",
                               help="Only the most extreme value is an outlier")
@@ -200,7 +212,8 @@ def main():
     opt_out_args.add_argument("--max_outliers_per_id", help="Maximum number " +
                               "of outliers per ID", type=int, default=None)
     # Arguments for variants
-    opt_var = parser.add_argument_group('Optional variant-related arguments')
+    opt_var = parser.add_argument_group(
+        '\x1b[1;32;40mOptional variant-related arguments\x1b[0m')
     opt_var.add_argument("--af_rare", help="AF cut-off below which a " +
                          "variant is considered rare (space" +
                          "separated list e.g., 0.1 0.05)",
@@ -242,7 +255,7 @@ def main():
     #                      "mappability regions, and Mucin/HLA genes.")
     # Variant-related arguments for ANNOVAR
     opt_annovar = parser.add_argument_group(
-        'Optional arguments for using ANNOVAR')
+        '\x1b[1;32;40mOptional ANNOVAR arguments\x1b[0m')
     opt_annovar.add_argument("--annovar", default=False, action="store_true",
                              help="Use ANNOVAR to specify allele " +
                              "frequencies and functional class")
@@ -289,22 +302,25 @@ def main():
     #                      choices=["ALL", "NFE", "FIN", "AFR",
     #                               "AMR", "ASJ", "EAS", "OTH"])
     # other/utilities
-    # oth_args = parser.add_argument_group('Other optional arguments')
+    # oth_args = parser.add_argument_group(
+    #     '\x1b[1;32;40mOther optional arguments\x1b[0m')
     optional.add_argument("--processes", help="Number of CPU processes",
                           type=int, default=1)
     optional.add_argument("--clean_run", help="Delete temporary " +
                           "files from the previous run",
                           default=False, action="store_true")
+    parser._optionals.title = (
+        '\x1b[1;32;40mOther optional arguments\x1b[0m')
     parser._action_groups.append(optional)
     args = parser.parse_args()
-    cprof_cmd = ('associate_outliers(args)')
-    OUT_FILE = (args.output + 'stats.out')
-    print(OUT_FILE)
-    cProfile.runctx(cprof_cmd, globals(), locals(), filename=OUT_FILE)
-    # cProfile.run(cprof_cmd, filename=OUT_FILE)
-    time_profile = pstats.Stats(OUT_FILE)
-    time_profile.strip_dirs().sort_stats('cumulative').print_stats(10)
-    # associate_outliers(args)
+    # cprof_cmd = ('associate_outliers(args)')
+    # OUT_FILE = (args.output + 'stats.out')
+    # print(OUT_FILE)
+    # cProfile.runctx(cprof_cmd, globals(), locals(), filename=OUT_FILE)
+    # # cProfile.run(cprof_cmd, filename=OUT_FILE)
+    # time_profile = pstats.Stats(OUT_FILE)
+    # time_profile.strip_dirs().sort_stats('cumulative').print_stats(10)
+    associate_outliers(args)
 
 
 if __name__ == "__main__":

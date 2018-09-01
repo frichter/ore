@@ -11,8 +11,10 @@
 
 import os
 import re
+from functools import partial
 
 import pandas as pd
+import statsmodels.api as sm
 
 from .genes import RNASeqError
 from .plotting import plot_outs_per_id
@@ -23,7 +25,7 @@ class Outliers(object):
     """Methods and attributes of outliers."""
 
     def __init__(self, pheno_loc, output_prefix, outlier_postfix,
-                 extrema, distribution, threshold, n_processes, logger):
+                 extrema, distribution, threshold, cov, n_processes, logger):
         """Initialize outlier dataframe.
 
         Args:
@@ -60,7 +62,8 @@ class Outliers(object):
         gene_expr_df.rename(columns={gene_expr_df.columns[0]: "gene"},
                             inplace=True)
         # logger.debug(gene_expr_df.shape)
-        # gene_expr_df = recalculate_Zscore(gene_expr_df)
+        if cov:
+            gene_expr_df = self.recalculate_Zscore(gene_expr_df)
         # Convert gene expression data frame from wide to long:
         self.expr_long_df = pd.melt(
             gene_expr_df,
@@ -68,6 +71,12 @@ class Outliers(object):
             value_vars=gene_expr_df.columns[1:].tolist(),
             var_name='blinded_id',
             value_name='z_expr')
+        if cov:
+            print("before regression:")
+            print(self.expr_long_df.head())
+            self.expr_long_df = self.regress_out_covarates(cov)
+            print("AFTER regression:")
+            print(self.expr_long_df.head())
         logger.debug(self.expr_long_df.head())
         logger.debug(self.expr_long_df.shape)
         # set the output file location
@@ -290,7 +299,52 @@ class Outliers(object):
         expr_df_std = expr_df.std(axis=1)
         expr_df = expr_df.sub(expr_df_mean, axis=0)
         expr_df = expr_df.div(expr_df_std, axis=0)
+        expr_df.reset_index(inplace=True)
         return expr_df
+
+    def regress_out_covarates(self, cov_loc):
+        """Regress out covariates from the re-scaled expression matrix.
+
+        Should we perform separate regressions for every gene or a single
+            regression for all genes? Separate regressions because the
+            parameters and variances will likely have wildly different
+            estimates for different genes
+
+        Source: https://stackoverflow.com/a/32102764
+
+        """
+        cov_df = pd.read_table(cov_loc, header=None)
+        id_var = cov_df.iloc[0][0]
+        cov_long = cov_df.set_index([0]).transpose().set_index(id_var)
+        cov_long = cov_long.apply(pd.to_numeric, errors='ignore')
+        calculate_residuals_per_gene_partial = partial(
+            self.calculate_residuals_per_gene, cov_long=cov_long)
+        expr_long_df_residuals = applyParallel(self.expr_long_df.groupby(
+            'gene'), calculate_residuals_per_gene_partial,
+            self.n_processes)
+        return expr_long_df_residuals
+
+    @staticmethod
+    def calculate_residuals_per_gene(per_gene_df, cov_long):
+        """Calculate the residuals per gene."""
+        # make sure they have the same index before joining
+        per_gene_df.set_index('blinded_id', inplace=True)
+        current_gene = per_gene_df['gene'][0]
+        del per_gene_df['gene']
+        cov_long.index.name = per_gene_df.index.name
+        per_gene_df.columns = ['gene_expr']
+        # join covariates with expression
+        per_gene_df = cov_long.join(per_gene_df, how='inner')
+        # calculate residuals after regressing out covariates
+        # sources: https://stackoverflow.com/a/32103366
+        x_df = sm.add_constant(per_gene_df.iloc[:, :-1])
+        model = sm.OLS(per_gene_df.gene_expr, x_df).fit()
+        # return residuals added to the mean
+        res_df = pd.DataFrame({'z_expr': model.resid + model.params.const})
+        res_df.reset_index(inplace=True)
+        res_df['gene'] = current_gene
+        # return model.resid + model.params.const
+        return res_df
 
     def test_normality(self):
         """Check if each gene has normal distribution.

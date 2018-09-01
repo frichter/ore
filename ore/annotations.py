@@ -267,7 +267,7 @@ class Annotations(object):
         # print(final_df.head())
         # limit file size here:
         # final_df = final_df.loc[abs(final_df.tss_dist) <= 1e4]
-        print("Repeats and segdups removed DF size:", final_df.shape)
+        print("LCR and segdups removed DF size:", final_df.shape)
         print("Loading long 012 matrix for", current_chrom)
         long012_df = self.load_long_012_df(current_chrom)
         # print(long012_df.head())
@@ -384,6 +384,13 @@ class Annotations(object):
         anno_out_loc = self.anno_out_loc % current_chrom
         anno_list = pd.read_table(anno_out_list_loc, squeeze=True, header=None)
         # clean column names
+        # Conserved_TF_sites/TfbsClustered_split/ factorbookMotif/
+        anno_list = [re.sub("Conserved_TF_sites/", "Conserved_TF_", i)
+                     for i in anno_list]
+        anno_list = [re.sub("TfbsClustered_split/", "TfbsClust_", i)
+                     for i in anno_list]
+        anno_list = [re.sub("factorbookMotif/", "factorbookMotif_", i)
+                     for i in anno_list]
         rep_w_blank = ".*/|.merged.sorted|.sorted|.bed$|.bed.gz$|.txt$"
         anno_list = [re.sub(rep_w_blank, "", i) for i in anno_list]
         # anno_list = [re.sub("all_predictions", "cvdc_enhancers_dickel", i)

@@ -10,7 +10,6 @@
 """
 
 import os
-
 from functools import partial
 
 from .vcf import VCF, prepare_vcf_per_chrom
