@@ -154,6 +154,9 @@ def calculate_ci(odds_ratio, val_list):
         https://stats.stackexchange.com/a/1483
         https://stats.stackexchange.com/a/2233
 
+    Warnings to address
+        RuntimeWarning: invalid value encountered in double_scalars
+        RuntimeWarning: divide by zero encountered in log
     """
     val_array = np.array(val_list).astype(float)
     or_se = sum(np.reciprocal(val_array))**(1/2.0)

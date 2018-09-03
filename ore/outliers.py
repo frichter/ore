@@ -62,7 +62,8 @@ class Outliers(object):
         gene_expr_df.rename(columns={gene_expr_df.columns[0]: "gene"},
                             inplace=True)
         # logger.debug(gene_expr_df.shape)
-        if cov:
+        self.cov = cov
+        if self.cov:
             gene_expr_df = self.recalculate_Zscore(gene_expr_df)
         # Convert gene expression data frame from wide to long:
         self.expr_long_df = pd.melt(
@@ -71,14 +72,8 @@ class Outliers(object):
             value_vars=gene_expr_df.columns[1:].tolist(),
             var_name='blinded_id',
             value_name='z_expr')
-        if cov:
-            print("before regression:")
-            print(self.expr_long_df.head())
-            self.expr_long_df = self.regress_out_covarates(cov)
-            print("AFTER regression:")
-            print(self.expr_long_df.head())
-        logger.debug(self.expr_long_df.head())
-        logger.debug(self.expr_long_df.shape)
+        # logger.debug(self.expr_long_df.head())
+        # logger.debug(self.expr_long_df.shape)
         # set the output file location
         self.expr_outs_loc = (output_prefix + "_outliers.txt")
         if outlier_postfix:
@@ -126,6 +121,12 @@ class Outliers(object):
         if lines_w_consistent_ids.sum() == 0:
             raise RNASeqError("No overlapping IDs between RNAseq and VCF")
         self.expr_long_df = self.expr_long_df[lines_w_consistent_ids]
+        if self.cov:
+            print("before regression:")
+            print(self.expr_long_df.head())
+            self.expr_long_df = self.regress_out_covarates(self.cov)
+            print("AFTER regression:")
+            print(self.expr_long_df.head())
         # logger.debug(self.expr_long_df.head())
         # logger.debug(self.expr_long_df.shape)
         # actually calculate the outliers

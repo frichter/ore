@@ -59,8 +59,8 @@ class Enrich(object):
 
         """
         if self.annotations:
-            print("Anno column final index:", self.joined_df.shape[1])
-            anno_list = [i for i in range(21, self.joined_df.shape[1])]
+            print("Anno column final index:", self.joined_df.shape[1] - 6)
+            anno_list = [i for i in range(16, self.joined_df.shape[1] - 5)]
             self.joined_df["all_vars"] = 1
             anno_list.append(-1)
             print(self.joined_df.head())
