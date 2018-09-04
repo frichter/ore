@@ -17,8 +17,8 @@ import re
 import os
 # from multiprocessing import Pool, cpu_count
 
-from .enrich_utils import (calculate_gene_enrichment, calculate_var_enrichment,
-                           rename_output_file_endings)
+from .utils import rename_output_file_endings
+from .enrich_utils import calculate_gene_enrichment, calculate_var_enrichment
 
 
 class Enrich(object):

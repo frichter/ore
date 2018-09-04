@@ -26,9 +26,9 @@ PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08"
 VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_atrial_ids.norm.vcf.gz"
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_5_SVs_hg19.bed.gz"
 OUT_PREFIX="$PARENT_DIR/atrial_ore"
-OUTLIER_OUT="$PARENT_DIR/atrial_ore_SV5_outliers_most_extreme.txt"
+OUTLIER_OUT="$PARENT_DIR/atrial_ore_SV5_outliers_all_outs.txt"
 # atrial_ore_SV5_outliers_most_extreme.txt atrial_ore_SV5_outliers_all_outs.txt
-ENRICH_F="$PARENT_DIR/atrial_enrich_utr5_ens_most_ext.txt"
+ENRICH_F="$PARENT_DIR/atrial_enrich_utr5_ens.txt"
 # ore_per_anno_
 
 # try these annotations:
@@ -55,7 +55,6 @@ time python -m ore.ore --vcf $VCF \
     --enrich_file $ENRICH_F \
     --distribution "normal" \
     --threshold 2 \
-    --extrema \
     --max_outliers_per_id 1000 \
     --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
     --intracohort_rare_ac 5 \
