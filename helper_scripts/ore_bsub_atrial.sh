@@ -55,7 +55,7 @@ time python -m ore.ore --vcf $VCF \
     --extrema \
     --threshold 2 \
     --max_outliers_per_id 1000 \
-    --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
+    --af_rare 1e-2 1e-3 \
     --intracohort_rare_ac 5 \
     --annotations $ANNO_LIST \
     --tss_dist 1e4 \
@@ -68,6 +68,7 @@ time python -m ore.ore --vcf $VCF \
 # --ensgene \
 # --refgene \
 # time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
+# --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
 
 
 # mv atrial_ore_all_data.txt atrial_ore_all_data_extrema_deepheart_first100anno_10kb.txt
