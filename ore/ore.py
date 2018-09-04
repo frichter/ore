@@ -115,7 +115,7 @@ def associate_outliers(args):
                                  logger=logger)
     logger.info("Outliers prepared")
     # join outliers with variants
-    dna_rna_df_loc = output_prefix + "_all_data.txt"
+    dna_rna_df_loc = output_prefix + "_all_data_most_extreme.txt"
     joined_obj = JoinedVarExpr(variants_obj.anno_obj.final_var_loc,
                                outlier_obj.expr_outs_loc,
                                dna_rna_df_loc=dna_rna_df_loc,
@@ -128,7 +128,7 @@ def associate_outliers(args):
                                contigs=variants_obj.combined_contigs,
                                logger=logger)
     # output final set of outliers and calculate enrichment
-    rv_outlier_loc = output_prefix + "_rv_w_outliers.txt"
+    rv_outlier_loc = output_prefix + "_rv_w_outliers_most_extreme.txt"
     # joined_df, enrich_loc, rv_outlier_loc, distribution
     enrich_file = args.enrich_file
     if not enrich_file:
