@@ -23,6 +23,11 @@ from .genes import RNASeqError
 from .plotting import plot_outs_per_id
 from .utils import applyParallel
 
+"""statsmodels/compat/pandas.py:56:
+FutureWarning: The pandas.core.datetools module is deprecated and will be
+removed in a future version. Please use the pandas.tseries module instead.
+"""
+
 
 class Outliers(object):
     """Methods and attributes of outliers."""

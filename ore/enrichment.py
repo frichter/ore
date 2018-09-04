@@ -14,6 +14,7 @@ import itertools
 import copy
 from functools import partial
 import re
+import os
 # from multiprocessing import Pool, cpu_count
 
 from .enrich_utils import calculate_gene_enrichment, calculate_var_enrichment
@@ -283,6 +284,9 @@ class Enrich(object):
             Remove index column in output (figure out where this is being made)
 
         """
+        if os.path.exists(self.rv_outlier_loc):
+            print("RV already written to file")
+            return None
         cut_off_tuple = (out_cut_off, tss_cut_off, af_cut_off)
         enrich_df = copy.deepcopy(self.joined_df)
         max_intrapop_af = self.get_max_intra_pop_af(enrich_df, af_cut_off)

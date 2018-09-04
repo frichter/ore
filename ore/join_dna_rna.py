@@ -66,11 +66,11 @@ class JoinedVarExpr(object):
         """
         if os.path.exists(dna_rna_df_loc):
             logger.info("Already joined data")
-            # dtype_specs = {
-            #     'dist_refgene': 'str', 'exon_func_refgene': 'str',
-            #     'dist_ensgene': 'str', 'exon_func_ensgene': 'str'}
-            # self.df = pd.read_table(dna_rna_df_loc, dtype=dtype_specs)
-            self.df = pd.read_table(dna_rna_df_loc)
+            dtype_specs = {
+                'dist_refgene': 'str', 'exon_func_refgene': 'str',
+                'dist_ensgene': 'str', 'exon_func_ensgene': 'str'}
+            self.df = pd.read_table(dna_rna_df_loc, dtype=dtype_specs)
+            # self.df = pd.read_table(dna_rna_df_loc)
             self.df = filter_variant_class(self.df, variant_class, exon_class,
                                            refgene, ensgene)
         else:
