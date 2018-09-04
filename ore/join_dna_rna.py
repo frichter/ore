@@ -16,7 +16,7 @@ import re
 
 import pandas as pd
 
-from .utils import filter_variant_class, rename_output_file_endings
+from .utils import filter_variant_class
 
 
 class Error(Exception):
@@ -64,7 +64,6 @@ class JoinedVarExpr(object):
             df (:obj:`DataFrame`): variants and outliers in a single dataframe
 
         """
-        dna_rna_df_loc = rename_output_file_endings(dna_rna_df_loc)
         print(dna_rna_df_loc)
         if os.path.exists(dna_rna_df_loc):
             logger.info("Already joined data, now loading")

@@ -16,7 +16,8 @@ import re
 from pkg_resources import resource_filename
 
 from .utils import (initialize_logger, checkCPUcount,
-                    check_variant_inputs, check_ANNOVAR_inputs)
+                    check_variant_inputs, check_ANNOVAR_inputs,
+                    rename_output_file_endings)
 from .variants import Variants
 from .enrichment import Enrich
 from .outliers import Outliers
@@ -116,6 +117,8 @@ def associate_outliers(args):
     logger.info("Outliers prepared")
     # join outliers with variants
     dna_rna_df_loc = output_prefix + "_all_data.txt"
+    dna_rna_df_loc = rename_output_file_endings(
+        dna_rna_df_loc, args.distribution, args.extrema)
     joined_obj = JoinedVarExpr(variants_obj.anno_obj.final_var_loc,
                                outlier_obj.expr_outs_loc,
                                dna_rna_df_loc=dna_rna_df_loc,
@@ -131,6 +134,8 @@ def associate_outliers(args):
                                logger=logger)
     # output final set of outliers and calculate enrichment
     rv_outlier_loc = output_prefix + "_rv_w_outliers.txt"
+    rv_outlier_loc = rename_output_file_endings(
+        rv_outlier_loc, args.distribution, args.extrema)
     # joined_df, enrich_loc, rv_outlier_loc, distribution
     enrich_file = args.enrich_file
     if not enrich_file:

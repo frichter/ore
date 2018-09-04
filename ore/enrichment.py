@@ -17,7 +17,6 @@ import re
 import os
 # from multiprocessing import Pool, cpu_count
 
-from .utils import rename_output_file_endings
 from .enrich_utils import calculate_gene_enrichment, calculate_var_enrichment
 
 
@@ -48,7 +47,7 @@ class Enrich(object):
         self.joined_df = joined_df
         self.enrich_loc = enrich_loc
         self.distribution = distribution
-        self.rv_outlier_loc = rename_output_file_endings(rv_outlier_loc)
+        self.rv_outlier_loc = rv_outlier_loc
         print(self.rv_outlier_loc)
         self.annotations = annotations
 
