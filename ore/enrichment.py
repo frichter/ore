@@ -289,7 +289,7 @@ class Enrich(object):
 
         """
         if os.path.exists(self.rv_outlier_loc):
-            print("RV already written to file")
+            print("RV already written to " + self.rv_outlier_loc)
             return None
         print("Writing RV outliers to file")
         cut_off_tuple = (out_cut_off, tss_cut_off, af_cut_off)
