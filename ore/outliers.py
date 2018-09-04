@@ -14,6 +14,9 @@ import re
 from functools import partial
 
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')
+
 import statsmodels.api as sm
 
 from .genes import RNASeqError

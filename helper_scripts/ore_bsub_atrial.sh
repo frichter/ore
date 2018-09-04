@@ -11,14 +11,17 @@
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08
 
+module purge
 module load bedtools/2.27.0
 module load samtools/1.3
 module load bcftools/1.6
-module load python/3.5.0
-module load py_packages/3.5
+# module load python/3.5.0 # no statsmodels
+# module load py_packages/3.5
+module load python/3.6.2 # no mprof
+module load py_packages/3.6
 
 
-PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08_bsub"
+PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08"
 VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_atrial_ids.norm.vcf.gz"
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_5_SVs_hg19.bed.gz"
 OUT_PREFIX="$PARENT_DIR/atrial_ore"
@@ -42,8 +45,7 @@ cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 python -m ore.ore --version
 
 # upstream and downstream (together) all annovar or subset
-# python -m ore.ore --vcf $VCF \
-time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
+time python -m ore.ore --vcf $VCF \
     --bed $EXPR_F \
     --output $OUT_PREFIX \
     --outlier_output $OUTLIER_OUT \
@@ -58,12 +60,14 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --tss_dist 1e4 \
     --annovar \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 12
+    --processes 5
 
 
 # --variant_class "UTR5" \
 # --ensgene \
 # --refgene \
+# time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
+
 
 # mv atrial_ore_all_data.txt atrial_ore_all_data_extrema_deepheart_first100anno_10kb.txt
 # mv atrial_ore_rv_w_outliers.txt atrial_ore_rv_w_outliers_extrema_deepheart_first100anno_10kb.txt 
