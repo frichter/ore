@@ -33,6 +33,7 @@ setup(name='ore',
           # 're', 'subprocess', 'glob', 'copy', 'gzip',
           'pandas', 'pybedtools',
           'scipy', 'matplotlib', 'numpy',
+          'statsmodels',
           'pysam'
       ],
       python_requires='>=3',

@@ -18,6 +18,7 @@ module load bcftools/1.6
 # module load python/3.5.0 # no statsmodels
 # module load py_packages/3.5
 module load python/3.6.2 # no mprof
+# statsmodels/0.8.0 which throws FutureWarning, so use statsmodels/0.9.0
 module load py_packages/3.6
 
 

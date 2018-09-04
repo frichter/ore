@@ -118,9 +118,10 @@ class Enrich(object):
             # only use if filtering by annotation:
             current_anno = list(enrich_df)[cut_off_tuple[3]]
             print("current column:", current_anno)
-            in_anno = enrich_df.loc[:, current_anno] == 1
-            # keep only rows/variants in a specific annotation
-            enrich_df = enrich_df.loc[in_anno]
+            if current_anno is not "all_vars":
+                in_anno = enrich_df.loc[:, current_anno] == 1
+                # keep only rows/variants in a specific annotation
+                enrich_df = enrich_df.loc[in_anno]
             # remove annotation column index number from tuple
             cut_off_tuple = tuple(list(cut_off_tuple)[:-1])
             if enrich_df.shape[0] == 0:
@@ -136,10 +137,12 @@ class Enrich(object):
             af_vcf, intracohort_rare_ac,
             self.distribution, cut_off_tuple)
         # variant-centric enrichment
+        print("Variant-centric enrichment")
         var_list = calculate_var_enrichment(enrich_df)
         var_out_list = list(cut_off_tuple)
         var_out_list.extend(var_list)
         # gene-centric enrichment
+        print("Gene-centric enrichment")
         gene_list = calculate_gene_enrichment(enrich_df)
         gene_out_list = list(cut_off_tuple)
         gene_out_list.extend(gene_list)
