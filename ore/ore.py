@@ -127,8 +127,6 @@ def associate_outliers(args):
                                refgene=args.refgene,
                                ensgene=args.ensgene,
                                max_tss_dist=max_tss_dist,
-                               extrema=args.extrema,
-                               distribution=args.distribution,
                                annotations=args.annotations,
                                contigs=variants_obj.combined_contigs,
                                logger=logger)
