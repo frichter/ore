@@ -15,9 +15,12 @@ import os
 import glob
 import multiprocessing as mp
 import itertools
+import re
 
 from pkg_resources import resource_filename
 import pandas as pd
+
+from .genes import RNASeqError
 
 
 def initialize_logger(log_file, logAppName):
@@ -266,3 +269,19 @@ def filter_variant_class(df, variant_class, exon_class, refgene, ensgene):
             df = filter_refgene_ensgene_exon(
                 df, exon_class, refgene, ensgene)
     return df
+
+
+def rename_output_file_endings(f_loc, distribution, extrema):
+    """Rename output files based on outlier type."""
+    if distribution == "normal":
+        f_loc = f_loc
+    elif distribution == "rank":
+        f_loc = re.sub(".txt$", "_rank.txt", f_loc)
+    elif distribution == "custom":
+        f_loc = re.sub(".txt$", "_custom_outs.txt", f_loc)
+    else:
+        raise RNASeqError("'{}' is not a valid outlier distribution".
+                          format(distribution))
+    if extrema:
+        f_loc = re.sub(".txt$", "_extrema.txt", f_loc)
+    return f_loc

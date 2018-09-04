@@ -17,7 +17,8 @@ import re
 import os
 # from multiprocessing import Pool, cpu_count
 
-from .enrich_utils import calculate_gene_enrichment, calculate_var_enrichment
+from .enrich_utils import (calculate_gene_enrichment, calculate_var_enrichment,
+                           rename_output_file_endings)
 
 
 class Enrich(object):
@@ -47,7 +48,8 @@ class Enrich(object):
         self.joined_df = joined_df
         self.enrich_loc = enrich_loc
         self.distribution = distribution
-        self.rv_outlier_loc = rv_outlier_loc
+        self.rv_outlier_loc = rename_output_file_endings(rv_outlier_loc)
+        print(self.rv_outlier_loc)
         self.annotations = annotations
 
     def loop_enrichment(self, n_processes, expr_cut_off_vec,
@@ -290,6 +292,7 @@ class Enrich(object):
         if os.path.exists(self.rv_outlier_loc):
             print("RV already written to file")
             return None
+        print("Writing RV outliers to file")
         cut_off_tuple = (out_cut_off, tss_cut_off, af_cut_off)
         enrich_df = copy.deepcopy(self.joined_df)
         max_intrapop_af = self.get_max_intra_pop_af(enrich_df, af_cut_off)
