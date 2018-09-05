@@ -26,12 +26,12 @@ PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08"
 VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_atrial_ids.norm.vcf.gz"
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_5_SVs_hg19.bed.gz"
 OUT_PREFIX="$PARENT_DIR/atrial_ore"
-OUTLIER_OUT="$PARENT_DIR/atrial_ore_SV5_outliers_rank_customIDrm.txt"
-# atrial_ore_SV5_outliers_all_outs_lt500.txt
+OUTLIER_OUT="$PARENT_DIR/atrial_ore_SV5_outliers_extrema_customIDrm.txt"
+# atrial_ore_SV5_outliers_norm_lt500.txt
 ## removes 7 IDs (below) that are also removed for direct comparisons
 # atrial_ore_SV5_outliers_extrema_customIDrm.txt
 # atrial_ore_SV5_outliers_rank_customIDrm.txt
-ENRICH_F="$PARENT_DIR/atrial_enrich_ens_ref_rank_customIDrm_SV5_utr5.txt"
+ENRICH_F="$PARENT_DIR/atrial_enrich_ens_ref_norm_SV5.txt"
 # ore_per_anno_
 RM_IDS="1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670"
 
@@ -60,21 +60,21 @@ time python -m ore.ore --vcf $VCF \
     --output $OUT_PREFIX \
     --outlier_output $OUTLIER_OUT \
     --enrich_file $ENRICH_F \
-    --distribution "rank" \
-    --threshold 0.025 \
+    --distribution "normal" \
+    --threshold 2 \
     --exclude_ids $RM_IDS \
     --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
     --tss_dist 1e4 \
     --annovar \
-    --variant_class "UTR5" \
+    --variant_class "upstream" \
     --ensgene \
     --refgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
     --processes 3
 
 
-## for ranks, use --max_outliers_per_id 5000
-## for z-score, use --max_outliers_per_id 1000
+## manually excluding IDs is faster
+## for z-score, use --max_outliers_per_id 500
 # --variant_class "UTR5" \
 # --ensgene \
 # --refgene \
@@ -85,7 +85,7 @@ time python -m ore.ore --vcf $VCF \
 # --threshold 2 \
 # --intracohort_rare_ac 5 \
 #     --threshold 0.025 0.01 \
-# --max_outliers_per_id 1000 \
+# --max_outliers_per_id 500 \
 
 
 

@@ -194,11 +194,11 @@ class JoinedVarExpr(object):
         self.var_df = pd.concat(list_)
         logger.info(self.var_df.shape)
         if variant_class:
-            logger.info("Considering variants in the following categories" +
-                        ",".join(set(self.var_df.func_refgene)))
+            logger.info("Considering variants in these ENSEMBL categories " +
+                        ",".join(set(self.var_df.func_ensgene)))
         if exon_class:
-            logger.info("Only variants in the following EXONIC categories" +
-                        ",".join(set(self.var_df.exon_func_refgene)))
+            logger.info("Only variants in these ENSEMBL EXONIC categories " +
+                        ",".join(set(self.var_df.exon_func_ensgene)))
 
     @staticmethod
     def summarise_anno_cols(df):

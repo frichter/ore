@@ -150,7 +150,7 @@ def associate_outliers(args):
         af_cut_off=max(args.af_rare),
         af_vcf=args.af_vcf,
         intracohort_rare_ac=args.intracohort_rare_ac)
-    logger.info("Printed final set of outliers with rare variants")
+    logger.info("Obtained outliers with rare variants")
     enrich_obj.loop_enrichment(n_processes=n_processes,
                                expr_cut_off_vec=args.threshold,
                                tss_cut_off_vec=args.tss_dist,
