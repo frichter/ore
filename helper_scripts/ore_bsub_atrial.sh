@@ -36,7 +36,7 @@ OUTLIER_OUT="$PARENT_DIR/atrial_ore_SV5_outliers_norm_lt500.txt"
 ## removes 7 IDs (below) that are also removed for direct comparisons
 # atrial_ore_SV5_outliers_extrema_customIDrm.txt
 # atrial_ore_SV5_outliers_rank_customIDrm.txt
-ENRICH_F="$PARENT_DIR/atrial_enrich_ens_ref_norm_SV5_exonicSyn.txt"
+ENRICH_F="$PARENT_DIR/atrial_enrich_ens_ref_norm_SV5_UTR3.txt"
 # ore_per_anno_
 RM_IDS="1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670"
 
@@ -61,10 +61,9 @@ time python -m ore.ore --vcf $VCF \
     --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
     --tss_dist 1e4 \
     --annovar \
-    --variant_class "exonic" \
+    --variant_class "UTR3" \
     --ensgene \
     --refgene \
-    --exon_class "synonymous" \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
     --processes 3
 
@@ -84,6 +83,7 @@ time python -m ore.ore --vcf $VCF \
 # --max_outliers_per_id 500 \
 # --exon_class nonsynonymous,synonymous,nonframeshift,frameshift,stopgain,stoploss
 # --exon_class "nonsynonymous" \ "frameshift|stopgain"
+## note that frameshift is first so that it's interpreted as ^frameshift
 
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08

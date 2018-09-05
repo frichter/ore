@@ -96,7 +96,6 @@ class Enrich(object):
         var_out_line_list = []
         gene_out_line_list = []
         for cut_off_tuple in cartesian_iter:
-            print(cut_off_tuple)
             var_out_line, gene_out_line = enrichment_per_tuple_partial(
                 cut_off_tuple)
             var_out_line_list.append(var_out_line)
@@ -129,7 +128,6 @@ class Enrich(object):
                 return "NA_line: no overlaps with " + current_anno
         # replace af_cut_off with intra-cohort minimum if former is
         # smaller than latter
-        print(cut_off_tuple)
         max_intrapop_af = self.get_max_intra_pop_af(
             enrich_df, cut_off_tuple[2])
         max_vcf_af = self.get_max_vcf_af(enrich_df, cut_off_tuple[2])
@@ -165,7 +163,6 @@ class Enrich(object):
 
         """
         expr_cut_off, tss_cut_off, af_cut_off = cut_off_tuple
-        print("Parameters", expr_cut_off, tss_cut_off, af_cut_off)
         # classify as within x kb of TSS
         joined_df["near_TSS"] = abs(joined_df.tss_dist) <= tss_cut_off
         joined_df = joined_df.loc[joined_df.near_TSS]
