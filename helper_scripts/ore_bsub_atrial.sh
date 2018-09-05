@@ -26,10 +26,10 @@ PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08"
 VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_atrial_ids.norm.vcf.gz"
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_5_SVs_hg19.bed.gz"
 OUT_PREFIX="$PARENT_DIR/atrial_ore"
-OUTLIER_OUT="$PARENT_DIR/atrial_ore_SV5_outliers_norm_extrema_lt500.txt"
+OUTLIER_OUT="$PARENT_DIR/atrial_ore_SV5_outliers_extrema_customIDrm.txt"
 # atrial_ore_SV5_outliers_most_extreme.txt atrial_ore_SV5_outliers_all_outs.txt
 # atrial_ore_SV5_outliers_ranks_lt5k.txt
-ENRICH_F="$PARENT_DIR/atrial_enrich_ens_ref_utr5_norm_extrema_lt500_SV5.txt"
+ENRICH_F="$PARENT_DIR/atrial_enrich_ens_ref_extrema_customIDrm_SV5_utr5.txt"
 # ore_per_anno_
 RM_IDS="1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670"
 
@@ -95,8 +95,8 @@ mv atrial_ore_all_data.txt atrial_ore_all_data_utr5_lt100.txt
 mv atrial_ore_rv_w_outliers.txt atrial_ore_rv_w_outliers_utr5_lt100.txt 
 
 
-mv atrial_ore_all_data_extrema.txt atrial_ore_all_data_extrema_lt1000.txt
-mv atrial_ore_rv_w_outliers_extrema.txt atrial_ore_rv_w_outliers_lt1000.txt 
+mv atrial_ore_all_data_extrema.txt atrial_ore_all_data_extrema_lt500.txt
+mv atrial_ore_rv_w_outliers_extrema.txt atrial_ore_rv_w_outliers_lt500.txt 
 
 # mv atrial_ore_all_data.txt atrial_ore_all_data_extrema_deepheart_first100anno_10kb.txt
 # mv atrial_ore_rv_w_outliers.txt atrial_ore_rv_w_outliers_extrema_deepheart_first100anno_10kb.txt 
