@@ -29,14 +29,14 @@ ANNO_LIST="$TF_DIR/factorbookMotif/YY1.sorted.bed $TF_DIR/factorbookMotif/CTCF.s
 
 PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08"
 VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_atrial_ids.norm.vcf.gz"
-EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_5_SVs_hg19.bed.gz"
+EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_10_SVs_hg19.bed.gz"
 OUT_PREFIX="$PARENT_DIR/atrial_ore"
-OUTLIER_OUT="$PARENT_DIR/atrial_ore_SV5_outliers_norm_lt500.txt"
+OUTLIER_OUT="$PARENT_DIR/atrial_ore_SV10_outliers_norm_lt500.txt"
 # atrial_ore_SV5_outliers_norm_lt500.txt
 ## removes 7 IDs (below) that are also removed for direct comparisons
 # atrial_ore_SV5_outliers_extrema_customIDrm.txt
 # atrial_ore_SV5_outliers_rank_customIDrm.txt
-ENRICH_F="$PARENT_DIR/atrial_enrich_ens_ref_norm_SV5_UTR3.txt"
+ENRICH_F="$PARENT_DIR/atrial_enrich_ens_ref_norm_SV10_lt500_utr5.txt"
 # ore_per_anno_
 RM_IDS="1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670"
 
@@ -57,11 +57,11 @@ time python -m ore.ore --vcf $VCF \
     --enrich_file $ENRICH_F \
     --distribution "normal" \
     --threshold 2 \
-    --exclude_ids $RM_IDS \
+    --max_outliers_per_id 500 \
     --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
     --tss_dist 1e4 \
     --annovar \
-    --variant_class "UTR3" \
+    --variant_class "UTR5" \
     --ensgene \
     --refgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
@@ -84,6 +84,7 @@ time python -m ore.ore --vcf $VCF \
 # --exon_class nonsynonymous,synonymous,nonframeshift,frameshift,stopgain,stoploss
 # --exon_class "nonsynonymous" \ "frameshift|stopgain"
 ## note that frameshift is first so that it's interpreted as ^frameshift
+# --exclude_ids $RM_IDS \
 
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08
@@ -91,8 +92,8 @@ cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08
 echo $OUTLIER_OUT
 
 ## norm
-mv atrial_ore_all_data.txt atrial_ore_all_data_utr5_lt100.txt
-mv atrial_ore_rv_w_outliers.txt atrial_ore_rv_w_outliers_utr5_lt100.txt 
+mv atrial_ore_all_data.txt atrial_ore_all_data_lt500.txt
+mv atrial_ore_rv_w_outliers.txt atrial_ore_rv_w_outliers_lt500.txt 
 
 # most extreme
 mv atrial_ore_all_data_extrema.txt atrial_ore_all_data_extrema_utr5_customIDrm.txt

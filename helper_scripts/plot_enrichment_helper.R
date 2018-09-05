@@ -6,7 +6,7 @@ options(stringsAsFactors=FALSE)
 p = c("magrittr", "purrr", "dplyr", "ggplot2", "tidyr", "readr")
 
 ## Run once: install packages
-lapply(p, install.packages)
+# lapply(p, install.packages)
 
 ## Load packages
 lapply(p, require, character.only = TRUE)
@@ -21,8 +21,9 @@ enrich_file_dir = "~/Volumes/felix_chditrios/dna_rna/wgs_pcgc_2018_08/atrial_ore
 ## Load data
 enrich_file_list = list.files(enrich_file_dir, "_enrich", full.names = T)
 ## clean names of enrichment runs
-names(enrich_file_list) = gsub(".*/", "", enrich_file_list) %>% gsub(".txt$", "", .)
+names(enrich_file_list) = gsub(".*/", "", enrich_file_list) %>% gsub(".txt$", "", .) %>% 
   # %>% gsub("ad_ore_", "", .) %>% gsub("_10kb", "", .)
+  gsub(".*_SV5_", "", .)
 enrich_df = map_df(enrich_file_list, read_tsv, .id = "enrichment_run")
 
 ## Plot data
