@@ -273,13 +273,16 @@ def main():
                              "these classes will be considered", default=None,
                              choices=["intronic", "intergenic", "exonic",
                                       "UTR5", "UTR3", "splicing", "upstream",
-                                      "ncRNA", "ncRNA_exonic"])
+                                      "ncRNA", "ncRNA_exonic"],
+                             type=str.lower)
     opt_annovar.add_argument("--exon_class", help="Only variants with " +
                              "these exonic impacts will be considered",
                              default=None,
                              choices=["nonsynonymous", "synonymous",
                                       "nonframeshift", "frameshift",
-                                      "stopgain", "stoploss"])
+                                      "stopgain", "stoploss",
+                                      "nonframeshift|stopgain"],
+                             type=str.lower)
     opt_annovar.add_argument("--refgene", default=False, action="store_true",
                              help="Filter on RefGene function.")
     opt_annovar.add_argument("--ensgene", default=False, action="store_true",
