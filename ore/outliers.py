@@ -78,9 +78,11 @@ class Outliers(object):
             logger.debug(gene_expr_df.shape)
         # if calculating covariates, re-normalize
         self.cov = cov
-        # if self.cov:
-        gene_expr_df = self.recalculate_Zscore(gene_expr_df)
-        # Convert gene expression data frame from wide to long:
+        """Re-calculating the z-score (not sure if appropriate)
+        if self.cov:
+            gene_expr_df = self.recalculate_Zscore(gene_expr_df)
+        Convert gene expression data frame from wide to long:
+        # """
         self.expr_long_df = pd.melt(
             gene_expr_df,
             id_vars='gene',  # gene_expr_df.columns.values[0],  # 'gene',
