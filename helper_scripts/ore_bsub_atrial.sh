@@ -36,7 +36,7 @@ OUTLIER_OUT="$PARENT_DIR/atrial_ore_SV5_outliers_norm_lt500.txt"
 ## removes 7 IDs (below) that are also removed for direct comparisons
 # atrial_ore_SV5_outliers_extrema_customIDrm.txt
 # atrial_ore_SV5_outliers_rank_customIDrm.txt
-ENRICH_F="$PARENT_DIR/atrial_enrich_ens_extrema_SV5_upstream.txt"
+ENRICH_F="$PARENT_DIR/atrial_enrich_ens_ref_norm_SV5_exonic.txt"
 # ore_per_anno_
 RM_IDS="1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670"
 
@@ -62,8 +62,8 @@ time python -m ore.ore --vcf $VCF \
     --tss_dist 1e4 \
     --annovar \
     --variant_class "exonic" \
-    --exon_class "frameshift|stoploss" \
     --ensgene \
+    --refgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
     --processes 3
 

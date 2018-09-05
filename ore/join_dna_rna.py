@@ -76,10 +76,10 @@ class JoinedVarExpr(object):
                                            refgene, ensgene)
             if variant_class:
                 logger.info("Considering vars in these ENSEMBL categories " +
-                            ",".join(set(self.var_df.func_ensgene)))
+                            ",".join(set(self.df.func_ensgene)))
             if exon_class:
                 logger.info("Only vars in these ENSEMBL EXONIC categories " +
-                            ",".join(set(self.var_df.exon_func_ensgene)))
+                            ",".join(set(self.df.exon_func_ensgene)))
         else:
             logger.info("Loading variants...")
             if annotations:
