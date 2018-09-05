@@ -33,7 +33,8 @@ class Outliers(object):
     """Methods and attributes of outliers."""
 
     def __init__(self, pheno_loc, output_prefix, outlier_postfix,
-                 extrema, distribution, threshold, cov, n_processes, logger):
+                 extrema, distribution, threshold, cov, exclude_ids,
+                 n_processes, logger):
         """Initialize outlier dataframe.
 
         Args:
@@ -69,7 +70,9 @@ class Outliers(object):
         self.n_processes = n_processes
         gene_expr_df.rename(columns={gene_expr_df.columns[0]: "gene"},
                             inplace=True)
-        # logger.debug(gene_expr_df.shape)
+        logger.debug("Expr DF size before excluding IDs:" + gene_expr_df.shape)
+        gene_expr_df.drop(exclude_ids, axis=1, inplace=True)
+        logger.debug("Expr DF size AFTER excluding IDs:" + gene_expr_df.shape)
         self.cov = cov
         if self.cov:
             gene_expr_df = self.recalculate_Zscore(gene_expr_df)

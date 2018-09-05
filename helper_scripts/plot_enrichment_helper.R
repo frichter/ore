@@ -16,12 +16,13 @@ library(wesanderson)
 
 ## enrichment file directory
 enrich_file_dir = "/Users/felixrichter/Dropbox/PhD/alzheimers/enrichment"
+enrich_file_dir = "~/Volumes/felix_chditrios/dna_rna/wgs_pcgc_2018_08/atrial_ore_varying_max_outs_per_id"
 
 ## Load data
-enrich_file_list = list.files(enrich_file_dir, "_enrichment.txt", full.names = T)
+enrich_file_list = list.files(enrich_file_dir, "_enrich", full.names = T)
 ## clean names of enrichment runs
-names(enrich_file_list) = gsub(".*/", "", enrich_file_list) %>% gsub(".txt$", "", .) %>% 
-  gsub("ad_ore_", "", .) %>% gsub("_10kb", "", .)
+names(enrich_file_list) = gsub(".*/", "", enrich_file_list) %>% gsub(".txt$", "", .)
+  # %>% gsub("ad_ore_", "", .) %>% gsub("_10kb", "", .)
 enrich_df = map_df(enrich_file_list, read_tsv, .id = "enrichment_run")
 
 ## Plot data

@@ -108,6 +108,7 @@ def associate_outliers(args):
                            distribution=args.distribution,
                            threshold=args.threshold,
                            cov=args.cov,
+                           exclude_ids=args.exclude_ids,
                            n_processes=n_processes,
                            logger=logger)
     logger.info("Outliers initialized...")
@@ -213,6 +214,9 @@ def main():
                               type=float, nargs="*", default=[2.0])
     opt_out_args.add_argument("--max_outliers_per_id", help="Maximum number " +
                               "of outliers per ID", type=int, default=None)
+    opt_out_args.add_argument("--exclude_ids", help="Sample IDs to exclude " +
+                              "(space-separated)", type=str,
+                              nargs="*", default=None)
     # Arguments for variants
     opt_var = parser.add_argument_group(
         '\x1b[1;32;40mOptional variant-related arguments\x1b[0m')
