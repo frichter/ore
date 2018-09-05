@@ -74,6 +74,12 @@ class JoinedVarExpr(object):
             # self.df = pd.read_table(dna_rna_df_loc)
             self.df = filter_variant_class(self.df, variant_class, exon_class,
                                            refgene, ensgene)
+            if variant_class:
+                logger.info("Considering vars in these ENSEMBL categories " +
+                            ",".join(set(self.var_df.func_ensgene)))
+            if exon_class:
+                logger.info("Only vars in these ENSEMBL EXONIC categories " +
+                            ",".join(set(self.var_df.exon_func_ensgene)))
         else:
             logger.info("Loading variants...")
             if annotations:
