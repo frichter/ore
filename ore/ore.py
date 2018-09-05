@@ -281,7 +281,7 @@ def main():
                              choices=["nonsynonymous", "synonymous",
                                       "nonframeshift", "frameshift",
                                       "stopgain", "stoploss",
-                                      "nonframeshift|stopgain"],
+                                      "frameshift|stopgain"],
                              type=str.lower)
     opt_annovar.add_argument("--refgene", default=False, action="store_true",
                              help="Filter on RefGene function.")
