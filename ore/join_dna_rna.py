@@ -201,10 +201,10 @@ class JoinedVarExpr(object):
         logger.info(self.var_df.shape)
         if variant_class:
             logger.info("Considering variants in these ENSEMBL categories " +
-                        ",".join(set(self.var_df.func_ensgene)))
+                        ", ".join(set(self.var_df.func_ensgene)))
         if exon_class:
             logger.info("Only variants in these ENSEMBL EXONIC categories " +
-                        ",".join(set(self.var_df.exon_func_ensgene)))
+                        ", ".join(set(self.var_df.exon_func_ensgene)))
 
     @staticmethod
     def summarise_anno_cols(df):

@@ -24,7 +24,7 @@ from .outliers import Outliers
 from .join_dna_rna import JoinedVarExpr
 from .version import __version__
 
-"""# Profiling libraries:
+# Profiling libraries:
 import cProfile
 import pstats
 from memory_profiler import profile
@@ -35,7 +35,7 @@ from memory_profiler import profile
 # """
 
 
-# @profile
+@profile
 def associate_outliers(args):
     """Prepare and associate variants and outliers.
 
@@ -321,7 +321,8 @@ def main():
         '\x1b[1;32;40mOther optional arguments\x1b[0m')
     parser._action_groups.append(optional)
     args = parser.parse_args()
-    """Time (and memory?) profiling commands:
+    # uncomment this line only to switch between profiling and regular mode
+    # """Time (and memory?) profiling commands:
     cprof_cmd = ('associate_outliers(args)')
     OUT_FILE = (args.output + 'stats.out')
     print(OUT_FILE)
@@ -331,6 +332,7 @@ def main():
     time_profile.strip_dirs().sort_stats('cumulative').print_stats(10)
     """
     associate_outliers(args)
+    # """
 
 
 if __name__ == "__main__":

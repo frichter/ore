@@ -24,19 +24,21 @@ module load py_packages/3.6
 
 # try these annotations:
 TF_DIR="/sc/orga/projects/chdiTrios/Felix/wgs/bed_annotations/ucsc_2017_03"
-ANNO_LIST="$TF_DIR/factorbookMotif/YY1.sorted.bed $TF_DIR/factorbookMotif/CTCF.sorted.bed $TF_DIR/TfbsClustered_split/CTCF.sorted.bed $TF_DIR/TfbsClustered_split/EP300.sorted.bed $TF_DIR/TfbsClustered_split/YY1.sorted.bed $TF_DIR/Conserved_TF_sites/NKX25.sorted.bed $TF_DIR/Conserved_TF_sites/P300.sorted.bed $TF_DIR/Conserved_TF_sites/YY1.sorted.bed"
+# ANNO_LIST="$TF_DIR/factorbookMotif/YY1.sorted.bed $TF_DIR/factorbookMotif/CTCF.sorted.bed $TF_DIR/TfbsClustered_split/CTCF.sorted.bed $TF_DIR/TfbsClustered_split/EP300.sorted.bed $TF_DIR/TfbsClustered_split/YY1.sorted.bed $TF_DIR/Conserved_TF_sites/NKX25.sorted.bed $TF_DIR/Conserved_TF_sites/P300.sorted.bed $TF_DIR/Conserved_TF_sites/YY1.sorted.bed"
+ANNO_LIST="$TF_DIR/factorbookMotif/*.sorted.bed"
+ # $TF_DIR/TfbsClustered_split/*.sorted.bed $TF_DIR/Conserved_TF_sites/*.sorted.bed
 ###
 
 PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08"
 VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_atrial_ids.norm.vcf.gz"
-EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_10_SVs_hg19.bed.gz"
+EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_5_SVs_hg19.bed.gz"
 OUT_PREFIX="$PARENT_DIR/atrial_ore"
-OUTLIER_OUT="$PARENT_DIR/atrial_ore_SV10newZ_outliers_norm_lt500.txt"
+OUTLIER_OUT="$PARENT_DIR/atrial_ore_SV5_outliers_norm_lt500.txt"
 # atrial_ore_SV5_outliers_norm_lt500.txt
 ## removes 7 IDs (below) that are also removed for direct comparisons
 # atrial_ore_SV5_outliers_extrema_customIDrm.txt
 # atrial_ore_SV5_outliers_rank_customIDrm.txt
-ENRICH_F="$PARENT_DIR/atrial_enrich_ens_ref_norm_SV10new_lt500_utr5.txt"
+ENRICH_F="$PARENT_DIR/atrial_enrich_factorbookTFs_norm_SV5_lt500.txt"
 # ore_per_anno_
 RM_IDS="1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670"
 
@@ -60,12 +62,10 @@ time python -m ore.ore --vcf $VCF \
     --max_outliers_per_id 500 \
     --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
     --tss_dist 1e4 \
+    --annotations $ANNO_LIST \
     --annovar \
-    --variant_class "UTR5" \
-    --ensgene \
-    --refgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 3
+    --processes 5
 
 
 ## manually excluding IDs is faster
@@ -92,16 +92,16 @@ cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08
 echo $OUTLIER_OUT
 
 ## norm
-mv atrial_ore_all_data.txt atrial_ore_all_data_lt500_SV10.txt
-mv atrial_ore_rv_w_outliers.txt atrial_ore_rv_w_outliers_lt500_SV10.txt 
+mv atrial_ore_all_data.txt atrial_ore_all_data_lt500_SV20_utr5.txt
+mv atrial_ore_rv_w_outliers.txt atrial_ore_rv_w_outliers_lt500_SV20_utr5.txt 
 
 # most extreme
-mv atrial_ore_all_data_extrema.txt atrial_ore_all_data_extrema_utr5_customIDrm.txt
-mv atrial_ore_rv_w_outliers_extrema.txt atrial_ore_rv_w_outliers_extrema_utr5_customIDrm.txt 
+mv atrial_ore_all_data_extrema.txt atrial_ore_all_data_extrema_customIDrm.txt
+mv atrial_ore_rv_w_outliers_extrema.txt atrial_ore_rv_w_outliers_extrema_customIDrm.txt 
 
 #rank based
-mv atrial_ore_all_data_rank.txt atrial_ore_all_data_rank_utr5_customIDrm.txt
-mv atrial_ore_rv_w_outliers_rank.txt atrial_ore_rv_w_outliers_rank_utr5_customIDrm.txt 
+mv atrial_ore_all_data_rank.txt atrial_ore_all_data_rank_customIDrm.txt
+mv atrial_ore_rv_w_outliers_rank.txt atrial_ore_rv_w_outliers_rank_customIDrm.txt 
 
 
 

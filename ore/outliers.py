@@ -15,13 +15,15 @@ from functools import partial
 
 import pandas as pd
 import matplotlib
-matplotlib.use('Agg')
-
-import statsmodels.api as sm
 
 from .genes import RNASeqError
 from .plotting import plot_outs_per_id
 from .utils import applyParallel
+
+matplotlib.use('Agg')
+
+import statsmodels.api as sm
+
 
 """statsmodels/compat/pandas.py:56:
 FutureWarning: The pandas.core.datetools module is deprecated and will be
