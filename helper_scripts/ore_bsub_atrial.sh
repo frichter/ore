@@ -12,14 +12,11 @@
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08
 
 module purge
-module load bedtools/2.27.0
-module load samtools/1.3
-module load bcftools/1.6
-# module load python/3.5.0 # no statsmodels
-# module load py_packages/3.5
-module load python/3.6.2 # no mprof
-# statsmodels/0.8.0 which throws FutureWarning, so use statsmodels/0.9.0
-module load py_packages/3.6
+module load bedtools/2.27.0 samtools/1.3 bcftools/1.6
+module load python/3.5.0 py_packages/3.5
+source ~/venv_ore/bin/activate
+## confirm 3.5
+python --version
 
 
 # try these annotations:
@@ -29,16 +26,16 @@ ANNO_LIST="$TF_DIR/factorbookMotif/*.sorted.bed"
  # $TF_DIR/TfbsClustered_split/*.sorted.bed $TF_DIR/Conserved_TF_sites/*.sorted.bed
 ###
 
-PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08"
+PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09"
 VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_atrial_ids.norm.vcf.gz"
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_5_SVs_hg19.bed.gz"
-OUT_PREFIX="$PARENT_DIR/atrial_ore"
-OUTLIER_OUT="$PARENT_DIR/atrial_ore_SV5_outliers_norm_lt500.txt"
+OUT_PREFIX="$PARENT_DIR/atrial_ore_small_vcf"
+OUTLIER_OUT="$PARENT_DIR/atrial_ore_small_vcf_SV5_outliers_norm_lt500.txt"
 # atrial_ore_SV5_outliers_norm_lt500.txt
 ## removes 7 IDs (below) that are also removed for direct comparisons
 # atrial_ore_SV5_outliers_extrema_customIDrm.txt
 # atrial_ore_SV5_outliers_rank_customIDrm.txt
-ENRICH_F="$PARENT_DIR/atrial_enrich_factorbookTFs_norm_SV5_lt500.txt"
+ENRICH_F="$PARENT_DIR/atrial_enrich_norm_utr5_SV5_lt500.txt"
 # ore_per_anno_
 RM_IDS="1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670"
 
@@ -52,7 +49,8 @@ cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 # python -m ore.ore --version
 
 # upstream and downstream (together) all annovar or subset
-time python -m ore.ore --vcf $VCF \
+# time python -m ore.ore --vcf $VCF \
+time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --bed $EXPR_F \
     --output $OUT_PREFIX \
     --outlier_output $OUTLIER_OUT \
@@ -62,11 +60,15 @@ time python -m ore.ore --vcf $VCF \
     --max_outliers_per_id 500 \
     --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
     --tss_dist 1e4 \
-    --annotations $ANNO_LIST \
     --annovar \
+    --variant_class "UTR5" \
+    --ensgene \
+    --refgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 5
+    --processes 12
 
+
+## profile: mprofile_20180906211602.dat and mprofile_20180907061724.dat
 
 ## manually excluding IDs is faster
 ## for z-score, use --max_outliers_per_id 500
