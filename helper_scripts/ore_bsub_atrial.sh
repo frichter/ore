@@ -46,14 +46,15 @@ PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09"
 VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_atrial_ids.norm_smaller.vcf.gz"
 SV="5"
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_${SV}_SVs_hg19.bed.gz"
+MAX_OUTS="5000"
 OUT_PREFIX="$PARENT_DIR/atrial_ore"
-OUTLIER_OUT="$PARENT_DIR/atrial_ore_SV${SV}_outliers_extrema_customIDrm.txt"
+OUTLIER_OUT="$PARENT_DIR/atrial_outliers/atrial_ore_SV${SV}_outliers_norm_lt${MAX_OUTS}.txt"
 # atrial_ore_SV5_outliers_norm_lt500.txt
 ## removes 7 IDs (below) that are also removed for direct comparisons
 # atrial_ore_SV5_outliers_extrema_customIDrm.txt
 # atrial_ore_SV5_outliers_rank_customIDrm.txt
 VAR_CLASS="UTR5"
-ENRICH_F="$PARENT_DIR/atrial_enrich/atrial_enrich_extrema_${VAR_CLASS}_SV${SV}_customIDrm.txt"
+ENRICH_F="$PARENT_DIR/atrial_enrich/atrial_enrich_norm_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}.txt"
 # ore_per_anno_
 RM_IDS="1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670"
 
@@ -75,8 +76,7 @@ time python -m ore.ore --vcf $VCF \
     --enrich_file $ENRICH_F \
     --distribution "normal" \
     --threshold 2 \
-    --extrema \
-    --exclude_ids $RM_IDS \
+    --max_outliers_per_id "${MAX_OUTS}" \
     --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
     --tss_dist 1e4 \
     --annovar \
@@ -84,7 +84,7 @@ time python -m ore.ore --vcf $VCF \
     --ensgene \
     --refgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 6
+    --processes 3
 
 
 
@@ -118,17 +118,17 @@ sys     368m34.895s
 
 
 echo $OUTLIER_OUT
-echo "${SV}_${VAR_CLASS}"
+echo "${SV}_${VAR_CLASS}_lt${MAX_OUTS}"
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09
 
 ## norm
-mv atrial_ore_all_data.txt atrial_data/atrial_ore_all_data_lt500_SV${SV}_${VAR_CLASS}.txt
-mv atrial_ore_rv_w_outliers.txt atrial_data/atrial_ore_rv_w_outliers_lt500_SV${SV}_${VAR_CLASS}.txt 
+mv atrial_ore_all_data.txt atrial_data/atrial_ore_all_data_lt${MAX_OUTS}_SV${SV}_${VAR_CLASS}.txt
+mv atrial_ore_rv_w_outliers.txt atrial_data/atrial_ore_rv_w_outliers_lt${MAX_OUTS}_SV${SV}_${VAR_CLASS}.txt 
 
 # most extreme
-mv atrial_ore_all_data_extrema.txt atrial_ore_all_data_extrema_customIDrm.txt
-mv atrial_ore_rv_w_outliers_extrema.txt atrial_ore_rv_w_outliers_extrema_customIDrm.txt 
+mv atrial_ore_all_data_extrema.txt atrial_data/atrial_ore_all_data_extrema_customIDrm_SV${SV}_${VAR_CLASS}.txt
+mv atrial_ore_rv_w_outliers_extrema.txt atrial_data/atrial_ore_rv_w_outliers_extrema_customIDrm_SV${SV}_${VAR_CLASS}.txt 
 
 #rank based
 mv atrial_ore_all_data_rank.txt atrial_ore_all_data_rank_customIDrm.txt
