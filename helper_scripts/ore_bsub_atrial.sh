@@ -9,6 +9,18 @@
 #BSUB -e atrial_outs.stderr
 
 
+
+### Creating a custom virtual environment for ORE
+# module purge
+# module load python/3.5.0 py_packages/3.5
+# virtualenv venv_ore
+# source venv_ore/bin/activate
+# # confirm correct version
+# python --version
+# pip install statsmodels
+# deactivate
+
+
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08
 
 module purge
@@ -68,7 +80,7 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --processes 12
 
 
-## profile: mprofile_20180906211602.dat
+## profile: mprofile_20180906211602.dat mprofile_20180908115906.dat
 real    1022m33.976s
 user    7261m36.688s
 sys     368m34.895s

@@ -53,43 +53,25 @@ deactivate
 
 ## profile: mprofile_20180906210843.dat, mprofile_20180907061724.dat, mprofile_20180907070745.dat, mprofile_20180907071553.dat
 # location:
-/sc/orga/projects/chdiTrios/Felix/dna_rna/ore/profiles/gtex_lv_2018_09_07
-
-real    445m36.571s
-user    3093m11.665s
-sys     245m11.485s
-
-real    5m41.741s
-user    32m27.714s
-sys     2m0.015s
-
-real    4m20.510s
-user    0m45.035s
-sys     0m31.207s
-
-real    4m30.396s
-user    6m48.814s
-sys     0m44.187s
+# /sc/orga/projects/chdiTrios/Felix/dna_rna/ore/profiles/gtex_lv_2018_09_07
+# 
+# real    445m36.571s
+# user    3093m11.665s
+# sys     245m11.485s
+# 
+# real    5m41.741s
+# user    32m27.714s
+# sys     2m0.015s
+# 
+# real    4m20.510s
+# user    0m45.035s
+# sys     0m31.207s
+# 
+# real    4m30.396s
+# user    6m48.814s
+# sys     0m44.187s
+## view individually with mprof plot mprofile_20180907070745.dat
 
 ## start time: 2018-09-06 21:08:43
 ## Long formatting done: 2018-09-07 04:15:59
-
-### Custom virtual environment for ORE
-# module purge
-# module load python/3.5.0 py_packages/3.5
-# virtualenv venv_ore
-# source venv_ore/bin/activate
-# # confirm correct version
-# python --version
-# pip install statsmodels
-# deactivate
-
-## did not work:
-# module purge
-# module load bedtools/2.27.0
-# module load samtools/1.3
-# module load bcftools/1.6
-# module load python/3.6.2
-# module load py_packages/3.6
-# pip install memory_profiler
 

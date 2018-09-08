@@ -56,28 +56,52 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --processes 12
 
 
+deactivate
 
-# mprofile_20180907075150.dat mprofile_20180908103508.dat mprofile_20180908110016.dat
-real    301m16.596s
-user    1897m23.308s
-sys     193m35.795s
-
-real    22m31.307s
-user    152m21.255s
-sys     6m8.458s
-
-real    4m34.601s
-user    22m41.917s
-sys     1m22.994s
-
-# start: 2018-09-07 07:51:50
-# VCF long done: 2018-09-07 12:53:02
 
 # --ensgene \
 # --refgene \
 # --variant_class "UTR5" \
 
-mv vent_ore_all_data.txt vent_ore_all_data_utr5_ref_ens_10kb.txt
-mv vent_ore_rv_w_outliers.txt vent_ore_rv_w_outliers_utr5_ref_ens_10kb.txt 
+# mv vent_ore_all_data.txt vent_ore_all_data_utr5_ref_ens_10kb.txt
+# mv vent_ore_rv_w_outliers.txt vent_ore_rv_w_outliers_utr5_ref_ens_10kb.txt 
+
+
+# mprofile_20180907075150.dat mprofile_20180908103508.dat mprofile_20180908110016.dat
+# mprofile_20180908111037.dat mprofile_20180908111528.dat mprofile_20180908112047.dat
+# real    301m16.596s
+# user    1897m23.308s
+# sys     193m35.795s
+# 
+# real    22m31.307s
+# user    152m21.255s
+# sys     6m8.458s
+# 
+# real    4m34.601s
+# user    22m41.917s
+# sys     1m22.994s
+# 
+# real    4m45.452s
+# user    0m50.465s
+# sys     0m35.075s
+# 
+# real    2m31.255s
+# user    2m48.045s
+# sys     0m25.487s
+# 
+# real    6m1.330s
+# user    7m3.280s
+# sys     0m49.203s
+# 
+# 301+22+4+4+2+6
+# 339
+# (16+31+34+45+31+1)/60
+# 2.6
+
+## max: 2.4 Gb 5.5
+
+# time: 341.6
+# start: 2018-09-07 07:51:50
+# VCF long done: 2018-09-07 12:53:02
 
 
