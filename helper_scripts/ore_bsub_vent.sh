@@ -3,15 +3,15 @@
 #BUSB -n 12
 #BSUB -R "rusage[mem=10000]"
 #BSUB -P acc_chdiTrios
-#BSUB -J vent_outliers_3
+#BSUB -J vent_outliers
 #BSUB -m mothra
-#BSUB -o vent_outliers_3.stdout
-#BSUB -e vent_outliers_3.stderr
+#BSUB -o vent_outliers.stdout
+#BSUB -e vent_outliers.stderr
 
 
 ##################### PCGC Vent ##########################
 
-# vent_outliers_3
+# vent_outliers
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09
 
 module purge
@@ -27,7 +27,8 @@ VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_vent_ids.nor
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_vent/residual_expr_5_SVs_hg19.bed.gz"
 OUT_PREFIX="$PARENT_DIR/vent_ore_small_vcf"
 OUTLIER_OUT="$PARENT_DIR/vent_ore_small_vcf_SV5_outliers_norm_lt500.txt"
-ENRICH_F="$PARENT_DIR/vent_enrich_norm_utr5_SV5_lt500.txt"
+VAR_CLASS="UTR3"
+ENRICH_F="$PARENT_DIR/vent_enrich/vent_enrich_norm_${VAR_CLASS}_SV5_lt500.txt"
 # vent_ore_per_anno_10kb.txt
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
@@ -35,10 +36,11 @@ cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 # confirm on correct branch:
 # git checkout heart_ore_v27plus
 # git status | head -n1
-python -m ore.ore --version
+# python -m ore.ore --help
+# python -m ore.ore --version
 
-# python -m ore.ore --vcf $VCF \
-time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
+# time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
+time python -m ore.ore --vcf $VCF \
     --bed $EXPR_F \
     --output $OUT_PREFIX \
     --outlier_output $OUTLIER_OUT \
@@ -49,11 +51,11 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
     --tss_dist 1e4 \
     --annovar \
-    --variant_class "UTR5" \
+    --variant_class "$VAR_CLASS" \
     --ensgene \
     --refgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 12
+    --processes 2
 
 
 deactivate
@@ -61,10 +63,10 @@ deactivate
 
 # --ensgene \
 # --refgene \
-# --variant_class "UTR5" \
+# --variant_class "$VAR_CLASS" \
 
-# mv vent_ore_all_data.txt vent_ore_all_data_utr5_ref_ens_10kb.txt
-# mv vent_ore_rv_w_outliers.txt vent_ore_rv_w_outliers_utr5_ref_ens_10kb.txt 
+mv vent_ore_small_vcf_all_data.txt vent_data/vent_ore_small_vcf_all_data_utr5_ref_ens_10kb.txt
+mv vent_ore_small_vcf_rv_w_outliers.txt vent_data/vent_ore_small_vcf_rv_w_outliers_utr5_ref_ens_10kb.txt 
 
 
 # mprofile_20180907075150.dat mprofile_20180908103508.dat mprofile_20180908110016.dat

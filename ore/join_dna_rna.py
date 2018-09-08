@@ -197,8 +197,16 @@ class JoinedVarExpr(object):
                 var_df_per_chrom = self.summarise_anno_cols(var_df_per_chrom)
             """
             var_df_per_chrom = var_df_per_chrom.reindex(columns=cols_to_keep)
+            """Keep only lines where any of the annotations are 1.
+            https://stackoverflow.com/a/34243246
+            df[cols] = df[df[cols] > 0][cols]"""
+            print(var_df_per_chrom.shape)
+            var_df_per_chrom[self.anno_list] = var_df_per_chrom[
+                var_df_per_chrom[self.anno_list] > 0][self.anno_list]
+            print(var_df_per_chrom.shape)
             list_.append(var_df_per_chrom)
             print(sys.getsizeof(var_df_per_chrom)/(1024**3), "Gb")
+            print(sys.getsizeof(list_)/(1024**3), "Gb")
         logger.info("All contigs/chromosomes loaded")
         self.var_df = pd.concat(list_)
         logger.info(self.var_df.shape)
