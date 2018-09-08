@@ -73,6 +73,9 @@ real    1022m33.976s
 user    7261m36.688s
 sys     368m34.895s
 
+# start: 2018-09-06 21:16:02
+# 2018-09-07 14:18:35
+
 ## manually excluding IDs is faster
 ## for z-score, use --max_outliers_per_id 500
 # --variant_class "UTR5" \

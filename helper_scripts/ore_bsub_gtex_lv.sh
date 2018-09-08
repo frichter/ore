@@ -52,6 +52,9 @@ deactivate
 
 
 ## profile: mprofile_20180906210843.dat, mprofile_20180907061724.dat, mprofile_20180907070745.dat, mprofile_20180907071553.dat
+# location:
+/sc/orga/projects/chdiTrios/Felix/dna_rna/ore/profiles/gtex_lv_2018_09_07
+
 real    445m36.571s
 user    3093m11.665s
 sys     245m11.485s
@@ -67,6 +70,9 @@ sys     0m31.207s
 real    4m30.396s
 user    6m48.814s
 sys     0m44.187s
+
+## start time: 2018-09-06 21:08:43
+## Long formatting done: 2018-09-07 04:15:59
 
 ### Custom virtual environment for ORE
 # module purge

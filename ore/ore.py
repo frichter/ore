@@ -29,6 +29,7 @@ from .version import __version__
 import cProfile
 import pstats
 from memory_profiler import profile
+from datetime import datetime
 
 # then uncomment @profile as well as cProfile and pstats
 # and append this command when running tool:
@@ -326,7 +327,8 @@ def main():
     # uncomment this line only to switch between profiling and regular mode
     # """Time (and memory?) profiling commands:
     cprof_cmd = ('associate_outliers(args)')
-    OUT_FILE = (args.output + 'stats.out')
+    ts = datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
+    OUT_FILE = "_".join(args.output, ts, 'stats.out')
     print(OUT_FILE)
     cProfile.runctx(cprof_cmd, globals(), locals(), filename=OUT_FILE)
     # cProfile.run(cprof_cmd, filename=OUT_FILE)

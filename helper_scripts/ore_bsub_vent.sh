@@ -57,10 +57,21 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
 
 
 
-# mprofile_20180907075150.dat
+# mprofile_20180907075150.dat mprofile_20180908103508.dat mprofile_20180908110016.dat
 real    301m16.596s
 user    1897m23.308s
 sys     193m35.795s
+
+real    22m31.307s
+user    152m21.255s
+sys     6m8.458s
+
+real    4m34.601s
+user    22m41.917s
+sys     1m22.994s
+
+# start: 2018-09-07 07:51:50
+# VCF long done: 2018-09-07 12:53:02
 
 # --ensgene \
 # --refgene \
