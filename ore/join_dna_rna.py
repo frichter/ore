@@ -199,14 +199,12 @@ class JoinedVarExpr(object):
             https://stackoverflow.com/a/34243246"""
             if self.anno_list:
                 print(var_df_per_chrom.shape)
-                print(var_df_per_chrom[self.anno_list] > 0)
-                print(var_df_per_chrom[self.anno_list].shape)
-                print(self.anno_list[2] + ":")
-                print(var_df_per_chrom[self.anno_list[2]].sum())
-                print(self.anno_list[1] + ":")
-                print(var_df_per_chrom[self.anno_list[1]].sum())
-                var_df_per_chrom[self.anno_list] = var_df_per_chrom[
-                    var_df_per_chrom[self.anno_list] > 0][self.anno_list]
+                # nzv = var_df_per_chrom[self.anno_list] > 0
+                nzv_any = var_df_per_chrom[self.anno_list].any(axis=1)
+                print(var_df_per_chrom.shape)
+                print(nzv_any.sum())
+                print(var_df_per_chrom[nzv_any].shape)
+                var_df_per_chrom[nzv_any] = var_df_per_chrom[nzv_any]
                 print(var_df_per_chrom.shape)
                 raise ValueError("Exiting here on porpoise")
             list_.append(var_df_per_chrom)
