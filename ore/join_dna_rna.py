@@ -97,7 +97,6 @@ class JoinedVarExpr(object):
                                   for i in anno_list]
             else:
                 self.anno_list = None
-            print(self.anno_list)
             self.load_vars(var_loc, contigs, variant_class, exon_class,
                            refgene, ensgene, max_tss_dist, logger)
             logger.info("joining outliers with variants...")
