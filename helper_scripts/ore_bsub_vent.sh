@@ -27,7 +27,7 @@ VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_vent_ids.nor
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_vent/residual_expr_5_SVs_hg19.bed.gz"
 OUT_PREFIX="$PARENT_DIR/vent_ore_small_vcf"
 OUTLIER_OUT="$PARENT_DIR/vent_ore_small_vcf_SV5_outliers_norm_lt500.txt"
-VAR_CLASS="ncRNA"
+VAR_CLASS="exonic"
 ENRICH_F="$PARENT_DIR/vent_enrich/vent_enrich_norm_${VAR_CLASS}_SV5_lt500.txt"
 # vent_ore_per_anno_10kb.txt
 
@@ -64,9 +64,13 @@ deactivate
 # --ensgene \
 # --refgene \
 # --variant_class "$VAR_CLASS" \
+# --exon_class nonsynonymous,synonymous,nonframeshift,frameshift,stopgain,stoploss
+# --exon_class "nonsynonymous" \ "frameshift|stopgain"
+## note that frameshift is first so that it's interpreted as ^frameshift
 
-mv vent_ore_small_vcf_all_data.txt vent_data/vent_ore_small_vcf_all_data_utr5_ref_ens_10kb.txt
-mv vent_ore_small_vcf_rv_w_outliers.txt vent_data/vent_ore_small_vcf_rv_w_outliers_utr5_ref_ens_10kb.txt 
+
+mv vent_ore_small_vcf_all_data.txt vent_data/vent_ore_small_vcf_all_data_norm_SV5_lt500_ref_ens_10kb.txt
+mv vent_ore_small_vcf_rv_w_outliers.txt vent_data/vent_ore_small_vcf_rv_w_outliers_norm_SV5_lt500_ref_ens_10kb.txt 
 
 
 # mprofile_20180907075150.dat mprofile_20180908103508.dat mprofile_20180908110016.dat
