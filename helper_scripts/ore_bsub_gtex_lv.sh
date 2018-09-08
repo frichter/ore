@@ -25,7 +25,7 @@ VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/rare_var_outliers/gtex_june_2017/
 PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/rare_var_outliers/gtex_2018_08"
 OUT_PREFIX="$PARENT_DIR/lv_gtex"
 ENRICH_F="$PARENT_DIR/lv_gtex_enrich_ref_ens_SV5_rank_noRM_enrich_utr5.txt"
-OUTLIER_OUT="$PARENT_DIR/atrial_ore_SV5_outliers_rank_lt500.txt"
+OUTLIER_OUT="$PARENT_DIR/lv_gtex_ore_SV5_outliers_rank_lt500.txt"
 # atrial_ore_SV5_outliers_norm_lt500.txt
 # atrial_ore_SV5_outliers_rank_lt500.txt
 

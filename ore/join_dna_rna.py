@@ -206,6 +206,7 @@ class JoinedVarExpr(object):
                 var_df_per_chrom[self.anno_list] = var_df_per_chrom[
                     var_df_per_chrom[self.anno_list] > 0][self.anno_list]
                 print(var_df_per_chrom.shape)
+                raise ValueError("Exiting here on porpoise")
             list_.append(var_df_per_chrom)
             # list_ is just pointing to DF so doesn't take any memory
             print(sys.getsizeof(var_df_per_chrom)/(1024**3), "Gb")

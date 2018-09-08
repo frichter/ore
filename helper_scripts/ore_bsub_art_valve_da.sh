@@ -27,7 +27,8 @@ VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_arterial_val
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_art_valve_da/residual_expr_5_SVs_hg19.bed.gz"
 OUT_PREFIX="$PARENT_DIR/art_valve_da_ore_small_vcf"
 OUTLIER_OUT="$PARENT_DIR/art_valve_da_ore_small_vcf_SV5_outliers_norm_lt500.txt"
-ENRICH_F="$PARENT_DIR/art_valve_da_enrich/art_valve_da_enrich_norm_utr5_SV5_lt500.txt"
+VAR_CLASS="UTR3"
+ENRICH_F="$PARENT_DIR/art_valve_da_enrich/art_valve_da_enrich_norm_${VAR_CLASS}_SV5_lt500.txt"
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 
@@ -48,7 +49,7 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
     --tss_dist 1e4 \
     --annovar \
-    --variant_class "UTR5" \
+    --variant_class "$VAR_CLASS" \
     --ensgene \
     --refgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
