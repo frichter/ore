@@ -328,7 +328,7 @@ def main():
     # """Time (and memory?) profiling commands:
     cprof_cmd = ('associate_outliers(args)')
     ts = datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
-    OUT_FILE = "_".join(args.output, ts, 'stats.out')
+    OUT_FILE = "_".join([args.output, ts, 'stats.out'])
     print(OUT_FILE)
     cProfile.runctx(cprof_cmd, globals(), locals(), filename=OUT_FILE)
     # cProfile.run(cprof_cmd, filename=OUT_FILE)
