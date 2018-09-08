@@ -58,6 +58,10 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
 
 
 # mprofile_20180907075150.dat
+real    301m16.596s
+user    1897m23.308s
+sys     193m35.795s
+
 # --ensgene \
 # --refgene \
 # --variant_class "UTR5" \

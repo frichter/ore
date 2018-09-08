@@ -69,6 +69,9 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
 
 
 ## profile: mprofile_20180906211602.dat
+real    1022m33.976s
+user    7261m36.688s
+sys     368m34.895s
 
 ## manually excluding IDs is faster
 ## for z-score, use --max_outliers_per_id 500
