@@ -27,7 +27,7 @@ VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_arterial_val
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_art_valve_da/residual_expr_5_SVs_hg19.bed.gz"
 OUT_PREFIX="$PARENT_DIR/art_valve_da_ore_small_vcf"
 OUTLIER_OUT="$PARENT_DIR/art_valve_da_ore_small_vcf_SV5_outliers_norm_lt500.txt"
-VAR_CLASS="UTR3"
+VAR_CLASS="UTR5"
 ENRICH_F="$PARENT_DIR/art_valve_da_enrich/art_valve_da_enrich_norm_${VAR_CLASS}_SV5_lt500.txt"
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
@@ -70,6 +70,10 @@ deactivate
 real    248m6.220s
 user    1803m38.323s
 sys     184m1.028s
+
+real    0m26.493s
+user    2m13.892s
+sys     0m16.565s
 
 # variant abstraction step time:
 2018-09-08 12:05:13
