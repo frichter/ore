@@ -95,7 +95,7 @@ class JoinedVarExpr(object):
                 rep_w_blank = ".*/|.merged.sorted|.sorted|.bed$|.bed.gz$|.txt$"
                 self.anno_list = [re.sub(rep_w_blank, "", i)
                                   for i in anno_list]
-                self.anno_list = [i for i in self.anno_list if "factorbo" in i]
+                # self.anno_list = [i for i in self.anno_list if "factor" in i]
                 print(self.anno_list)
                 print(len(self.anno_list))
             else:
