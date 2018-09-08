@@ -21,7 +21,7 @@
 # deactivate
 
 
-cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08
+cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09
 
 module purge
 module load bedtools/2.27.0 samtools/1.3 bcftools/1.6
@@ -39,7 +39,7 @@ ANNO_LIST="$TF_DIR/factorbookMotif/*.sorted.bed"
 ###
 
 PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09"
-VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_atrial_ids.norm.vcf.gz"
+VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_atrial_ids.norm_smaller.vcf.gz"
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_5_SVs_hg19.bed.gz"
 OUT_PREFIX="$PARENT_DIR/atrial_ore_small_vcf"
 OUTLIER_OUT="$PARENT_DIR/atrial_ore_small_vcf_SV5_outliers_norm_lt500.txt"
@@ -61,8 +61,8 @@ cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 # python -m ore.ore --version
 
 # upstream and downstream (together) all annovar or subset
-# time python -m ore.ore --vcf $VCF \
-time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
+# time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
+time python -m ore.ore --vcf $VCF \
     --bed $EXPR_F \
     --output $OUT_PREFIX \
     --outlier_output $OUTLIER_OUT \
@@ -77,7 +77,7 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --ensgene \
     --refgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 12
+    --processes 6
 
 
 ## profile: mprofile_20180906211602.dat mprofile_20180908115906.dat
