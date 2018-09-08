@@ -75,6 +75,7 @@ time python -m ore.ore --vcf $VCF \
     --enrich_file $ENRICH_F \
     --distribution "normal" \
     --threshold 2 \
+    --max_outliers_per_id 500 \
     --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
     --tss_dist 1e4 \
     --annovar \

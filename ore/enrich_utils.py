@@ -121,6 +121,8 @@ def quantify_gene_outs(out_class, enrich_df, expr_df):
     # count number of outliers in long expression DF
     out_genes = expr_df[expr_df[out_class]].index.get_level_values(
         'gene').unique()
+    print("Unique outlier genes:")
+    print(len(out_genes))
     total_gene_by_id = expr_df.loc[expr_df.index.get_level_values(
         'gene').isin(out_genes)].shape[0]
     # subtract sum of list from the number of rows in long expression DF
@@ -130,6 +132,7 @@ def quantify_gene_outs(out_class, enrich_df, expr_df):
     out_tb = np.array([[not_rare_not_out, not_rare_out],
                        [rare_not_out, rare_out]])
     return out_list, out_tb
+
 
 def flatten_crosstab(out_tb):
     """Flatten the crosstab output list."""
