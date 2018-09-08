@@ -64,6 +64,8 @@ class JoinedVarExpr(object):
             df (:obj:`DataFrame`): variants and outliers in a single dataframe
 
         """
+        logger.info("Loading outliers...")
+        self.load_outliers(expr_outs_loc)
         if os.path.exists(dna_rna_df_loc):
             logger.info("Already joined data, now loading from " +
                         dna_rna_df_loc)
@@ -97,8 +99,6 @@ class JoinedVarExpr(object):
                 self.anno_list = None
             self.load_vars(var_loc, contigs, variant_class, exon_class,
                            refgene, ensgene, max_tss_dist, logger)
-            logger.info("Loading outliers...")
-            self.load_outliers(expr_outs_loc)
             logger.info("joining outliers with variants...")
             # confirm there are overlapping IDs
             # logger.debug(self.var_df.head())

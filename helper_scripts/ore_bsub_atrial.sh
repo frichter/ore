@@ -68,7 +68,7 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --processes 12
 
 
-## profile: mprofile_20180906211602.dat and mprofile_20180907061724.dat
+## profile: mprofile_20180906211602.dat
 
 ## manually excluding IDs is faster
 ## for z-score, use --max_outliers_per_id 500

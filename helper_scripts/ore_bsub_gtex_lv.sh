@@ -51,7 +51,22 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
 deactivate
 
 
-## profile: mprofile_20180906210843.dat
+## profile: mprofile_20180906210843.dat, mprofile_20180907061724.dat, mprofile_20180907070745.dat, mprofile_20180907071553.dat
+real    445m36.571s
+user    3093m11.665s
+sys     245m11.485s
+
+real    5m41.741s
+user    32m27.714s
+sys     2m0.015s
+
+real    4m20.510s
+user    0m45.035s
+sys     0m31.207s
+
+real    4m30.396s
+user    6m48.814s
+sys     0m44.187s
 
 ### Custom virtual environment for ORE
 # module purge

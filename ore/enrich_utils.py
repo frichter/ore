@@ -58,7 +58,7 @@ def calculate_var_enrichment(enrich_df):
     return out_list
 
 
-def calculate_gene_enrichment(enrich_df):
+def calculate_gene_enrichment(enrich_df, expr_df):
     """Calculate gene-centric enrichment.
 
     Counts each gene-ID pair once (i.e., removes extra variants per
@@ -73,22 +73,19 @@ def calculate_gene_enrichment(enrich_df):
         'gene_has_POS_out_w_vars',
         'gene_has_rare_var']
         ].drop_duplicates(keep='first')
-    out_tb = pd.crosstab(enrich_df.gene_has_rare_var,
-                         enrich_df.expr_outlier)
-    # print(out_tb)
-    out_list = flatten_crosstab(out_tb)
+    # count number of outliers and non-outliers with gene_has_rare_var
+    out_class = 'expr_outlier'
+    out_list, out_tb = quantify_gene_outs(out_class, enrich_df, expr_df)
     # only keep subset of genes that are negative expression outliers
     enrich_df_neg = enrich_df[enrich_df.gene_has_NEG_out_w_vars]
-    neg_out_tb = pd.crosstab(enrich_df_neg.gene_has_rare_var,
-                             enrich_df_neg.expr_outlier_neg)
-    # print(neg_out_tb)
-    neg_out_list = flatten_crosstab(neg_out_tb)
+    out_class = 'expr_outlier_neg'
+    neg_out_list, neg_out_tb = quantify_gene_outs(
+        out_class, enrich_df_neg, expr_df)
     # now positive outliers
     enrich_df_pos = enrich_df[enrich_df.gene_has_POS_out_w_vars]
-    pos_out_tb = pd.crosstab(enrich_df_pos.gene_has_rare_var,
-                             enrich_df_pos.expr_outlier_pos)
-    # print(pos_out_tb)
-    pos_out_list = flatten_crosstab(pos_out_tb)
+    out_class = 'expr_outlier_pos'
+    pos_out_list, pos_out_tb = quantify_gene_outs(
+        out_class, enrich_df_pos, expr_df)
     # now perform the actual calculations (if possible)
     try:
         fet_or, fet_p = fisher_exact(out_tb)
@@ -113,6 +110,26 @@ def calculate_gene_enrichment(enrich_df):
     print(out_list)
     return out_list
 
+
+def quantify_gene_outs(out_class, enrich_df, expr_df):
+    """Create the 2x2 table for expression outliers."""
+    rare_out = enrich_df[enrich_df.gene_has_rare_var & enrich_df[out_class]
+                         ].shape[0]
+    rare_not_out = enrich_df[enrich_df.gene_has_rare_var &
+                             (~enrich_df[out_class])].shape[0]
+    not_rare_out = expr_df[out_class].sum() - rare_out
+    # count number of outliers in long expression DF
+    out_genes = expr_df[expr_df[out_class]].index.get_level_values(
+        'gene').unique()
+    total_gene_by_id = expr_df.loc[expr_df.index.get_level_values(
+        'gene').isin(out_genes)].shape[0]
+    # subtract sum of list from the number of rows in long expression DF
+    not_rare_not_out = (
+        total_gene_by_id - (rare_out + rare_not_out + not_rare_out))
+    out_list = [not_rare_not_out, not_rare_out, rare_not_out, rare_out]
+    out_tb = np.array([[not_rare_not_out, not_rare_out],
+                       [rare_not_out, rare_out]])
+    return out_list, out_tb
 
 def flatten_crosstab(out_tb):
     """Flatten the crosstab output list."""

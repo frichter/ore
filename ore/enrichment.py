@@ -30,7 +30,7 @@ class Enrich(object):
     """
 
     def __init__(self, joined_df, enrich_loc, rv_outlier_loc, distribution,
-                 annotations):
+                 annotations, expr_outlier_df):
         """Load and join variants and outliers.
 
         Args:
@@ -50,6 +50,7 @@ class Enrich(object):
         self.rv_outlier_loc = rv_outlier_loc
         print(self.rv_outlier_loc)
         self.annotations = annotations
+        self.expr_outlier_df = expr_outlier_df
 
     def loop_enrichment(self, n_processes, expr_cut_off_vec,
                         tss_cut_off_vec, af_cut_off_vec,
@@ -113,6 +114,7 @@ class Enrich(object):
         """
         print("Calculating enrichment for", cut_off_tuple)
         enrich_df = copy.deepcopy(self.joined_df)
+        expr_df = copy.deepcopy(self.expr_outlier_df)
         # Filtering for annotaiton here:
         if self.annotations:
             # only use if filtering by annotation:
@@ -126,15 +128,16 @@ class Enrich(object):
             cut_off_tuple = tuple(list(cut_off_tuple)[:-1])
             if enrich_df.shape[0] == 0:
                 return "NA_line: no overlaps with " + current_anno
+        enrich_df, expr_df = self.redefine_outliers(
+            enrich_df, expr_df, cut_off_tuple[0], self.distribution)
         # replace af_cut_off with intra-cohort minimum if former is
         # smaller than latter
         max_intrapop_af = self.get_max_intra_pop_af(
             enrich_df, cut_off_tuple[2])
         max_vcf_af = self.get_max_vcf_af(enrich_df, cut_off_tuple[2])
-        enrich_df = self.identify_rows_to_keep(
+        enrich_df = self.redefine_rare(
             enrich_df, max_intrapop_af, max_vcf_af,
-            af_vcf, intracohort_rare_ac,
-            self.distribution, cut_off_tuple)
+            af_vcf, intracohort_rare_ac, cut_off_tuple)
         # variant-centric enrichment
         print("Variant-centric enrichment")
         var_list = calculate_var_enrichment(enrich_df)
@@ -142,7 +145,7 @@ class Enrich(object):
         var_out_list.extend(var_list)
         # gene-centric enrichment
         print("Gene-centric enrichment")
-        gene_list = calculate_gene_enrichment(enrich_df)
+        gene_list = calculate_gene_enrichment(enrich_df, expr_df)
         gene_out_list = list(cut_off_tuple)
         gene_out_list.extend(gene_list)
         if self.annotations:
@@ -154,9 +157,72 @@ class Enrich(object):
         return var_out_line, gene_out_line
 
     @staticmethod
-    def identify_rows_to_keep(joined_df, max_intrapop_af, max_vcf_af,
-                              af_vcf, intracohort_rare_ac,
-                              distribution, cut_off_tuple):
+    def redefine_outliers(enrich_df, expr_df, expr_cut_off, distribution):
+        """Redefine expression outliers based on alternative cutoffs."""
+        # update outliers based on more extreme cut-offs
+        if distribution == "normal":
+            enrich_df = Enrich.update_norm_outliers(enrich_df, expr_cut_off)
+            expr_df = Enrich.update_norm_outliers(expr_df, expr_cut_off)
+            # enrich_df.expr_outlier = (
+            #     enrich_df.z_abs >= expr_cut_off) & enrich_df.expr_outlier
+            # enrich_df.expr_outlier_neg = (enrich_df.expr_outlier &
+            #                               enrich_df.expr_outlier_neg)
+            # enrich_df.expr_outlier_pos = (
+            #     (~enrich_df.expr_outlier_neg) & enrich_df.expr_outlier)
+        elif distribution == "rank":
+            enrich_df = Enrich.update_rank_outliers(enrich_df, expr_cut_off)
+            expr_df = Enrich.update_rank_outliers(expr_df, expr_cut_off)
+            # hi_expr_cut_off = 1 - expr_cut_off
+            # enrich_df.loc[:, "expr_outlier_neg"] = (
+            #     (enrich_df.expr_rank <= expr_cut_off) &
+            #     enrich_df.expr_outlier_neg)
+            # enrich_df.loc[:, "expr_outlier"] = (
+            #     (enrich_df.expr_rank >= hi_expr_cut_off) |
+            #     enrich_df.expr_outlier_neg) & enrich_df.expr_outlier
+            # enrich_df.expr_outlier_pos = (
+            #     (~enrich_df.expr_outlier_neg) & enrich_df.expr_outlier)
+        # expression outliers should be preset as 0 and 1 for custom
+        # i.e., there should be no parameter iteration in this dimension
+        # else: raise error
+        # https://stackoverflow.com/a/33750531
+        enrich_df = enrich_df.assign(
+            gene_has_out_w_vars=enrich_df.groupby(
+                'gene')['expr_outlier'].transform('sum') > 0)
+        enrich_df = enrich_df.assign(
+            gene_has_NEG_out_w_vars=enrich_df.groupby(
+                'gene')['expr_outlier_neg'].transform('sum') > 0)
+        enrich_df = enrich_df.assign(
+            gene_has_POS_out_w_vars=enrich_df.groupby(
+                'gene')['expr_outlier_pos'].transform('sum') > 0)
+        enrich_df = enrich_df.loc[enrich_df.gene_has_out_w_vars]
+        return enrich_df, expr_df
+
+    @staticmethod
+    def update_norm_outliers(df, expr_cut_off):
+        """Update outliers if using z-scores."""
+        df.expr_outlier = (df.z_abs >= expr_cut_off) & df.expr_outlier
+        df.expr_outlier_neg = (df.expr_outlier & df.expr_outlier_neg)
+        df.expr_outlier_pos = (~df.expr_outlier_neg) & df.expr_outlier
+        return df
+
+    @staticmethod
+    def update_rank_outliers(df, expr_cut_off):
+        """Update outliers if using ranks."""
+        hi_expr_cut_off = 1 - expr_cut_off
+        df = df.assign(
+            expr_outlier_neg=(df.expr_rank <= expr_cut_off) &
+            df.expr_outlier_neg)
+        df = df.assign(
+            expr_outlier=((df.expr_rank >= hi_expr_cut_off) |
+                          df.expr_outlier_neg) & df.expr_outlier)
+        df = df.assign(
+            expr_outlier_pos=(~df.expr_outlier_neg) & df.expr_outlier)
+        return df
+
+    @staticmethod
+    def redefine_rare(joined_df, max_intrapop_af, max_vcf_af,
+                      af_vcf, intracohort_rare_ac,
+                      cut_off_tuple):
         """Reclassify rare variants and outliers and identify rows to keep.
 
         Keep only rows for genes with at least 1 outlier
@@ -167,43 +233,6 @@ class Enrich(object):
         joined_df["near_TSS"] = abs(joined_df.tss_dist) <= tss_cut_off
         joined_df = joined_df.loc[joined_df.near_TSS]
         # print("filtered by TSS:", joined_df.shape)
-        # update outliers based on more extreme cut-offs
-        if distribution == "normal":
-            joined_df.expr_outlier = (
-                joined_df.z_abs >= expr_cut_off) & joined_df.expr_outlier
-            joined_df.expr_outlier_neg = (joined_df.expr_outlier &
-                                          joined_df.expr_outlier_neg)
-            joined_df.expr_outlier_pos = (
-                (~joined_df.expr_outlier_neg) & joined_df.expr_outlier)
-        elif distribution == "rank":
-            hi_expr_cut_off = 1 - expr_cut_off
-            joined_df.loc[:, "expr_outlier_neg"] = (
-                (joined_df.expr_rank <= expr_cut_off) &
-                joined_df.expr_outlier_neg)
-            joined_df.loc[:, "expr_outlier"] = (
-                (joined_df.expr_rank >= hi_expr_cut_off) |
-                joined_df.expr_outlier_neg) & joined_df.expr_outlier
-            joined_df.expr_outlier_pos = (
-                (~joined_df.expr_outlier_neg) & joined_df.expr_outlier)
-        # expression outliers should be preset as 0 and 1 for custom
-        # i.e., there should be no parameter iteration in this dimension
-        # else: raise error
-        # https://stackoverflow.com/a/33750531
-        # only keep if there is any outlier in the gene
-        # joined_df.loc[:, 'gene_has_out_w_vars'] = joined_df.groupby(
-        #     'gene')['expr_outlier'].transform('sum') > 0
-        # joined_df.loc[:, 'gene_has_NEG_out_w_vars'] = joined_df.groupby(
-        #     'gene')['expr_outlier_neg'].transform('sum') > 0
-        joined_df = joined_df.assign(
-            gene_has_out_w_vars=joined_df.groupby(
-                'gene')['expr_outlier'].transform('sum') > 0)
-        joined_df = joined_df.assign(
-            gene_has_NEG_out_w_vars=joined_df.groupby(
-                'gene')['expr_outlier_neg'].transform('sum') > 0)
-        joined_df = joined_df.assign(
-            gene_has_POS_out_w_vars=joined_df.groupby(
-                'gene')['expr_outlier_pos'].transform('sum') > 0)
-        joined_df = joined_df.loc[joined_df.gene_has_out_w_vars]
         # classify as rare/common
         rare_variant_status = joined_df.popmax_af <= af_cut_off
         if af_vcf:
@@ -291,12 +320,15 @@ class Enrich(object):
         print("Writing RV outliers to file")
         cut_off_tuple = (out_cut_off, tss_cut_off, af_cut_off)
         enrich_df = copy.deepcopy(self.joined_df)
+        expr_df = copy.deepcopy(self.expr_outlier_df)
+        enrich_df, expr_df = self.redefine_outliers(
+            enrich_df, expr_df, cut_off_tuple[0], self.distribution)
         max_intrapop_af = self.get_max_intra_pop_af(enrich_df, af_cut_off)
         max_vcf_af = self.get_max_vcf_af(enrich_df, af_cut_off)
-        outlier_df = self.identify_rows_to_keep(
+        outlier_df = self.redefine_rare(
             enrich_df, max_intrapop_af, max_vcf_af,
             af_vcf, intracohort_rare_ac,
-            distribution=self.distribution, cut_off_tuple=cut_off_tuple)
+            cut_off_tuple=cut_off_tuple)
         # only keep outliers with rare variants
         outlier_df = outlier_df.loc[
             outlier_df.rare_variant_status & outlier_df.expr_outlier]

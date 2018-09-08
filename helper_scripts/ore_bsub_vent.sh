@@ -8,61 +8,56 @@
 #BSUB -o vent_outliers_3.stdout
 #BSUB -e vent_outliers_3.stderr
 
-######################### GTEX LV #########################
-
-# EXPR_F="/hpc/users/richtf01/whole_genome/rare_variants_eqtl/gtex_control/gtex_final_expr_matrix/LV_gtex_2018_02_20/residual_expr_5_SVs_hg19.bed.gz"
-# VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/rare_var_outliers/gtex_june_2017/wgs_gtex.vcf.gz"
-# OUT_PREFIX="/sc/orga/projects/chdiTrios/Felix/dna_rna/rare_var_outliers/gtex_2018_04/wgs_gtex_lv_2"
-# ENRICH_PREFIX="/sc/orga/projects/chdiTrios/Felix/dna_rna/rare_var_outliers/gtex_2018_04/enrichment_results/lv/"
-
-# job name: gtex_lv_2
-
 
 ##################### PCGC Vent ##########################
 
 # vent_outliers_3
-cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_07
+cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09
 
-module load bedtools/2.27.0
-module load samtools/1.3
-module load bcftools/1.6
-module load python/3.5.0
-module load py_packages/3.5
+module purge
+module load bedtools/2.27.0 samtools/1.3 bcftools/1.6
+module load python/3.5.0 py_packages/3.5
+source ~/venv_ore/bin/activate
+## confirm 3.5
+python --version
 
 
-PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_07"
-VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_vent_ids.norm.vcf.gz"
+PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09"
+VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_vent_ids.norm_smaller.vcf.gz"
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_vent/residual_expr_5_SVs_hg19.bed.gz"
-OUT_PREFIX="$PARENT_DIR/vent_ore"
-OUTLIER_OUT="$PARENT_DIR/vent_ore_SV5_utliers_most_extreme.txt"
-ENRICH_F="$PARENT_DIR/vent_enrich_most_extreme/vent_all_deepheart_10kb.txt"
+OUT_PREFIX="$PARENT_DIR/vent_ore_small_vcf"
+OUTLIER_OUT="$PARENT_DIR/vent_ore_small_vcf_SV5_outliers_norm_lt500.txt"
+ENRICH_F="$PARENT_DIR/vent_enrich_norm_utr5_SV5_lt500.txt"
 # vent_ore_per_anno_10kb.txt
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 
 # confirm on correct branch:
 # git checkout heart_ore_v27plus
-git status | head -n1
+# git status | head -n1
 python -m ore.ore --version
 
-python -m ore.ore --vcf $VCF \
+# python -m ore.ore --vcf $VCF \
+time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --bed $EXPR_F \
     --output $OUT_PREFIX \
     --outlier_output $OUTLIER_OUT \
     --enrich_file $ENRICH_F \
     --distribution "normal" \
-    --extrema \
     --threshold 2 \
-    --max_outliers_per_id 1000 \
+    --max_outliers_per_id 500 \
     --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
-    --intracohort_rare_ac 5 \
     --tss_dist 1e4 \
     --annovar \
+    --variant_class "UTR5" \
+    --ensgene \
+    --refgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 5
+    --processes 12
 
 
 
+# mprofile_20180907075150.dat
 # --ensgene \
 # --refgene \
 # --variant_class "UTR5" \
