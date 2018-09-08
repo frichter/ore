@@ -70,3 +70,7 @@ mprofile_20180908120510.dat
 real    248m6.220s
 user    1803m38.323s
 sys     184m1.028s
+
+# variant abstraction step time:
+2018-09-08 12:05:13
+2018-09-08 16:05:33
