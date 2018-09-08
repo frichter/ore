@@ -96,8 +96,6 @@ class JoinedVarExpr(object):
                 self.anno_list = [re.sub(rep_w_blank, "", i)
                                   for i in anno_list]
                 # self.anno_list = [i for i in self.anno_list if "factor" in i]
-                print(self.anno_list)
-                print(len(self.anno_list))
             else:
                 self.anno_list = None
             self.load_vars(var_loc, contigs, variant_class, exon_class,
@@ -201,7 +199,11 @@ class JoinedVarExpr(object):
             https://stackoverflow.com/a/34243246"""
             if self.anno_list:
                 print(var_df_per_chrom.shape)
-                print(var_df_per_chrom[self.anno_list[0]].sum())
+                print(var_df_per_chrom[self.anno_list] > 0)
+                print(var_df_per_chrom[self.anno_list].shape)
+                print(self.anno_list[2] + ":")
+                print(var_df_per_chrom[self.anno_list[2]].sum())
+                print(self.anno_list[1] + ":")
                 print(var_df_per_chrom[self.anno_list[1]].sum())
                 var_df_per_chrom[self.anno_list] = var_df_per_chrom[
                     var_df_per_chrom[self.anno_list] > 0][self.anno_list]
