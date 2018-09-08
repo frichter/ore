@@ -46,7 +46,7 @@ PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09"
 VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_atrial_ids.norm_smaller.vcf.gz"
 SV="5"
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_${SV}_SVs_hg19.bed.gz"
-MAX_OUTS="5000"
+MAX_OUTS="1000"
 OUT_PREFIX="$PARENT_DIR/atrial_ore"
 OUTLIER_OUT="$PARENT_DIR/atrial_outliers/atrial_ore_SV${SV}_outliers_norm_lt${MAX_OUTS}.txt"
 # atrial_ore_SV5_outliers_norm_lt500.txt
@@ -131,8 +131,8 @@ mv atrial_ore_all_data_extrema.txt atrial_data/atrial_ore_all_data_extrema_custo
 mv atrial_ore_rv_w_outliers_extrema.txt atrial_data/atrial_ore_rv_w_outliers_extrema_customIDrm_SV${SV}_${VAR_CLASS}.txt 
 
 #rank based
-mv atrial_ore_all_data_rank.txt atrial_ore_all_data_rank_customIDrm.txt
-mv atrial_ore_rv_w_outliers_rank.txt atrial_ore_rv_w_outliers_rank_customIDrm.txt 
+mv atrial_ore_all_data_rank.txt atrial_data/atrial_ore_all_data_rank_customIDrm.txt
+mv atrial_ore_rv_w_outliers_rank.txt atrial_data/atrial_ore_rv_w_outliers_rank_customIDrm.txt 
 
 ## cleaning outliers
 mv atrial_ore_small_vcf*outliers* atrial_outlier_data/
