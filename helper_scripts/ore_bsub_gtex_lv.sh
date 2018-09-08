@@ -24,20 +24,21 @@ EXPR_F="/hpc/users/richtf01/whole_genome/rare_variants_eqtl/gtex_control/gtex_fi
 VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/rare_var_outliers/gtex_june_2017/wgs_gtex.vcf.gz"
 PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/rare_var_outliers/gtex_2018_08"
 OUT_PREFIX="$PARENT_DIR/lv_gtex"
-ENRICH_F="$PARENT_DIR/lv_gtex_ref_ens_SV5_norm_lt500_enrich_utr5.txt"
-OUTLIER_OUT="$PARENT_DIR/atrial_ore_SV5_outliers_norm_lt500.txt"
+ENRICH_F="$PARENT_DIR/lv_gtex_enrich_ref_ens_SV5_rank_noRM_enrich_utr5.txt"
+OUTLIER_OUT="$PARENT_DIR/atrial_ore_SV5_outliers_rank_lt500.txt"
+# atrial_ore_SV5_outliers_norm_lt500.txt
+# atrial_ore_SV5_outliers_rank_lt500.txt
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 
-# time python -m ore.ore --vcf $VCF \
-time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
+# time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
+time python -m ore.ore --vcf $VCF \
     --bed $EXPR_F \
     --output $OUT_PREFIX \
-    --outlier_output "outliers_norm_SV5.txt" \
+    --outlier_output $OUTLIER_OUT \
     --enrich_file $ENRICH_F \
-    --distribution "normal" \
-    --threshold 2 \
-    --max_outliers_per_id 500 \
+    --distribution "rank" \
+    --threshold 0.025 \
     --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
     --tss_dist 1e4 \
     --annovar \
@@ -45,11 +46,12 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --ensgene \
     --refgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 12
+    --processes 6
 
 
 deactivate
 
+#     --max_outliers_per_id 500 \
 
 ## profile: mprofile_20180906210843.dat, mprofile_20180907061724.dat, mprofile_20180907070745.dat, mprofile_20180907071553.dat
 # location:

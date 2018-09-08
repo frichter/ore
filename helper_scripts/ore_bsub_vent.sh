@@ -27,7 +27,7 @@ VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_vent_ids.nor
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_vent/residual_expr_5_SVs_hg19.bed.gz"
 OUT_PREFIX="$PARENT_DIR/vent_ore_small_vcf"
 OUTLIER_OUT="$PARENT_DIR/vent_ore_small_vcf_SV5_outliers_norm_lt500.txt"
-VAR_CLASS="UTR3"
+VAR_CLASS="intronic"
 ENRICH_F="$PARENT_DIR/vent_enrich/vent_enrich_norm_${VAR_CLASS}_SV5_lt500.txt"
 # vent_ore_per_anno_10kb.txt
 
