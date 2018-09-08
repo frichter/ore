@@ -47,7 +47,7 @@ VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_atrial_ids.n
 SV="5"
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_${SV}_SVs_hg19.bed.gz"
 OUT_PREFIX="$PARENT_DIR/atrial_ore"
-OUTLIER_OUT="$PARENT_DIR/atrial_ore_SV${SV}_outliers_extrema_customIDRM.txt"
+OUTLIER_OUT="$PARENT_DIR/atrial_ore_SV${SV}_outliers_extrema_customIDrm.txt"
 # atrial_ore_SV5_outliers_norm_lt500.txt
 ## removes 7 IDs (below) that are also removed for direct comparisons
 # atrial_ore_SV5_outliers_extrema_customIDrm.txt
