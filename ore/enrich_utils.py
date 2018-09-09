@@ -15,22 +15,29 @@ import pandas as pd
 from scipy.stats import fisher_exact
 
 
-def calculate_var_enrichment(enrich_df):
+def calculate_var_enrichment(enrich_df, expr_df):
     """Calculate variant-centric enrichment."""
+    out_genes = expr_df[expr_df.expr_outlier].index.get_level_values(
+        'gene').unique()
+    enrich_df = enrich_df[enrich_df.gene.isin(out_genes)]
     out_tb = pd.crosstab(enrich_df.rare_variant_status,
                          enrich_df.expr_outlier)
     # print(out_tb)
     out_list = flatten_crosstab(out_tb)
     # only keep subset of genes that are negative expression outliers
-    # enrich_df_neg = enrich_df[enrich_df.gene_has_NEG_out_w_vars]
-    neg_out_tb = pd.crosstab(enrich_df.rare_variant_status,
-                             enrich_df.expr_outlier_neg)
+    out_genes = expr_df[expr_df.expr_outlier_neg].index.get_level_values(
+        'gene').unique()
+    enrich_df_neg = enrich_df[enrich_df.gene.isin(out_genes)]
+    neg_out_tb = pd.crosstab(enrich_df_neg.rare_variant_status,
+                             enrich_df_neg.expr_outlier_neg)
     # print(neg_out_tb)
     neg_out_list = flatten_crosstab(neg_out_tb)
     # now positive outliers
-    # enrich_df_pos = enrich_df[enrich_df.gene_has_POS_out_w_vars]
-    pos_out_tb = pd.crosstab(enrich_df.rare_variant_status,
-                             enrich_df.expr_outlier_pos)
+    out_genes = expr_df[expr_df.expr_outlier_pos].index.get_level_values(
+        'gene').unique()
+    enrich_df_pos = enrich_df[enrich_df.gene.isin(out_genes)]
+    pos_out_tb = pd.crosstab(enrich_df_pos.rare_variant_status,
+                             enrich_df_pos.expr_outlier_pos)
     # print(pos_out_tb)
     pos_out_list = flatten_crosstab(pos_out_tb)
     # now perform the actual calculations (if possible)
@@ -120,7 +127,7 @@ def quantify_gene_outs(out_class, enrich_df, expr_df):
     print("All genes:")
     print(enrich_df.shape)
     enrich_df_w_outs = enrich_df[enrich_df.gene.isin(out_genes)]
-    print("Only genes with outliers:")
+    print("Only genes with " + out_class + ":")
     print(enrich_df_w_outs.shape)
     rare_not_out = enrich_df_w_outs[enrich_df_w_outs.gene_has_rare_var &
                                     (~enrich_df_w_outs[out_class])].shape[0]

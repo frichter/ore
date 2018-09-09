@@ -141,7 +141,7 @@ class Enrich(object):
             af_vcf, intracohort_rare_ac, cut_off_tuple)
         # variant-centric enrichment
         print("Variant-centric enrichment")
-        var_list = calculate_var_enrichment(enrich_df)
+        var_list = calculate_var_enrichment(enrich_df, expr_df)
         var_out_list = list(cut_off_tuple)
         var_out_list.extend(var_list)
         # gene-centric enrichment
