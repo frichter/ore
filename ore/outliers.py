@@ -175,6 +175,7 @@ class Outliers(object):
                 outs_per_id = expr_outlier_df[[
                     'blinded_id', 'expr_outlier']].groupby('blinded_id').sum()
                 # print(any(outs_per_id.expr_outlier >= outlier_max))
+        self.remove_divergent_genes(ids_to_keep)
         # write `expr_outlier_df` to file
         print("Saving outlier status dataframe to", self.expr_outs_loc)
         expr_outlier_df.to_csv(self.expr_outs_loc, sep="\t", index=False)
@@ -245,7 +246,6 @@ class Outliers(object):
         self.expr_long_df = self.expr_long_df.assign(
             expr_outlier_pos=(self.expr_long_df.z_expr > 0) &
             self.expr_long_df.expr_outlier)
-        self.remove_divergent_genes(ids_to_keep)
 
     def remove_divergent_genes(self, ids_to_keep):
         """Remove genes where more than 5% of genes are outliers."""
