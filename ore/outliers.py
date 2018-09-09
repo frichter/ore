@@ -245,22 +245,26 @@ class Outliers(object):
         self.expr_long_df = self.expr_long_df.assign(
             expr_outlier_pos=(self.expr_long_df.z_expr > 0) &
             self.expr_long_df.expr_outlier)
-        """Remove genes where more than 10% of genes are outliers
-        print(self.expr_long_df.head())
-        print(self.expr_long_df.shape)
+        self.remove_divergent_genes(ids_to_keep)
+
+    def remove_divergent_genes(self, ids_to_keep):
+        """Remove genes where more than 5% of genes are outliers."""
+        print("Removing genes where more than 5% are outliers")
         outs_per_gene_ct = self.expr_long_df.groupby(
             'gene')['expr_outlier'].transform('sum')
-        outs_per_gene_reasonable = (0.1*len(ids_to_keep)) < outs_per_gene_ct
-        print(sum(outs_per_gene_reasonable))
-        genes_to_rm = self.expr_long_df.loc[
-          ~outs_per_gene_reasonable, :]['gene'].unique()
-        print("More than 1/10 samples have outliers more more extreme " +
+        outs_per_gene_NOT_reasonable = (
+            0.05*len(ids_to_keep)) < outs_per_gene_ct
+        print(sum(outs_per_gene_NOT_reasonable))
+        genes_to_rm = self.expr_long_df[
+            outs_per_gene_NOT_reasonable].index.get_level_values(
+            'gene').unique()
+        print("More than 1/20 samples have outliers more more extreme " +
               "than Z={} for these genes: {}".format(
                   str(self.least_extr_threshold), genes_to_rm))
-        print(self.expr_long_df.head())
+        self.expr_long_df = self.expr_long_df[~outs_per_gene_NOT_reasonable]
+        if self.expr_long_df.shape[0] == 0:
+            raise RNASeqError("All genes have >1/20 samples as outliers")
         print(self.expr_long_df.shape)
-        self.expr_long_df = self.expr_long_df.loc[outs_per_gene_reasonable, :]
-        # """
 
     def identify_outliers_from_ranks(self):
         """Identify outliers based on those more extreme than percentile.
@@ -417,7 +421,7 @@ class Outliers(object):
 
     @staticmethod
     def get_ids_w_low_out_ct(expr_outlier_df, outlier_max):
-        """Identify blinded_ids with a ton of outliers.
+        """Identify and remove blinded_ids with a ton of outliers.
 
         Args:
             `expr_outlier_df`: long-format expression dataframe

@@ -54,7 +54,7 @@ OUTLIER_OUT="$PARENT_DIR/atrial_outliers/atrial_ore_SV${SV}_outliers_norm_lt${MA
 # atrial_ore_SV5_outliers_extrema_customIDrm.txt
 # atrial_ore_SV5_outliers_rank_customIDrm.txt
 VAR_CLASS="UTR5"
-ENRICH_F="$PARENT_DIR/atrial_enrich/atrial_enrich_norm_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}_xCheck.txt"
+ENRICH_F="$PARENT_DIR/atrial_enrich/atrial_enrich_norm_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}.txt"
 # ore_per_anno_
 RM_IDS="1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670"
 
@@ -65,7 +65,7 @@ cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 # confirm on correct branch:
 # git status | head -n1
 # python -m ore.ore --help
-# python -m ore.ore --version
+python -m ore.ore --version
 
 # upstream and downstream (together) all annovar or subset
 # time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \

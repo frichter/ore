@@ -35,7 +35,7 @@ cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 # confirm on correct branch:
 # git checkout heart_ore_v27plus
 # git status | head -n1
-# python -m ore.ore --version
+python -m ore.ore --version
 
 # time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
 time python -m ore.ore --vcf $VCF \
