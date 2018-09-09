@@ -28,7 +28,7 @@ EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/n
 OUT_PREFIX="$PARENT_DIR/art_valve_da_ore_small_vcf"
 OUTLIER_OUT="$PARENT_DIR/art_valve_da_ore_small_vcf_SV5_outliers_norm_lt500.txt"
 VAR_CLASS="exonic"
-ENRICH_F="$PARENT_DIR/art_valve_da_enrich/art_valve_da_enrich_norm_${VAR_CLASS}_SV5_lt500.txt"
+ENRICH_F="$PARENT_DIR/art_valve_da_enrich/art_valve_da_enrich_norm_${VAR_CLASS}NS_SV5_lt500.txt"
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 
@@ -50,6 +50,7 @@ time python -m ore.ore --vcf $VCF \
     --tss_dist 1e4 \
     --annovar \
     --variant_class "$VAR_CLASS" \
+    --exon_class "nonsynonymous" \
     --ensgene \
     --refgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
@@ -58,6 +59,8 @@ time python -m ore.ore --vcf $VCF \
 
 deactivate
 
+# --exon_class nonsynonymous,synonymous,nonframeshift,frameshift,stopgain,stoploss
+# --exon_class "nonsynonymous" \ "frameshift|stopgain"
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09
 

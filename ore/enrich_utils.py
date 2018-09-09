@@ -77,15 +77,15 @@ def calculate_gene_enrichment(enrich_df, expr_df):
     out_class = 'expr_outlier'
     out_list, out_tb = quantify_gene_outs(out_class, enrich_df, expr_df)
     # only keep subset of genes that are negative expression outliers
-    enrich_df_neg = enrich_df[enrich_df.gene_has_NEG_out_w_vars]
+    # enrich_df_neg = enrich_df[enrich_df.gene_has_NEG_out_w_vars]
     out_class = 'expr_outlier_neg'
     neg_out_list, neg_out_tb = quantify_gene_outs(
-        out_class, enrich_df_neg, expr_df)
+        out_class, enrich_df, expr_df)
     # now positive outliers
-    enrich_df_pos = enrich_df[enrich_df.gene_has_POS_out_w_vars]
+    # enrich_df_pos = enrich_df[enrich_df.gene_has_POS_out_w_vars]
     out_class = 'expr_outlier_pos'
     pos_out_list, pos_out_tb = quantify_gene_outs(
-        out_class, enrich_df_pos, expr_df)
+        out_class, enrich_df, expr_df)
     # now perform the actual calculations (if possible)
     try:
         fet_or, fet_p = fisher_exact(out_tb)
@@ -113,14 +113,19 @@ def calculate_gene_enrichment(enrich_df, expr_df):
 
 def quantify_gene_outs(out_class, enrich_df, expr_df):
     """Create the 2x2 table for expression outliers."""
-    rare_out = enrich_df[enrich_df.gene_has_rare_var & enrich_df[out_class]
-                         ].shape[0]
-    rare_not_out = enrich_df[enrich_df.gene_has_rare_var &
-                             (~enrich_df[out_class])].shape[0]
-    not_rare_out = expr_df[out_class].sum() - rare_out
-    # count number of outliers in long expression DF
     out_genes = expr_df[expr_df[out_class]].index.get_level_values(
         'gene').unique()
+    rare_out = enrich_df[enrich_df.gene_has_rare_var & enrich_df[out_class]
+                         ].shape[0]
+    print("All genes:")
+    print(enrich_df.shape)
+    enrich_df_w_outs = enrich_df[enrich_df.gene.isin(out_genes)]
+    print("Only genes with outliers:")
+    print(enrich_df_w_outs.shape)
+    rare_not_out = enrich_df_w_outs[enrich_df_w_outs.gene_has_rare_var &
+                                    (~enrich_df_w_outs[out_class])].shape[0]
+    not_rare_out = expr_df[out_class].sum() - rare_out
+    # count number of outliers in long expression DF
     # print(out_class + " unique outlier genes: " + str(len(out_genes)))
     total_gene_by_id = expr_df.loc[expr_df.index.get_level_values(
         'gene').isin(out_genes)].shape[0]

@@ -127,15 +127,12 @@ class Enrich(object):
             # remove annotation column index number from tuple
             cut_off_tuple = tuple(list(cut_off_tuple)[:-1])
             if enrich_df.shape[0] == 0:
-                return "NA_line: no overlaps with " + current_anno
-        print(enrich_df.head(2))
-        print(enrich_df.shape)
+                return ("NA_line: no overlaps with " + current_anno,
+                        "NA_line: no overlaps with " + current_anno)
         enrich_df, expr_df = self.redefine_outliers(
             enrich_df, expr_df, cut_off_tuple[0], self.distribution)
         # replace af_cut_off with intra-cohort minimum if former is
         # smaller than latter
-        if enrich_df.shape[0] == 0:
-            return "NA_line: no overlaps with " + current_anno
         max_intrapop_af = self.get_max_intra_pop_af(
             enrich_df, cut_off_tuple[2])
         max_vcf_af = self.get_max_vcf_af(enrich_df, cut_off_tuple[2])
@@ -183,7 +180,7 @@ class Enrich(object):
         enrich_df = enrich_df.assign(
             gene_has_POS_out_w_vars=enrich_df.groupby(
                 'gene')['expr_outlier_pos'].transform('sum') > 0)
-        enrich_df = enrich_df.loc[enrich_df.gene_has_out_w_vars]
+        # enrich_df = enrich_df.loc[enrich_df.gene_has_out_w_vars]
         return enrich_df, expr_df
 
     @staticmethod
