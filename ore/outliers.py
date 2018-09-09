@@ -149,42 +149,42 @@ class Outliers(object):
         # logger.debug(self.expr_long_df.head())
         # logger.debug(self.expr_long_df.shape)
         # actually calculate the outliers
-        expr_outlier_df = self.get_outliers(vcf_id_list)
-        print(expr_outlier_df.head())
-        print(expr_outlier_df.shape)
+        self.get_outliers(vcf_id_list)
+        print(self.expr_long_df.head())
+        print(self.expr_long_df.shape)
         outs_per_id_file = re.sub('.txt', '_outliers_per_id_ALL',
                                   self.expr_outs_loc)
-        plot_outs_per_id(expr_outlier_df, outs_per_id_file)
+        plot_outs_per_id(self.expr_long_df, outs_per_id_file)
         outs_per_id_file = re.sub('.txt', '_outliers_per_id',
                                   self.expr_outs_loc)
         # determine which IDs have too many outliers (and remove these)
         if outlier_max:
-            outs_per_id = expr_outlier_df[[
+            outs_per_id = self.expr_long_df[[
                 'blinded_id', 'expr_outlier']].groupby('blinded_id').sum()
             while any(outs_per_id.expr_outlier >= outlier_max):
                 ids_to_keep = self.get_ids_w_low_out_ct(
-                    expr_outlier_df, outlier_max)
+                    self.expr_long_df, outlier_max)
                 lines_w_consistent_ids = self.expr_long_df.blinded_id.isin(
                     ids_to_keep)
                 if lines_w_consistent_ids.shape[0] == 0:
                     raise RNASeqError("No IDs with <{} outliers".format(
                         outlier_max))
                 self.expr_long_df = self.expr_long_df[lines_w_consistent_ids]
-                expr_outlier_df = self.get_outliers(ids_to_keep)
-                plot_outs_per_id(expr_outlier_df, outs_per_id_file)
-                outs_per_id = expr_outlier_df[[
+                self.get_outliers(ids_to_keep)
+                plot_outs_per_id(self.expr_long_df, outs_per_id_file)
+                outs_per_id = self.expr_long_df[[
                     'blinded_id', 'expr_outlier']].groupby('blinded_id').sum()
                 # print(any(outs_per_id.expr_outlier >= outlier_max))
         self.remove_divergent_genes(ids_to_keep)
-        # write `expr_outlier_df` to file
+        # write `self.expr_long_df` to file
         print("Saving outlier status dataframe to", self.expr_outs_loc)
-        expr_outlier_df.to_csv(self.expr_outs_loc, sep="\t", index=False)
+        self.expr_long_df.to_csv(self.expr_outs_loc, sep="\t", index=False)
 
     def get_outliers(self, ids_to_keep):
         """Calculate RNAseq outliers.
 
-        Returns:
-            `expr_outlier_df` (:obj:`DataFrame`): outliers per gene across
+        Updates:
+            `expr_long_df` (:obj:`DataFrame`): outliers per gene across
                 all genes in long format
 
         Raises:
@@ -218,13 +218,7 @@ class Outliers(object):
             raise RNASeqError("'{}' is not a valid outlier distribution".
                               format(self.distribution))
         if self.extrema:
-            expr_outlier_df = self.find_most_extreme_expr_outlier()
-        else:
-            expr_outlier_df = self.expr_long_df
-        # print(expr_outlier_df.head())
-        # print(expr_outlier_df.shape)
-        # expr_outlier_df.reset_index(inplace=True)
-        return expr_outlier_df
+            self.find_most_extreme_expr_outlier()
 
     def identify_outliers_from_normal(self, ids_to_keep):
         """Identify outliers more extreme than a z-score threshold.
@@ -253,23 +247,28 @@ class Outliers(object):
         print(self.expr_long_df.head())
         print(self.expr_long_df.shape)
         print(self.expr_long_df.index.name)
-        self.expr_long_df.set_index(['gene', 'blinded_id'], inplace=True)
+        # self.expr_long_df.set_index(['gene', 'blinded_id'], inplace=True)
+        # print(self.expr_long_df.index.get_level_values(
+        #      'gene').unique())
         outs_per_gene_ct = self.expr_long_df.groupby(
             'gene')['expr_outlier'].transform('sum')
         outs_per_gene_NOT_reasonable = (
             0.05*len(ids_to_keep)) < outs_per_gene_ct
         print(sum(outs_per_gene_NOT_reasonable))
+        # genes_to_rm = self.expr_long_df[
+        #     outs_per_gene_NOT_reasonable].index.get_level_values(
+        #     'gene').unique()
         genes_to_rm = self.expr_long_df[
-            outs_per_gene_NOT_reasonable].index.get_level_values(
-            'gene').unique()
+            outs_per_gene_NOT_reasonable]['gene']
+        print(len(genes_to_rm))
+        genes_to_rm = self.expr_long_df[
+            outs_per_gene_NOT_reasonable]['gene'].unique()
         print("More than 1/20 samples have outliers more more extreme " +
               "than Z={} for {} genes".format(
                   str(self.least_extr_threshold), str(len(genes_to_rm))))
         self.expr_long_df = self.expr_long_df[~outs_per_gene_NOT_reasonable]
         if self.expr_long_df.shape[0] == 0:
             raise RNASeqError("All genes have >1/20 samples as outliers")
-        self.expr_long_df.reset_index(inplace=True)
-        print(self.expr_long_df.shape)
 
     def identify_outliers_from_ranks(self):
         """Identify outliers based on those more extreme than percentile.
@@ -387,24 +386,23 @@ class Outliers(object):
     def find_most_extreme_expr_outlier(self):
         """Loop over every gene in parallel, find the most extreme outlier.
 
-        Returns:
-            `expr_outlier_df` (:obj:`DataFrame`): outliers per gene across
+        Updates attributes:
+            `expr_long_df` (:obj:`DataFrame`): outliers per gene across
                 all genes in long format
 
         """
         print("Identifying most extreme outlier per gene...")
         print(self.expr_long_df.head())
         print(self.expr_long_df.shape)
-        expr_outlier_df = applyParallel(self.expr_long_df.groupby(
+        self.expr_long_df = applyParallel(self.expr_long_df.groupby(
             'gene'), self.find_most_extreme_expr_outlier_per_gene,
             self.n_processes)
-        expr_outlier_df['expr_outlier_neg'] = (
-            expr_outlier_df.expr_outlier_neg &
-            expr_outlier_df.expr_outlier)
-        expr_outlier_df['expr_outlier_pos'] = (
-            expr_outlier_df.expr_outlier_pos &
-            expr_outlier_df.expr_outlier)
-        return expr_outlier_df
+        self.expr_long_df['expr_outlier_neg'] = (
+            self.expr_long_df.expr_outlier_neg &
+            self.expr_long_df.expr_outlier)
+        self.expr_long_df['expr_outlier_pos'] = (
+            self.expr_long_df.expr_outlier_pos &
+            self.expr_long_df.expr_outlier)
 
     @staticmethod
     def find_most_extreme_expr_outlier_per_gene(gene_group):
