@@ -9,7 +9,7 @@
 #BSUB -e art_valve_da_outliers.stderr
 
 
-##################### PCGC Vent ##########################
+##################### PCGC Arterial/valve/da ##########################
 
 # vent_outliers_3
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09
@@ -27,7 +27,7 @@ VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_arterial_val
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_art_valve_da/residual_expr_5_SVs_hg19.bed.gz"
 OUT_PREFIX="$PARENT_DIR/art_valve_da_ore_small_vcf"
 OUTLIER_OUT="$PARENT_DIR/art_valve_da_ore_small_vcf_SV5_outliers_norm_lt500.txt"
-VAR_CLASS="allvars"
+VAR_CLASS="intergenic"
 ENRICH_F="$PARENT_DIR/art_valve_da_enrich/art_valve_da_enrich_norm_${VAR_CLASS}_SV5_lt500.txt"
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
@@ -35,10 +35,10 @@ cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 # confirm on correct branch:
 # git checkout heart_ore_v27plus
 # git status | head -n1
-python -m ore.ore --version
+# python -m ore.ore --version
 
 # time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
-python -m ore.ore --vcf $VCF \
+time python -m ore.ore --vcf $VCF \
     --bed $EXPR_F \
     --output $OUT_PREFIX \
     --outlier_output $OUTLIER_OUT \
@@ -49,17 +49,19 @@ python -m ore.ore --vcf $VCF \
     --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
     --tss_dist 1e4 \
     --annovar \
+    --variant_class "$VAR_CLASS" \
+    --ensgene \
+    --refgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 6
+    --processes 3
 
 
 deactivate
 
-# --variant_class "$VAR_CLASS" \
-# --ensgene \
-# --refgene \
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09
+
+VAR_CLASS="allvars"
 
 mv art_valve_da_ore_small_vcf_all_data.txt art_valve_da_data/art_valve_da_ore_small_vcf_all_data_lt500_SV5_${VAR_CLASS}.txt
 mv art_valve_da_ore_small_vcf_rv_w_outliers.txt art_valve_da_data/art_valve_da_ore_rv_w_outliers_small_vcf_lt500_SV5_${VAR_CLASS}.txt 

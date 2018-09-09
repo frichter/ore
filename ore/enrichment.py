@@ -132,6 +132,8 @@ class Enrich(object):
             enrich_df, expr_df, cut_off_tuple[0], self.distribution)
         # replace af_cut_off with intra-cohort minimum if former is
         # smaller than latter
+        print(enrich_df.head(2))
+        print(enrich_df.shape)
         max_intrapop_af = self.get_max_intra_pop_af(
             enrich_df, cut_off_tuple[2])
         max_vcf_af = self.get_max_vcf_af(enrich_df, cut_off_tuple[2])
@@ -163,24 +165,9 @@ class Enrich(object):
         if distribution == "normal":
             enrich_df = Enrich.update_norm_outliers(enrich_df, expr_cut_off)
             expr_df = Enrich.update_norm_outliers(expr_df, expr_cut_off)
-            # enrich_df.expr_outlier = (
-            #     enrich_df.z_abs >= expr_cut_off) & enrich_df.expr_outlier
-            # enrich_df.expr_outlier_neg = (enrich_df.expr_outlier &
-            #                               enrich_df.expr_outlier_neg)
-            # enrich_df.expr_outlier_pos = (
-            #     (~enrich_df.expr_outlier_neg) & enrich_df.expr_outlier)
         elif distribution == "rank":
             enrich_df = Enrich.update_rank_outliers(enrich_df, expr_cut_off)
             expr_df = Enrich.update_rank_outliers(expr_df, expr_cut_off)
-            # hi_expr_cut_off = 1 - expr_cut_off
-            # enrich_df.loc[:, "expr_outlier_neg"] = (
-            #     (enrich_df.expr_rank <= expr_cut_off) &
-            #     enrich_df.expr_outlier_neg)
-            # enrich_df.loc[:, "expr_outlier"] = (
-            #     (enrich_df.expr_rank >= hi_expr_cut_off) |
-            #     enrich_df.expr_outlier_neg) & enrich_df.expr_outlier
-            # enrich_df.expr_outlier_pos = (
-            #     (~enrich_df.expr_outlier_neg) & enrich_df.expr_outlier)
         # expression outliers should be preset as 0 and 1 for custom
         # i.e., there should be no parameter iteration in this dimension
         # else: raise error

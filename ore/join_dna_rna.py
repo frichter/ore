@@ -198,14 +198,10 @@ class JoinedVarExpr(object):
             """Keep only lines where any of the annotations are 1.
             https://stackoverflow.com/a/34243246"""
             if self.anno_list:
-                print(var_df_per_chrom.shape)
                 nzv = var_df_per_chrom[self.anno_list].any(axis=1)
-                print(nzv.sum())
-                print(var_df_per_chrom[nzv].shape)
+                # print(nzv.sum())
+                # print(var_df_per_chrom[nzv].shape)
                 var_df_per_chrom = var_df_per_chrom[nzv]
-                print(var_df_per_chrom.head(n=1))
-                print(var_df_per_chrom.shape)
-                # raise ValueError("Exiting here on porpoise")
             list_.append(var_df_per_chrom)
             # list_ is just pointing to DF so doesn't take any memory
             print(sys.getsizeof(var_df_per_chrom)/(1024**3), "Gb")
