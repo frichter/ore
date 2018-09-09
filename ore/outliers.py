@@ -250,6 +250,7 @@ class Outliers(object):
     def remove_divergent_genes(self, ids_to_keep):
         """Remove genes where more than 5% of genes are outliers."""
         print("Removing genes where more than 5% are outliers")
+        self.expr_long_df.set_index(['gene', 'blinded_id'], inplace=True)
         outs_per_gene_ct = self.expr_long_df.groupby(
             'gene')['expr_outlier'].transform('sum')
         outs_per_gene_NOT_reasonable = (
@@ -264,6 +265,7 @@ class Outliers(object):
         self.expr_long_df = self.expr_long_df[~outs_per_gene_NOT_reasonable]
         if self.expr_long_df.shape[0] == 0:
             raise RNASeqError("All genes have >1/20 samples as outliers")
+        self.expr_long_df.reset_index(inplace=True)
         print(self.expr_long_df.shape)
 
     def identify_outliers_from_ranks(self):
