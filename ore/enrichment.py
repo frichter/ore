@@ -128,12 +128,14 @@ class Enrich(object):
             cut_off_tuple = tuple(list(cut_off_tuple)[:-1])
             if enrich_df.shape[0] == 0:
                 return "NA_line: no overlaps with " + current_anno
+        print(enrich_df.head(2))
+        print(enrich_df.shape)
         enrich_df, expr_df = self.redefine_outliers(
             enrich_df, expr_df, cut_off_tuple[0], self.distribution)
         # replace af_cut_off with intra-cohort minimum if former is
         # smaller than latter
-        print(enrich_df.head(2))
-        print(enrich_df.shape)
+        if enrich_df.shape[0] == 0:
+            return "NA_line: no overlaps with " + current_anno
         max_intrapop_af = self.get_max_intra_pop_af(
             enrich_df, cut_off_tuple[2])
         max_vcf_af = self.get_max_vcf_af(enrich_df, cut_off_tuple[2])
