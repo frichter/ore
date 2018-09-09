@@ -123,6 +123,7 @@ def quantify_gene_outs(out_class, enrich_df, expr_df):
     """Create the 2x2 table for expression outliers."""
     out_genes = expr_df[expr_df[out_class]].index.get_level_values(
         'gene').unique()
+    enrich_df = enrich_df[enrich_df.gene.isin(out_genes)]
     rare_out = enrich_df[enrich_df.gene_has_rare_var & enrich_df[out_class]
                          ].shape[0]
     print("All genes:")
