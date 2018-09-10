@@ -250,8 +250,15 @@ class Outliers(object):
         uniq_ids = self.expr_long_df.blinded_id.unique()
         print("Removing genes where more than 5% are outliers across " +
               str(len(uniq_ids)) + " samples.")
-        outs_per_gene_ct = self.expr_long_df.groupby(
-            'gene')['expr_outlier'].transform('sum')
+        if (self.distribution == "normal") and self.extrema:
+            self.expr_long_df = self.expr_long_df.assign(
+                expr_outlier_NOT_extrema=self.expr_long_df.z_abs >
+                self.least_extr_threshold)
+            outs_per_gene_ct = self.expr_long_df.groupby(
+                'gene')['expr_outlier_NOT_extrema'].transform('sum')
+        else:
+            outs_per_gene_ct = self.expr_long_df.groupby(
+                'gene')['expr_outlier'].transform('sum')
         outs_per_gene_NOT_reasonable = (
             0.05*len(uniq_ids)) < outs_per_gene_ct
         # genes_to_rm = self.expr_long_df[

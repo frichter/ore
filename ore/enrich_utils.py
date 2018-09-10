@@ -84,13 +84,10 @@ def calculate_gene_enrichment(enrich_df, expr_df):
     out_class = 'expr_outlier'
     out_list, out_tb = quantify_gene_outs(out_class, enrich_df, expr_df)
     # only keep subset of genes that are negative expression outliers
-    print("Genes with a negative outlier with a variant:")
-    print(enrich_df[enrich_df.gene_has_NEG_out_w_vars].shape)
     out_class = 'expr_outlier_neg'
     neg_out_list, neg_out_tb = quantify_gene_outs(
         out_class, enrich_df, expr_df)
     # now positive outliers
-    # enrich_df_pos = enrich_df[enrich_df.gene_has_POS_out_w_vars]
     out_class = 'expr_outlier_pos'
     pos_out_list, pos_out_tb = quantify_gene_outs(
         out_class, enrich_df, expr_df)
