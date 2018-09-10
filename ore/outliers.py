@@ -258,8 +258,9 @@ class Outliers(object):
                 'gene')['expr_outlier_NOT_extrema'].transform('sum')
         elif self.distribution == "rank":
             # Temporary just to confirm using same genes across all comparisons
+            print(self.expr_long_df.head())
             self.expr_long_df = self.expr_long_df.assign(
-                expr_outlier_NOT_rank=abs(self.expr_long_df.z_abs) > 2)
+                expr_outlier_NOT_rank=abs(self.expr_long_df.z_expr) > 2)
             outs_per_gene_ct = self.expr_long_df.groupby(
                 'gene')['expr_outlier_NOT_rank'].transform('sum')
         else:
