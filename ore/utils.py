@@ -215,20 +215,18 @@ def filter_refgene_ensgene(var_df_per_chrom, variant_class,
     if refgene:
         vars_refgene = var_df_per_chrom.func_refgene.str.contains(
             variant_class, regex=True)
-        # var_df_per_chrom = var_df_per_chrom[vars_refgene]
+        var_df_per_chrom = var_df_per_chrom[vars_refgene]
     if ensgene:
         vars_ensgene = var_df_per_chrom.func_ensgene.str.contains(
             variant_class, regex=True)
-        # var_df_per_chrom = var_df_per_chrom[vars_ensgene]
+        var_df_per_chrom = var_df_per_chrom[vars_ensgene]
     # for vars_ensgene OR vars_refgene filtering comment out 218 and 222
-    print("ENSEMBL or RefSeq:")
-    print(vars_ensgene.sum())
-    print(vars_refgene.sum())
-    print(sum(vars_ensgene | vars_refgene))
-    print(sum(vars_ensgene & vars_refgene))
-    print(var_df_per_chrom.shape)
-    var_df_per_chrom = var_df_per_chrom[vars_ensgene | vars_refgene]
-    print(var_df_per_chrom.shape)
+    # print("ENSEMBL or RefSeq:")
+    # print(sum(vars_ensgene | vars_refgene))
+    # print(sum(vars_ensgene & vars_refgene))
+    # print(var_df_per_chrom.shape)
+    # var_df_per_chrom = var_df_per_chrom[vars_ensgene | vars_refgene]
+    # print(var_df_per_chrom.shape)
     return var_df_per_chrom
 
 
