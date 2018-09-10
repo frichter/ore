@@ -179,7 +179,7 @@ def anno_file_locations(annotations):
     # rmsk = data_dir + "rmsk/rmsk.merged.sorted.bed"
     segdup = data_dir + "hg19_segdup.bed.gz"
     lcr = data_dir + "hg19_lcr_hs37d5.bed.gz"
-    map300 = data_dir + "../new_hg19_genome_masks/hg19_300bp_mapping1.bed.gz"
+    map300 = data_dir + "hg19_300bp_mapping1_merge.bed.gz"
     # hla_muc = data_dir + "genome/genes.MUC.HLA.bed"
     # dac_blacklist = data_dir + "dac_blacklist.bed"
     # duke_blacklist = data_dir + "encode_duke_blacklist.bed"

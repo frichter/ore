@@ -425,7 +425,7 @@ class Annotations(object):
         unwanted_cols = ['hg19_genomicSuperDups_99', 'LCR-hs37d5',
                          # 'encode_dac_blacklist_hg19',
                          # 'encode_duke_blacklist_hg19',
-                         'hg19_300bp_mapping1']
+                         'hg19_300bp_mapping1_merge']
         try:
             unwanted_vars_df = joined_anno_df.loc[:, unwanted_cols] == 0
         except KeyError:
