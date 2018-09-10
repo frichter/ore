@@ -240,6 +240,7 @@ class Outliers(object):
         self.expr_long_df = self.expr_long_df.assign(
             expr_outlier_pos=(self.expr_long_df.z_expr > 0) &
             self.expr_long_df.expr_outlier)
+        self.remove_divergent_genes(ids_to_keep)
 
     def remove_divergent_genes(self, ids_to_keep):
         """Remove genes where more than 5% of genes are outliers."""
