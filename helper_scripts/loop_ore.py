@@ -42,13 +42,17 @@ rm_ids = '1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670'
 os.chdir('/sc/orga/projects/chdiTrios/Felix/dna_rna/ore')
 
 #
-ore_obj = OREwrapper(vcf, expr_f, out_class, out_prefix,
+ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
                      outlier_output, var_class, enrich_f, rm_ids)
 
 sv_i = sv_list[8]
 max_outs_i = ore_obj.max_outs_list[2]
 ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
 print(ore_cmd_w_args)
+subprocess.call(ore_cmd_w_args, shell=True)
+
+mv_cmd = ore_obj.clean_files_after_run(sv_i, max_outs_i)
+print(mv_cmd)
 subprocess.call(ore_cmd_w_args, shell=True)
 
 # for norm:
@@ -126,6 +130,7 @@ mv_cmd = 'mv {} {}'.format(
 if not os.path.exists(new_data_f):
     print(mv_cmd)
     subprocess.call(mv_cmd, shell=True)
+
 
 # Other custom commands
 subprocess.call('rm ' + re.sub('.txt', '_gene.txt', enrich_f_i), shell=True)

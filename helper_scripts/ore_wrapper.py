@@ -1,12 +1,15 @@
 """Wrapper around ORE."""
 
+import os
+
 
 class OREwrapper(object):
     """Wrapper around ORE."""
 
-    def __init__(self, vcf, expr_f, out_class, out_prefix,
+    def __init__(self, home_dir, vcf, expr_f, out_class, out_prefix,
                  outlier_output, var_class, enrich_f, rm_ids):
         """Initialize the ORE wrapper."""
+        self.home_dir = home_dir
         self.vcf = vcf
         self.expr_f = expr_f
         self.out_class = out_class
@@ -77,8 +80,21 @@ class OREwrapper(object):
             extrema_arg=extrema_arg,
             max_outs_arg=max_outs_arg, rm_id_arg=rm_id_arg,
             var=self.var_class)
-        print(ore_cmd_w_args)
         return ore_cmd_w_args
 
+    def clean_files_after_run(self, new_data_f):
+        """Move files after the run to a different directory."""
+        if self.out_class is 'extrema':
+            full_data_f = 'atrial_ore_all_data_extrema.txt'
+        elif self.out_class is 'normal':
+            full_data_f = 'atrial_ore_all_data.txt'
+        elif self.out_class is 'rank':
+            full_data_f = 'atrial_ore_all_data_rank.txt'
+        mv_cmd = 'mv {} {}'.format(
+            self.home_dir + full_data_f,
+            new_data_f)
+        if os.path.exists(new_data_f):
+            print("Would be over-riding existing file")
+        return mv_cmd
 
 #
