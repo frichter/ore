@@ -58,7 +58,7 @@ new_data_f = (home_dir + 'atrial_data/atrial_ore_all_data_' +
               sv_i, out_class, max_outs_i, var_class)
 mv_cmd = ore_obj.clean_files_after_run(new_data_f)
 print(mv_cmd)
-subprocess.call(ore_cmd_w_args, shell=True)
+subprocess.call(mv_cmd, shell=True)
 
 # for norm:
 if out_class is 'normal':

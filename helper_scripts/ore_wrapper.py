@@ -85,11 +85,11 @@ class OREwrapper(object):
     def clean_files_after_run(self, new_data_f):
         """Move files after the run to a different directory."""
         if self.out_class is 'extrema':
-            self.full_data_f = self.out_prefix + 'all_data_extrema.txt'
+            self.full_data_f = self.out_prefix + '_all_data_extrema.txt'
         elif self.out_class is 'normal':
-            self.full_data_f = self.out_prefix + 'all_data.txt'
+            self.full_data_f = self.out_prefix + '_all_data.txt'
         elif self.out_class is 'rank':
-            self.full_data_f = self.out_prefix + 'all_data_rank.txt'
+            self.full_data_f = self.out_prefix + '_all_data_rank.txt'
         mv_cmd = 'mv {} {}'.format(
             self.home_dir + self.full_data_f,
             new_data_f)
