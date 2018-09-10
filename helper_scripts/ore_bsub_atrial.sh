@@ -46,8 +46,8 @@ PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09"
 VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_atrial_ids.norm_smaller.vcf.gz"
 SV="5"
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_${SV}_SVs_hg19.bed.gz"
-MAX_OUTS="Custom"
-OUT_CLASS="rank"
+MAX_OUTS="200"
+OUT_CLASS="extrema"
 OUT_PREFIX="$PARENT_DIR/atrial_ore"
 OUTLIER_OUT="$PARENT_DIR/atrial_outliers_5pct_max/atrial_ore_SV${SV}_outliers_${OUT_CLASS}_lt${MAX_OUTS}.txt"
 # atrial_ore_SV5_outliers_norm_lt500.txt
@@ -55,7 +55,7 @@ OUTLIER_OUT="$PARENT_DIR/atrial_outliers_5pct_max/atrial_ore_SV${SV}_outliers_${
 # atrial_ore_SV5_outliers_extrema_customIDrm.txt
 # atrial_ore_SV5_outliers_rank_customIDrm.txt
 VAR_CLASS="UTR5"
-ENRICH_F="$PARENT_DIR/atrial_enrich_map300/atrial_ens_ref_${OUT_CLASS}_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}_rmZ5pct_map300.txt"
+ENRICH_F="$PARENT_DIR/atrial_enrich_map300/atrial_ens_ref_${OUT_CLASS}_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}_rmZ5pct.txt"
 
 RM_IDS="1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670"
 
@@ -75,9 +75,10 @@ time python -m ore.ore --vcf $VCF \
     --output $OUT_PREFIX \
     --outlier_output $OUTLIER_OUT \
     --enrich_file $ENRICH_F \
-    --distribution "rank" \
-    --threshold 0.025 \
-    --exclude_ids $RM_IDS \
+    --distribution "normal" \
+    --threshold 2 \
+    --extrema \
+    --max_outliers_per_id "${MAX_OUTS}" \
     --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
     --tss_dist 1e3 2e3 5e3 1e4 \
     --annovar \
@@ -137,7 +138,7 @@ cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09
 mv atrial_ore_all_data.txt atrial_data/atrial_ore_all_data_lt${MAX_OUTS}_SV${SV}_${VAR_CLASS}.txt
 
 # most extreme
-mv atrial_ore_all_data_extrema.txt atrial_data/atrial_ore_all_data_extrema_customIDrm_SV${SV}_${VAR_CLASS}.txt
+mv atrial_ore_all_data_extrema.txt atrial_data/atrial_ore_all_data_extrema_lt${MAX_OUTS}_SV${SV}_${VAR_CLASS}.txt
 
 #rank based
 mv atrial_ore_all_data_rank.txt atrial_data/atrial_ore_all_data_rank_customIDrm.txt

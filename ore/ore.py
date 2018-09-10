@@ -147,13 +147,13 @@ def associate_outliers(args):
                         args.distribution,
                         args.annotations,
                         joined_obj.expr_outlier_df)
-    # enrich_obj.write_rvs_w_outs_to_file(
-    #     out_cut_off=outlier_obj.least_extr_threshold,
-    #     tss_cut_off=max_tss_dist,
-    #     af_cut_off=max(args.af_rare),
-    #     af_vcf=args.af_vcf,
-    #     intracohort_rare_ac=args.intracohort_rare_ac)
-    # logger.info("Obtained outliers with rare variants")
+    enrich_obj.write_rvs_w_outs_to_file(
+        out_cut_off=outlier_obj.least_extr_threshold,
+        tss_cut_off=max_tss_dist,
+        af_cut_off=max(args.af_rare),
+        af_vcf=args.af_vcf,
+        intracohort_rare_ac=args.intracohort_rare_ac)
+    logger.info("Obtained outliers with rare variants")
     enrich_obj.loop_enrichment(n_processes=n_processes,
                                expr_cut_off_vec=args.threshold,
                                tss_cut_off_vec=args.tss_dist,

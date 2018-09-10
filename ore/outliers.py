@@ -150,8 +150,6 @@ class Outliers(object):
         # logger.debug(self.expr_long_df.shape)
         # actually calculate the outliers
         self.get_outliers(vcf_id_list)
-        print(self.expr_long_df.head())
-        print(self.expr_long_df.shape)
         outs_per_id_file = re.sub('.txt', '_outliers_per_id_ALL',
                                   self.expr_outs_loc)
         plot_outs_per_id(self.expr_long_df, outs_per_id_file)
@@ -256,9 +254,10 @@ class Outliers(object):
                 self.least_extr_threshold)
             outs_per_gene_ct = self.expr_long_df.groupby(
                 'gene')['expr_outlier_NOT_extrema'].transform('sum')
+            self.expr_long_df.drop(
+                ['expr_outlier_NOT_extrema'], axis=1, inplace=True)
         elif self.distribution == "rank":
             # Temporary just to confirm using same genes across all comparisons
-            print(self.expr_long_df.head())
             self.expr_long_df = self.expr_long_df.assign(
                 expr_outlier_NOT_rank=abs(self.expr_long_df.z_expr) > 2)
             outs_per_gene_ct = self.expr_long_df.groupby(
