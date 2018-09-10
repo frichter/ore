@@ -85,13 +85,13 @@ class OREwrapper(object):
     def clean_files_after_run(self, new_data_f):
         """Move files after the run to a different directory."""
         if self.out_class is 'extrema':
-            full_data_f = 'atrial_ore_all_data_extrema.txt'
+            self.full_data_f = self.out_prefix + 'all_data_extrema.txt'
         elif self.out_class is 'normal':
-            full_data_f = 'atrial_ore_all_data.txt'
+            self.full_data_f = self.out_prefix + 'all_data.txt'
         elif self.out_class is 'rank':
-            full_data_f = 'atrial_ore_all_data_rank.txt'
+            self.full_data_f = self.out_prefix + 'all_data_rank.txt'
         mv_cmd = 'mv {} {}'.format(
-            self.home_dir + full_data_f,
+            self.home_dir + self.full_data_f,
             new_data_f)
         if os.path.exists(new_data_f):
             print("Would be over-riding existing file")

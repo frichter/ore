@@ -2,6 +2,8 @@
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09
 
+cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
+
 module purge
 module load bedtools/2.27.0 samtools/1.3 bcftools/1.6
 module load python/3.5.0 py_packages/3.5
@@ -45,13 +47,16 @@ os.chdir('/sc/orga/projects/chdiTrios/Felix/dna_rna/ore')
 ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
                      outlier_output, var_class, enrich_f, rm_ids)
 
-sv_i = sv_list[8]
+sv_i = sv_list[7]
 max_outs_i = ore_obj.max_outs_list[2]
 ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
 print(ore_cmd_w_args)
 subprocess.call(ore_cmd_w_args, shell=True)
 
-mv_cmd = ore_obj.clean_files_after_run(sv_i, max_outs_i)
+new_data_f = (home_dir + 'atrial_data/atrial_ore_all_data_' +
+              'SV{}_{}_lt{}_{}_rmZ5pct.txt').format(
+              sv_i, out_class, max_outs_i, var_class)
+mv_cmd = ore_obj.clean_files_after_run(new_data_f)
 print(mv_cmd)
 subprocess.call(ore_cmd_w_args, shell=True)
 
