@@ -55,7 +55,7 @@ OUTLIER_OUT="$PARENT_DIR/atrial_outliers_5pct_max/atrial_ore_SV${SV}_outliers_no
 # atrial_ore_SV5_outliers_extrema_customIDrm.txt
 # atrial_ore_SV5_outliers_rank_customIDrm.txt
 VAR_CLASS="UTR5"
-ENRICH_F="$PARENT_DIR/atrial_enrich/atrial_ref_and_ens_norm_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}_rmZ5pct.txt"
+ENRICH_F="$PARENT_DIR/atrial_enrich/atrial_ref_OR_ens_norm_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}_rmZ5pct.txt"
 # ENRICH_F="$PARENT_DIR/atrial_enrich/atrial_ref_and_ens_norm_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}_rmZ5pct.txt"
 # ore_per_anno_
 RM_IDS="1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670"
@@ -134,5 +134,6 @@ mv atrial_ore_rv_w_outliers_rank.txt atrial_data/atrial_ore_rv_w_outliers_rank_c
 ## cleaning outliers
 mv atrial_ore_small_vcf*outliers* atrial_outlier_data/
 
+mv atrial_ore_all_data.txt atrial_data/atrial_ore_all_data_ltCustomID_SV5_UTR5_renormZ.txt
 
 #
