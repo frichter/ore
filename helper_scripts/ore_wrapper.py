@@ -38,10 +38,11 @@ class OREwrapper(object):
             if self.tissue is 'vent':
                 max_outs_arg = '--max_outliers_per_id ' + max_outs_i + ' '
                 rm_id_arg = ''
-            """ Alternatively preset which IDs to remove:"""
-            max_outs_i = 'custom'
-            max_outs_arg = ''
-            rm_id_arg = '--exclude_ids ' + self.rm_ids + ' '
+            else:
+                """ Alternatively preset which IDs to remove:"""
+                max_outs_i = 'custom'
+                max_outs_arg = ''
+                rm_id_arg = '--exclude_ids ' + self.rm_ids + ' '
         elif self.out_class is 'normal':
             extrema_arg = ''
             dist_arg = self.out_class
