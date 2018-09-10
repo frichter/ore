@@ -91,7 +91,7 @@ class OREwrapper(object):
         elif self.out_class is 'rank':
             self.full_data_f = self.out_prefix + '_all_data_rank.txt'
         mv_cmd = 'mv {} {}'.format(
-            self.home_dir + self.full_data_f,
+            self.full_data_f,
             new_data_f)
         if os.path.exists(new_data_f):
             print("Would be over-riding existing file")
