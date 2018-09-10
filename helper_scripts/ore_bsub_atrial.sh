@@ -46,9 +46,9 @@ PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09"
 VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_atrial_ids.norm_smaller.vcf.gz"
 SV="5"
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_${SV}_SVs_hg19.bed.gz"
-MAX_OUTS="500"
+MAX_OUTS="CustomID"
 OUT_PREFIX="$PARENT_DIR/atrial_ore"
-OUTLIER_OUT="$PARENT_DIR/atrial_outliers_5pct_max/atrial_ore_SV${SV}_outliers_norm_lt${MAX_OUTS}_rmZ5pct_before_rmID.txt"
+# OUTLIER_OUT="$PARENT_DIR/atrial_outliers_5pct_max/atrial_ore_SV${SV}_outliers_norm_lt${MAX_OUTS}_rmZ5pct_before_rmID.txt"
 OUTLIER_OUT="$PARENT_DIR/atrial_outliers_5pct_max/atrial_ore_SV${SV}_outliers_norm_lt${MAX_OUTS}_renormZ.txt"
 # atrial_ore_SV5_outliers_norm_lt500.txt
 ## removes 7 IDs (below) that are also removed for direct comparisons
@@ -61,7 +61,6 @@ ENRICH_F="$PARENT_DIR/atrial_enrich/atrial_ref_and_ens_norm_${VAR_CLASS}_SV${SV}
 RM_IDS="1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670"
 
 # atrial_ore_all_data_anyUTR5_rmZ_AFTER_rmID.txt
-
 ##
 
 cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
@@ -80,7 +79,7 @@ time python -m ore.ore --vcf $VCF \
     --enrich_file $ENRICH_F \
     --distribution "normal" \
     --threshold 2 \
-    --max_outliers_per_id "${MAX_OUTS}" \
+    --exclude_ids $RM_IDS \
     --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
     --tss_dist 1e4 \
     --annovar \
@@ -91,6 +90,9 @@ time python -m ore.ore --vcf $VCF \
     --processes 3
 
 
+deactivate
+
+--max_outliers_per_id "${MAX_OUTS}" \
 
 
 ## profile: mprofile_20180906211602.dat mprofile_20180908115906.dat

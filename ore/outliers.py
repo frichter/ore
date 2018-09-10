@@ -175,7 +175,7 @@ class Outliers(object):
                 outs_per_id = self.expr_long_df[[
                     'blinded_id', 'expr_outlier']].groupby('blinded_id').sum()
                 # print(any(outs_per_id.expr_outlier >= outlier_max))
-        self.remove_divergent_genes(ids_to_keep)
+        self.remove_divergent_genes()
         # write `self.expr_long_df` to file
         print("Saving outlier status dataframe to", self.expr_outs_loc)
         self.expr_long_df.to_csv(self.expr_outs_loc, sep="\t", index=False)
@@ -242,16 +242,18 @@ class Outliers(object):
             self.expr_long_df.expr_outlier)
         # self.remove_divergent_genes(ids_to_keep)
 
-    def remove_divergent_genes(self, ids_to_keep):
+    def remove_divergent_genes(self):
         """Remove genes where more than 5% of genes are outliers."""
-        print("Removing genes where more than 5% are outliers")
         # self.expr_long_df.set_index(['gene', 'blinded_id'], inplace=True)
         # print(self.expr_long_df.index.get_level_values(
         #      'gene').unique())
+        uniq_ids = self.expr_long_df.blinded_id.unique()
+        print("Removing genes where more than 5% are outliers across " +
+              str(len(uniq_ids)) + " samples.")
         outs_per_gene_ct = self.expr_long_df.groupby(
             'gene')['expr_outlier'].transform('sum')
         outs_per_gene_NOT_reasonable = (
-            0.05*len(ids_to_keep)) < outs_per_gene_ct
+            0.05*len(uniq_ids)) < outs_per_gene_ct
         # genes_to_rm = self.expr_long_df[
         #     outs_per_gene_NOT_reasonable].index.get_level_values(
         #     'gene').unique()
