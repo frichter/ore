@@ -24,8 +24,8 @@ EXPR_F="/hpc/users/richtf01/whole_genome/rare_variants_eqtl/gtex_control/gtex_fi
 VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/rare_var_outliers/gtex_june_2017/wgs_gtex.vcf.gz"
 PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/rare_var_outliers/gtex_2018_08"
 OUT_PREFIX="$PARENT_DIR/lv_gtex"
-ENRICH_F="$PARENT_DIR/lv_gtex_enrich_ref_ens_SV5_extrema_noRM_enrich_utr5.txt"
-OUTLIER_OUT="$PARENT_DIR/outliers_extrema_SV5.txt"
+ENRICH_F="$PARENT_DIR/lv_gtex_enrich/lv_gtex_enrich_ref_ens_SV5_extrema_utr5.txt"
+OUTLIER_OUT="$PARENT_DIR/lv_gtex_outs/outliers_extrema_SV5.txt"
 # atrial_ore_SV5_outliers_norm_lt500.txt
 # atrial_ore_SV5_outliers_rank_lt500.txt
 
@@ -39,7 +39,6 @@ time python -m ore.ore --vcf $VCF \
     --enrich_file $ENRICH_F \
     --distribution "normal" \
     --threshold 2 \
-    --extrema \
     --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
     --tss_dist 1e4 \
     --annovar \
