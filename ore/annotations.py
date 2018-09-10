@@ -421,11 +421,11 @@ class Annotations(object):
             Un-hardcode this/customize which columns to remove
 
         """
-        unwanted_cols = ['hg19_segdup', 'hg19_lcr_hs37d5']
-        # unwanted_cols = ['hg19_genomicSuperDups_99', 'LCR-hs37d5',
-        #                  'encode_dac_blacklist_hg19',
-        #                  'encode_duke_blacklist_hg19',
-        #                  'hg19_300bp_mapping1']
+        # unwanted_cols = ['hg19_segdup', 'hg19_lcr_hs37d5']
+        unwanted_cols = ['hg19_genomicSuperDups_99', 'LCR-hs37d5',
+                         # 'encode_dac_blacklist_hg19',
+                         # 'encode_duke_blacklist_hg19',
+                         'hg19_300bp_mapping1']
         try:
             unwanted_vars_df = joined_anno_df.loc[:, unwanted_cols] == 0
         except KeyError:
