@@ -22,7 +22,7 @@ from helper_scripts.ore_wrapper import OREwrapper
 
 
 # atrial vent art_valve_da
-tissue = 'vent'
+tissue = 'art_valve_da'
 home_dir = '/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09/'
 vcf = (home_dir + '../wgs_pcgc_2018_01/wgs_' + tissue +
        '_ids.norm_smaller.vcf.gz')
