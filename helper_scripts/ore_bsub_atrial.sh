@@ -39,10 +39,12 @@ ANNO_LIST="$TF_DIR/factorbookMotif/*.sorted.bed"
 ###
 
 ## for annotations:
-# PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08"
+PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08"
 
 ## for re-runs:
-PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09"
+# PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09"
+
+cd $PARENT_DIR
 VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_atrial_ids.norm_smaller.vcf.gz"
 SV="5"
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_${SV}_SVs_hg19.bed.gz"
@@ -54,8 +56,9 @@ OUTLIER_OUT="$PARENT_DIR/atrial_outliers_5pct_max/atrial_ore_SV${SV}_outliers_${
 ## removes 7 IDs (below) that are also removed for direct comparisons
 # atrial_ore_SV5_outliers_extrema_customIDrm.txt
 # atrial_ore_SV5_outliers_rank_customIDrm.txt
-VAR_CLASS="UTR5"
+VAR_CLASS="TFvars"
 ENRICH_F="$PARENT_DIR/atrial_enrich_map300/atrial_ens_ref_${OUT_CLASS}_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}_rmZ5pct.txt"
+ENRICH_F="$PARENT_DIR/atrial_enrich/atrial_ens_ref_${OUT_CLASS}_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}_rmZ5pct.txt"
 
 RM_IDS="1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670"
 
@@ -80,11 +83,9 @@ time python -m ore.ore --vcf $VCF \
     --extrema \
     --max_outliers_per_id "${MAX_OUTS}" \
     --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
-    --tss_dist 1e3 2e3 5e3 1e4 \
+    --tss_dist 1e4 \
+    --annotations $ANNO_LIST \
     --annovar \
-    --variant_class "$VAR_CLASS" \
-    --refgene \
-    --ensgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
     --processes 3
 
@@ -105,6 +106,12 @@ deactivate
 --threshold 0.025 \
 --exclude_ids $RM_IDS \
 
+--variant_class "$VAR_CLASS" \
+--refgene \
+--ensgene \
+
+--annotations $ANNO_LIST \
+
 
 ## manually excluding IDs is faster
 ## for z-score, use --max_outliers_per_id 500
@@ -117,7 +124,6 @@ deactivate
 # --extrema \
 # time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
 # --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
-# --annotations $ANNO_LIST \
 # --threshold 2 \
 # --intracohort_rare_ac 5 \
 #     --threshold 0.025 0.01 \

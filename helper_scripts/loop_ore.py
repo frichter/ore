@@ -22,7 +22,7 @@ from helper_scripts.ore_wrapper import OREwrapper
 
 
 # atrial vent art_valve_da
-tissue = 'art_valve_da'
+tissue = 'vent'
 home_dir = '/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09/'
 vcf = (home_dir + '../wgs_pcgc_2018_01/wgs_' + tissue +
        '_ids.norm_smaller.vcf.gz')
@@ -33,7 +33,7 @@ out_prefix = home_dir + tissue + '_ore'
 # sv_list out_class max_outs_list
 outlier_output = (home_dir + tissue + '_outliers_5pct_max/' +
                   tissue + '_ore_SV{}_outliers_{}_lt{}.txt')
-var_class_list = ['allvars', 'intronic', 'intergenic', 'exonic', 'UTR5',
+var_class_list = ['intronic', 'intergenic', 'exonic', 'UTR5',
                   'UTR3', 'splicing', 'upstream', 'ncRNA']
 var_class = 'UTR5'
 # sv_list out_class max_outs_list var_class
@@ -51,7 +51,8 @@ os.chdir('/sc/orga/projects/chdiTrios/Felix/dna_rna/ore')
 
 
 """LOOP OVER Variant classes"""
-var_class_i = var_class_list[0]
+# memory permitting:
+var_class_i = 'all_vars'
 ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
                      outlier_output, var_class_i, enrich_f, rm_ids,
                      tissue)
@@ -62,24 +63,40 @@ print(ore_cmd_w_args)
 subprocess.call(ore_cmd_w_args, shell=True)
 
 for var_class_i in var_class_list:
+    print(var_class_i)
     ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
-                         outlier_output, var_class_i, enrich_f, rm_ids)
+                         outlier_output, var_class_i, enrich_f, rm_ids,
+                         tissue)
     max_outs_i = ore_obj.max_outs_list[2]
     sv_i = '5'
     ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
     print(ore_cmd_w_args)
     subprocess.call(ore_cmd_w_args, shell=True)
     # should use the same all_data.txt file for all variants
-
-# after running, move the data to a permanent home so it is not overwritten
-new_data_f = (home_dir + tissue + '_data/' + tissue + '_ore_all_data_' +
-              'SV{}_{}_lt{}_{}_rmZ5pct.txt').format(
-              sv_i, out_class, max_outs_i, 'all_vars')
-mv_cmd = ore_obj.clean_files_after_run(new_data_f)
-print(mv_cmd)
-subprocess.call(mv_cmd, shell=True)
+    # after running, move the data to a permanent home so it is not overwritten
+    new_data_f = (home_dir + tissue + '_data/' + tissue + '_ore_all_data_' +
+                  'SV{}_{}_lt{}_{}_rmZ5pct.txt').format(
+                  sv_i, out_class, max_outs_i, var_class_i)
+    mv_cmd = ore_obj.clean_files_after_run(new_data_f)
+    print(mv_cmd)
+    subprocess.call(mv_cmd, shell=True)
 
 """LOOP OVER MAXIMUM OUTLIERS."""
+ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
+                     outlier_output, var_class, enrich_f, rm_ids)
+
+for max_outs_i in ore_obj.max_outs_list:
+    sv_i = '5'
+    ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
+    print(ore_cmd_w_args)
+    subprocess.call(ore_cmd_w_args, shell=True)
+    # after running, move the data to a permanent home so it is not overwritten
+    new_data_f = (home_dir + 'atrial_data/atrial_ore_all_data_' +
+                  'SV{}_{}_lt{}_{}_rmZ5pct.txt').format(
+                  sv_i, out_class, max_outs_i, var_class)
+    mv_cmd = ore_obj.clean_files_after_run(new_data_f)
+    print(mv_cmd)
+    subprocess.call(mv_cmd, shell=True)
 
 
 """LOOP OVER SURROGATE VARIBLES."""
@@ -118,6 +135,23 @@ subprocess.call(
     'rm ' + re.sub('.txt', '_variant.txt', ore_obj.enrich_f_i), shell=True)
 subprocess.call('rm ' + home_dir + ore_obj.full_data_f, shell=True)
 
+
+"""
+import subprocess
+top_dir = ('/sc/orga/projects/chdiTrios/Felix/dna_rna/' +
+           'wgs_pcgc_2018_08/atrial_ore_per_chrom')
+
+chrom_list = [str(i) for i in range(1, 23)]
+chrom_list = ['X', 'Y']
+for chrom_i in chrom_list:
+    cut_cmd = ('time cut -f-85,143-155,517- ' +
+        '{top_dir}/all_tf_var_files/var_{chrom}.txt > ' +
+        '{top_dir}/var_{chrom}.txt').format(
+        top_dir=top_dir, chrom=chrom_i)
+    print(cut_cmd)
+    subprocess.call(cut_cmd, shell=True)
+
+"""
 #
 #
 #

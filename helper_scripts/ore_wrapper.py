@@ -35,14 +35,14 @@ class OREwrapper(object):
             extrema_arg = '--extrema '
             dist_arg = 'normal'
             expr_thresh = '2'
-            if self.tissue is not 'atrial':
-                max_outs_arg = '--max_outliers_per_id ' + max_outs_i + ' '
-                rm_id_arg = ''
-            else:
-                """ Alternatively preset which IDs to remove:"""
-                max_outs_i = 'custom'
-                max_outs_arg = ''
-                rm_id_arg = '--exclude_ids ' + self.rm_ids + ' '
+            # if self.tissue is not 'atrial':
+            max_outs_arg = '--max_outliers_per_id ' + max_outs_i + ' '
+            rm_id_arg = ''
+            # else:
+            #     """ Alternatively preset which IDs to remove:"""
+            #     max_outs_i = 'custom'
+            #     max_outs_arg = ''
+            #     rm_id_arg = '--exclude_ids ' + self.rm_ids + ' '
         elif self.out_class is 'normal':
             extrema_arg = ''
             dist_arg = self.out_class
