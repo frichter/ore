@@ -64,13 +64,18 @@ class OREwrapper(object):
             sv_i, self.out_class, max_outs_i)
         enrich_f_i = self.enrich_f.format(
             sv_i, self.out_class, max_outs_i, self.var_class)
+        if self.var_class is 'allvars':
+            var_arg = ''
+        else:
+            var_arg = ('--variant_class ' + self.var_class +
+                       ' --refgene --ensgene ')
         ore_cmd = ('time python -m ore.ore --vcf {vcf} --bed {expr} ' +
                    '--output {out_pref} --outlier_output {outlier_pref} ' +
                    '--enrich_file {enrich} --distribution {dist} ' +
                    '--threshold {expr_thresh} ' +
                    '{extrema_arg}{max_outs_arg}{rm_id_arg}' +
                    '--af_rare 0.05 1e-2 1e-3 1e-4 1e-5 --tss_dist 5e3 1e4 ' +
-                   '--annovar --variant_class {var} --refgene --ensgene ' +
+                   '--annovar {var_arg}' +
                    '--humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/' +
                    'humandb" --processes 3')
         ore_cmd_w_args = ore_cmd.format(
@@ -79,7 +84,7 @@ class OREwrapper(object):
             dist=dist_arg, expr_thresh=expr_thresh,
             extrema_arg=extrema_arg,
             max_outs_arg=max_outs_arg, rm_id_arg=rm_id_arg,
-            var=self.var_class)
+            var_arg=var_arg)
         return ore_cmd_w_args
 
     def clean_files_after_run(self, new_data_f):
