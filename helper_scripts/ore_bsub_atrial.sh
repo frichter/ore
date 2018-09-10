@@ -49,12 +49,13 @@ EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/n
 MAX_OUTS="500"
 OUT_PREFIX="$PARENT_DIR/atrial_ore"
 OUTLIER_OUT="$PARENT_DIR/atrial_outliers_5pct_max/atrial_ore_SV${SV}_outliers_norm_lt${MAX_OUTS}_rmZ5pct_before_rmID.txt"
+OUTLIER_OUT="$PARENT_DIR/atrial_outliers_5pct_max/atrial_ore_SV${SV}_outliers_norm_lt${MAX_OUTS}_renormZ.txt"
 # atrial_ore_SV5_outliers_norm_lt500.txt
 ## removes 7 IDs (below) that are also removed for direct comparisons
 # atrial_ore_SV5_outliers_extrema_customIDrm.txt
 # atrial_ore_SV5_outliers_rank_customIDrm.txt
 VAR_CLASS="UTR5"
-ENRICH_F="$PARENT_DIR/atrial_enrich/atrial_ref_and_ens_norm_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}_rmZ5pct_before_rmID.txt"
+ENRICH_F="$PARENT_DIR/atrial_enrich/atrial_ref_and_ens_norm_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}_rmZ5pct_renormZ.txt"
 # ENRICH_F="$PARENT_DIR/atrial_enrich/atrial_ref_and_ens_norm_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}_rmZ5pct.txt"
 # ore_per_anno_
 RM_IDS="1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670"

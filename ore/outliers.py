@@ -80,11 +80,11 @@ class Outliers(object):
             logger.debug(gene_expr_df.shape)
         # if calculating covariates, re-normalize
         self.cov = cov
-        """Re-calculating the z-score (not sure if appropriate)
-        if self.cov:
-            gene_expr_df = self.recalculate_Zscore(gene_expr_df)
-        Convert gene expression data frame from wide to long:
+        # """Re-calculating the z-score (not sure if appropriate)
+        # if self.cov:
+        gene_expr_df = self.recalculate_Zscore(gene_expr_df)
         # """
+        # Convert gene expression data frame from wide to long:
         self.expr_long_df = pd.melt(
             gene_expr_df,
             id_vars='gene',  # gene_expr_df.columns.values[0],  # 'gene',
@@ -240,14 +240,11 @@ class Outliers(object):
         self.expr_long_df = self.expr_long_df.assign(
             expr_outlier_pos=(self.expr_long_df.z_expr > 0) &
             self.expr_long_df.expr_outlier)
-        self.remove_divergent_genes(ids_to_keep)
+        # self.remove_divergent_genes(ids_to_keep)
 
     def remove_divergent_genes(self, ids_to_keep):
         """Remove genes where more than 5% of genes are outliers."""
         print("Removing genes where more than 5% are outliers")
-        print(self.expr_long_df.head())
-        print(self.expr_long_df.shape)
-        print(self.expr_long_df.index.name)
         # self.expr_long_df.set_index(['gene', 'blinded_id'], inplace=True)
         # print(self.expr_long_df.index.get_level_values(
         #      'gene').unique())
@@ -255,13 +252,9 @@ class Outliers(object):
             'gene')['expr_outlier'].transform('sum')
         outs_per_gene_NOT_reasonable = (
             0.05*len(ids_to_keep)) < outs_per_gene_ct
-        print(sum(outs_per_gene_NOT_reasonable))
         # genes_to_rm = self.expr_long_df[
         #     outs_per_gene_NOT_reasonable].index.get_level_values(
         #     'gene').unique()
-        genes_to_rm = self.expr_long_df[
-            outs_per_gene_NOT_reasonable]['gene']
-        print(len(genes_to_rm))
         genes_to_rm = self.expr_long_df[
             outs_per_gene_NOT_reasonable]['gene'].unique()
         print("More than 1/20 samples have outliers more more extreme " +
