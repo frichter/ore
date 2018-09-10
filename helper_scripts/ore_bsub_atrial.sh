@@ -46,16 +46,16 @@ PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09"
 VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_atrial_ids.norm_smaller.vcf.gz"
 SV="5"
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_${SV}_SVs_hg19.bed.gz"
-MAX_OUTS="CustomID"
+MAX_OUTS="500"
 OUT_PREFIX="$PARENT_DIR/atrial_ore"
 # OUTLIER_OUT="$PARENT_DIR/atrial_outliers_5pct_max/atrial_ore_SV${SV}_outliers_norm_lt${MAX_OUTS}_rmZ5pct_before_rmID.txt"
-OUTLIER_OUT="$PARENT_DIR/atrial_outliers_5pct_max/atrial_ore_SV${SV}_outliers_norm_lt${MAX_OUTS}_renormZ.txt"
+OUTLIER_OUT="$PARENT_DIR/atrial_outliers_5pct_max/atrial_ore_SV${SV}_outliers_norm_lt${MAX_OUTS}.txt"
 # atrial_ore_SV5_outliers_norm_lt500.txt
 ## removes 7 IDs (below) that are also removed for direct comparisons
 # atrial_ore_SV5_outliers_extrema_customIDrm.txt
 # atrial_ore_SV5_outliers_rank_customIDrm.txt
 VAR_CLASS="UTR5"
-ENRICH_F="$PARENT_DIR/atrial_enrich/atrial_ref_and_ens_norm_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}_rmZ5pct_renormZ.txt"
+ENRICH_F="$PARENT_DIR/atrial_enrich/atrial_ref_and_ens_norm_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}_rmZ5pct.txt"
 # ENRICH_F="$PARENT_DIR/atrial_enrich/atrial_ref_and_ens_norm_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}_rmZ5pct.txt"
 # ore_per_anno_
 RM_IDS="1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670"
@@ -79,7 +79,7 @@ time python -m ore.ore --vcf $VCF \
     --enrich_file $ENRICH_F \
     --distribution "normal" \
     --threshold 2 \
-    --exclude_ids $RM_IDS \
+    --max_outliers_per_id "${MAX_OUTS}" \
     --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
     --tss_dist 1e4 \
     --annovar \
@@ -92,16 +92,6 @@ time python -m ore.ore --vcf $VCF \
 
 deactivate
 
---max_outliers_per_id "${MAX_OUTS}" \
-
-
-## profile: mprofile_20180906211602.dat mprofile_20180908115906.dat
-# real    1022m33.976s
-# user    7261m36.688s
-# sys     368m34.895s
-
-# start: 2018-09-06 21:16:02
-# 2018-09-07 14:18:35
 
 ## manually excluding IDs is faster
 ## for z-score, use --max_outliers_per_id 500

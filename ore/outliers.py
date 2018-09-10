@@ -80,7 +80,7 @@ class Outliers(object):
             logger.debug(gene_expr_df.shape)
         # if calculating covariates, re-normalize
         self.cov = cov
-        # """Re-calculating the z-score (not sure if appropriate)
+        """Re-calculating the z-score (not sure if appropriate)
         # if self.cov:
         gene_expr_df = self.recalculate_Zscore(gene_expr_df)
         # """
