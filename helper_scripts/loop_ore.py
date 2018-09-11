@@ -75,6 +75,7 @@ for var_class_i in var_class_list:
 
 
 """LOOP OVER EXON classes"""
+
 var_class_i = 'exonic'
 ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
                      outlier_output, var_class_i, enrich_f, rm_ids,

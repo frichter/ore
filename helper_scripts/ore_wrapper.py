@@ -76,7 +76,7 @@ class OREwrapper(object):
                        ' --refgene --ensgene ')
         if self.exon_class:
             exon_arg = '--exon_class ' + self.exon_class + ' '
-            if self.exon_class is '"frameshift|stopgain"':
+            if 'frameshift' in self.exon_class:
                 exon_sub = 'LoF'
             else:
                 exon_sub = re.sub('onymous', '', self.exon_class)
