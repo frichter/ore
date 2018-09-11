@@ -1,6 +1,7 @@
 """Wrapper around ORE."""
 
 import os
+import re
 
 
 class OREwrapper(object):
@@ -63,10 +64,6 @@ class OREwrapper(object):
             max_outs_i = 'custom'
             max_outs_arg = ''
             rm_id_arg = '--exclude_ids ' + self.rm_ids + ' '
-        if self.exon_class:
-            exon_arg = '--exon_class ' + self.exon_class + ' '
-        else:
-            exon_arg = ''
         expr_f_i = self.expr_f.format(sv_i)
         outlier_output_i = self.outlier_output.format(
             sv_i, self.out_class, max_outs_i)
@@ -77,6 +74,15 @@ class OREwrapper(object):
         else:
             var_arg = ('--variant_class ' + self.var_class +
                        ' --refgene --ensgene ')
+        if self.exon_class:
+            exon_arg = '--exon_class ' + self.exon_class + ' '
+            if self.exon_class is '"frameshift|stopgain"':
+                exon_sub = 'LoF'
+            else:
+                exon_sub = re.sub('onymous', '', self.exon_class)
+            enrich_f_i = re.sub('exonic', 'exonic' + exon_sub, enrich_f_i)
+        else:
+            exon_arg = ''
         ore_cmd = ('time python -m ore.ore --vcf {vcf} --bed {expr} ' +
                    '--output {out_pref} --outlier_output {outlier_pref} ' +
                    '--enrich_file {enrich} --distribution {dist} ' +
