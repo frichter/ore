@@ -36,6 +36,7 @@ outlier_output = (home_dir + tissue + '_outliers_5pct_max/' +
 var_class_list = ['intronic', 'intergenic', 'exonic', 'UTR5',
                   'UTR3', 'splicing', 'upstream', 'ncRNA']
 var_class = 'UTR5'
+exon_class_list = ['synonymous', 'nonsynonymous', '"frameshift|stopgain"']
 # sv_list out_class max_outs_list var_class
 enrich_f = (home_dir + tissue + '_enrich_map300/' + tissue +
             '_ens_ref_SV{}_{}_lt{}_{}_rmZ5pct.txt')
@@ -52,7 +53,7 @@ os.chdir('/sc/orga/projects/chdiTrios/Felix/dna_rna/ore')
 
 """LOOP OVER Variant classes"""
 # memory permitting:
-var_class_i = 'all_vars'
+var_class_i = 'allvars'
 ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
                      outlier_output, var_class_i, enrich_f, rm_ids,
                      tissue)
@@ -74,12 +75,36 @@ for var_class_i in var_class_list:
     subprocess.call(ore_cmd_w_args, shell=True)
     # if possible use the same all_data.txt file for all variants
     # after running, move the data to a permanent home so it is not overwritten
+    var_class_i = 'allvars'
     new_data_f = (home_dir + tissue + '_data/' + tissue + '_ore_all_data_' +
                   'SV{}_{}_lt{}_{}_rmZ5pct.txt').format(
                   sv_i, out_class, max_outs_i, var_class_i)
     mv_cmd = ore_obj.clean_files_after_run(new_data_f)
     print(mv_cmd)
     subprocess.call(mv_cmd, shell=True)
+
+
+"""LOOP OVER EXON classes"""
+var_class_i = 'exonic'
+ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
+                     outlier_output, var_class_i, enrich_f, rm_ids,
+                     tissue)
+max_outs_i = ore_obj.max_outs_list[2]
+sv_i = '5'
+ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
+print(ore_cmd_w_args)
+subprocess.call(ore_cmd_w_args, shell=True)
+for exon_class_i in exon_class_list:
+    print(exon_class_i)
+    ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
+                         outlier_output, var_class_i, enrich_f, rm_ids,
+                         tissue, exon_class_i)
+    max_outs_i = ore_obj.max_outs_list[2]
+    sv_i = '5'
+    ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
+    print(ore_cmd_w_args)
+    subprocess.call(ore_cmd_w_args, shell=True)
+
 
 """LOOP OVER MAXIMUM OUTLIERS."""
 ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,

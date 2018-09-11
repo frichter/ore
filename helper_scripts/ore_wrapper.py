@@ -7,7 +7,8 @@ class OREwrapper(object):
     """Wrapper around ORE."""
 
     def __init__(self, home_dir, vcf, expr_f, out_class, out_prefix,
-                 outlier_output, var_class, enrich_f, rm_ids, tissue):
+                 outlier_output, var_class, enrich_f, rm_ids, tissue,
+                 exon_class=None):
         """Initialize the ORE wrapper."""
         self.home_dir = home_dir
         self.vcf = vcf
@@ -19,6 +20,7 @@ class OREwrapper(object):
         self.enrich_f = enrich_f
         self.rm_ids = rm_ids
         self.tissue = tissue
+        self.exon_class = exon_class
         if out_class is 'normal':
             self.max_outs_list = [
                 '100', '250', '500', '750', '1000', '2500', '5000']
@@ -61,6 +63,10 @@ class OREwrapper(object):
             max_outs_i = 'custom'
             max_outs_arg = ''
             rm_id_arg = '--exclude_ids ' + self.rm_ids + ' '
+        if self.exon_class:
+            exon_arg = '--exon_class ' + self.exon_class + ' '
+        else:
+            exon_arg = ''
         expr_f_i = self.expr_f.format(sv_i)
         outlier_output_i = self.outlier_output.format(
             sv_i, self.out_class, max_outs_i)
@@ -77,7 +83,7 @@ class OREwrapper(object):
                    '--threshold {expr_thresh} ' +
                    '{extrema_arg}{max_outs_arg}{rm_id_arg}' +
                    '--af_rare 0.05 1e-2 1e-3 1e-4 1e-5 --tss_dist 5e3 1e4 ' +
-                   '--annovar {var_arg}' +
+                   '--annovar {var_arg}{exon_arg}' +
                    '--humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/' +
                    'humandb" --processes 3')
         ore_cmd_w_args = ore_cmd.format(
@@ -86,7 +92,7 @@ class OREwrapper(object):
             dist=dist_arg, expr_thresh=expr_thresh,
             extrema_arg=extrema_arg,
             max_outs_arg=max_outs_arg, rm_id_arg=rm_id_arg,
-            var_arg=var_arg)
+            var_arg=var_arg, exon_arg=exon_arg)
         return ore_cmd_w_args
 
     def clean_files_after_run(self, new_data_f):
