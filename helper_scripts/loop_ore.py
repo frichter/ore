@@ -22,7 +22,7 @@ from helper_scripts.ore_wrapper import OREwrapper
 
 
 # atrial vent art_valve_da
-tissue = 'vent'
+tissue = 'atrial'
 home_dir = '/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09/'
 vcf = (home_dir + '../wgs_pcgc_2018_01/wgs_' + tissue +
        '_ids.norm_smaller.vcf.gz')
@@ -65,7 +65,7 @@ for var_class_i in var_class_list:
     subprocess.call(ore_cmd_w_args, shell=True)
     # if possible use the same all_data.txt file for all variants
     # after running, move the data to a permanent home so it is not overwritten
-    # var_class_i = 'allvars'
+    var_class_i = 'allvars'
     new_data_f = (home_dir + tissue + '_data/' + tissue + '_ore_all_data_' +
                   'SV{}_{}_lt{}_{}_rmZ5pct.txt').format(
                   sv_i, out_class, max_outs_i, var_class_i)
@@ -82,6 +82,11 @@ ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
                      tissue)
 max_outs_i = ore_obj.max_outs_list[2]
 sv_i = '5'
+# Only for arterial/valvar/da:
+# ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
+# print(ore_cmd_w_args)
+# subprocess.call(ore_cmd_w_args, shell=True)
+
 new_data_f = (home_dir + tissue + '_data/' + tissue + '_ore_all_data_' +
               'SV{}_{}_lt{}_{}_rmZ5pct.txt').format(
               sv_i, out_class, max_outs_i, var_class_i)

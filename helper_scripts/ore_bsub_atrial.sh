@@ -58,7 +58,7 @@ OUTLIER_OUT="$PARENT_DIR/atrial_outliers_5pct_max/atrial_ore_SV${SV}_outliers_${
 # atrial_ore_SV5_outliers_rank_customIDrm.txt
 VAR_CLASS="TFvars"
 ENRICH_F="$PARENT_DIR/atrial_enrich_map300/atrial_ens_ref_${OUT_CLASS}_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}_rmZ5pct.txt"
-ENRICH_F="$PARENT_DIR/atrial_enrich/atrial_ens_ref_${OUT_CLASS}_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}_rmZ5pct.txt"
+ENRICH_F="$PARENT_DIR/atrial_enrich/atrial_ens_ref_${OUT_CLASS}_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}_rmZ5pct_CLOSER.txt"
 
 RM_IDS="1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670"
 
@@ -82,8 +82,8 @@ time python -m ore.ore --vcf $VCF \
     --threshold 2 \
     --extrema \
     --max_outliers_per_id "${MAX_OUTS}" \
-    --af_rare 0.05 1e-2 1e-3 1e-4 1e-5 \
-    --tss_dist 1e4 \
+    --af_rare 1e-2 1e-3 1e-4 1e-5 \
+    --tss_dist 100 250 500 750 1e3 2e3 \
     --annotations $ANNO_LIST \
     --annovar \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
