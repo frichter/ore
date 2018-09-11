@@ -75,9 +75,12 @@ class Outliers(object):
         if exclude_ids:
             logger.debug("Expr DF size before excluding IDs:")
             logger.debug(gene_expr_df.shape)
-            gene_expr_df.drop(exclude_ids, axis=1, inplace=True)
-            logger.debug("Expr DF size AFTER excluding IDs:")
-            logger.debug(gene_expr_df.shape)
+            exclude_ids_in_df = [
+                i for i in exclude_ids if i in gene_expr_df.columns]
+            if exclude_ids_in_df:
+                gene_expr_df.drop(exclude_ids, axis=1, inplace=True)
+                logger.debug("Expr DF size AFTER excluding IDs:")
+                logger.debug(gene_expr_df.shape)
         # if calculating covariates, re-normalize
         self.cov = cov
         """Re-calculating the z-score (not sure if appropriate)

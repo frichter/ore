@@ -28,10 +28,11 @@ vcf = (home_dir + '../wgs_pcgc_2018_01/wgs_' + tissue +
        '_ids.norm_smaller.vcf.gz')
 expr_f = ('/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm' +
           '_cutoff/ns_' + tissue + '/residual_expr_{}_SVs_hg19.bed.gz')
-out_class = 'extrema'  # rank normal extrema
+out_class = 'rank'  # rank normal extrema
 out_prefix = home_dir + tissue + '_ore'
-# sv_list out_class max_outs_list
-outlier_output = (home_dir + tissue + '_outliers_5pct_max/' +
+# format order: sv_list out_class max_outs_list
+# _outliers_5pct_max or just _outliers
+outlier_output = (home_dir + tissue + '_outliers/' +
                   tissue + '_ore_SV{}_outliers_{}_lt{}.txt')
 var_class_list = ['intronic', 'intergenic', 'exonic', 'UTR5',
                   'UTR3', 'splicing', 'upstream', 'ncRNA']
@@ -39,19 +40,55 @@ var_class = 'UTR5'
 exon_class_list = ['synonymous', 'nonsynonymous', '"frameshift|stopgain"']
 # sv_list out_class max_outs_list var_class
 enrich_f = (home_dir + tissue + '_enrich_map300/' + tissue +
-            '_ens_ref_SV{}_{}_lt{}_{}_rmZ5pct.txt')
+            '_ens_ref_SV{}_{}_lt{}_{}_NOrmZ5pct.txt')
 
 rm_ids = '1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670'
+
+"""
+######### GTEx #########
+"""
+
+home_dir = ('/sc/orga/projects/chdiTrios/Felix/dna_rna/' +
+            'rare_var_outliers/gtex_2018_08/')
+vcf = ('/sc/orga/projects/chdiTrios/Felix/dna_rna/rare_var_outliers/' +
+       'gtex_june_2017/wgs_gtex.vcf.gz')
+expr_f = ('/hpc/users/richtf01/whole_genome/rare_variants_eqtl/gtex_control/' +
+          'gtex_final_expr_matrix/LV_gtex_2018_02_20/' +
+          'residual_expr_{}_SVs_hg19.bed.gz')
+out_prefix = home_dir + 'lv_gtex'
+# format order: sv_list out_class max_outs_list
+outlier_output = (home_dir + 'lv_gtex_outs/' +
+                  'lv_ore_SV{}_outliers_{}_lt{}.txt')
+enrich_f = (home_dir + 'lv_gtex_enrich/' +
+            'lv_gtex_ens_ref_SV{}_{}_lt{}_{}_NOrmZ5pct.txt')
 
 
 # change directories here
 # cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 os.chdir('/sc/orga/projects/chdiTrios/Felix/dna_rna/ore')
 
-#
+
+"""
+########################################################################
+# Running just a single example (e.g., rank-based)
+########################################################################
+"""
+
+ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
+                     outlier_output, var_class, enrich_f, rm_ids,
+                     tissue)
+max_outs_i = ore_obj.max_outs_list[2]
+sv_i = '5'
+ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
+print(ore_cmd_w_args)
+subprocess.call(ore_cmd_w_args, shell=True)
 
 
-"""LOOP OVER Variant classes"""
+"""
+########################################################################
+# LOOP OVER Variant classes
+########################################################################
+"""
 
 for var_class_i in var_class_list:
     print(var_class_i)
@@ -74,7 +111,11 @@ for var_class_i in var_class_list:
     subprocess.call(mv_cmd, shell=True)
 
 
-"""LOOP OVER EXON classes"""
+"""
+########################################################################
+# LOOP OVER EXON classes
+########################################################################
+"""
 
 var_class_i = 'exonic'
 ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
@@ -107,7 +148,11 @@ for exon_class_i in exon_class_list:
     subprocess.call(ore_cmd_w_args, shell=True)
 
 
-"""LOOP OVER MAXIMUM OUTLIERS."""
+"""
+########################################################################
+# LOOP OVER MAXIMUM OUTLIERS.
+########################################################################
+"""
 ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
                      outlier_output, var_class, enrich_f, rm_ids, tissue)
 
@@ -125,7 +170,11 @@ for max_outs_i in ore_obj.max_outs_list:
     subprocess.call(mv_cmd, shell=True)
 
 
-"""LOOP OVER SURROGATE VARIBLES."""
+"""
+########################################################################
+# LOOP OVER SURROGATE VARIBLES.
+########################################################################
+"""
 ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
                      outlier_output, var_class, enrich_f, rm_ids)
 
