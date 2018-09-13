@@ -60,6 +60,9 @@ class Enrich(object):
             n_processes (:obj:`int`): number of processes to use
 
         """
+        if os.path.exists(re.sub(".txt$", "_gene.txt", self.enrich_loc)):
+            print("Enrichment already made for " + self.enrich_loc)
+            return None
         if self.annotations:
             print("Anno column final index:", self.joined_df.shape[1] - 6)
             anno_list = [i for i in range(16, self.joined_df.shape[1] - 5)]

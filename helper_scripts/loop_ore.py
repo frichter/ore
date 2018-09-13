@@ -32,17 +32,18 @@ out_class = 'extrema'  # rank normal extrema
 out_prefix = home_dir + tissue + '_ore'
 # format order: sv_list out_class max_outs_list
 # _outliers_5pct_max or just _outliers
-outlier_output = (home_dir + tissue + '_outliers/' +
-                  tissue + '_ore_SV{}_outliers_{}_lt{}.txt')
+outlier_output = (home_dir + tissue + '_outliers_5pct_max/' +
+                  tissue + '_ore_SV{}_outliers_{}_lt{}_wPerms.txt')
 var_class_list = ['intronic', 'intergenic', 'exonic', 'UTR5',
                   'UTR3', 'splicing', 'upstream', 'ncRNA']
 var_class = 'UTR5'
 exon_class_list = ['synonymous', 'nonsynonymous', '"frameshift|stopgain"']
 # sv_list out_class max_outs_list var_class
 enrich_f = (home_dir + tissue + '_enrich_map300/' + tissue +
-            '_ens_ref_SV{}_{}_lt{}_{}_NOrmZ5pct.txt')
+            '_ens_ref_SV{}_{}_lt{}_{}_rmZ5pct_wPerms.txt')
 
 rm_ids = '1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670'
+
 
 """
 ######### GTEx #########
@@ -81,8 +82,8 @@ ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
 max_outs_i = ore_obj.max_outs_list[2]
 sv_i = '5'
 ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
-print(ore_cmd_w_args)
-subprocess.call(ore_cmd_w_args, shell=True)
+print(ore_cmd_w_args + ' --n_perms 10')
+subprocess.call(ore_cmd_w_args + ' --n_perms 10', shell=True)
 
 
 """
