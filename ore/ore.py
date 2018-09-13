@@ -23,6 +23,7 @@ from .enrichment import Enrich
 from .outliers import Outliers
 from .join_dna_rna import JoinedVarExpr
 from .version import __version__
+from .permute_enrichment import PermuteEnrich
 
 # Just comment/uncomment this line:
 """# Profiling libraries:
@@ -154,12 +155,15 @@ def associate_outliers(args):
         af_vcf=args.af_vcf,
         intracohort_rare_ac=args.intracohort_rare_ac)
     logger.info("Obtained outliers with rare variants")
-    enrich_obj.loop_enrichment(n_processes=n_processes,
-                               expr_cut_off_vec=args.threshold,
-                               tss_cut_off_vec=args.tss_dist,
-                               af_cut_off_vec=args.af_rare,
-                               af_vcf=args.af_vcf,
-                               intracohort_rare_ac=args.intracohort_rare_ac)
+    loop_enrich_args = {
+        'n_processes': n_processes, 'expr_cut_off_vec': args.threshold,
+        'tss_cut_off_vec': args.tss_dist, 'af_cut_off_vec': args.af_rare,
+        'af_vcf': args.af_vcf, 'intracohort_rare_ac': args.intracohort_rare_ac}
+    enrich_obj.loop_enrichment(**loop_enrich_args)
+    if args.n_perms:
+        PermuteEnrich(joined_obj.df, joined_obj.expr_outlier_df,
+                      output_prefix, args.distribution, args.annotations,
+                      enrich_file, loop_enrich_args, n_perms=args.n_perms)
     logger.info("Completed outlier enrichment")
     logger.info("All done :)")
 
@@ -320,6 +324,9 @@ def main():
     optional.add_argument("--clean_run", help="Delete temporary " +
                           "files from the previous run",
                           default=False, action="store_true")
+    optional.add_argument("--n_perms", help="Indicate number of permutations" +
+                          " if calculating a permutaiton p-value",
+                          default=None, type=int)
     parser._optionals.title = (
         '\x1b[1;32;40mOther optional arguments\x1b[0m')
     parser._action_groups.append(optional)

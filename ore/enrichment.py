@@ -48,7 +48,6 @@ class Enrich(object):
         self.enrich_loc = enrich_loc
         self.distribution = distribution
         self.rv_outlier_loc = rv_outlier_loc
-        print(self.rv_outlier_loc)
         self.annotations = annotations
         self.expr_outlier_df = expr_outlier_df
 

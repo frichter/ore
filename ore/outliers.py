@@ -78,9 +78,9 @@ class Outliers(object):
             exclude_ids_in_df = [
                 i for i in exclude_ids if i in gene_expr_df.columns]
             if exclude_ids_in_df:
-                gene_expr_df.drop(exclude_ids, axis=1, inplace=True)
-                logger.debug("Expr DF size AFTER excluding IDs:")
-                logger.debug(gene_expr_df.shape)
+                gene_expr_df.drop(exclude_ids_in_df, axis=1, inplace=True)
+            logger.debug("Expr DF size AFTER excluding IDs:")
+            logger.debug(gene_expr_df.shape)
         # if calculating covariates, re-normalize
         self.cov = cov
         """Re-calculating the z-score (not sure if appropriate)
@@ -266,6 +266,8 @@ class Outliers(object):
                 expr_outlier_NOT_rank=abs(self.expr_long_df.z_expr) > 2)
             outs_per_gene_ct = self.expr_long_df.groupby(
                 'gene')['expr_outlier_NOT_rank'].transform('sum')
+            self.expr_long_df.drop(
+                ['expr_outlier_NOT_rank'], axis=1, inplace=True)
         else:
             outs_per_gene_ct = self.expr_long_df.groupby(
                 'gene')['expr_outlier'].transform('sum')

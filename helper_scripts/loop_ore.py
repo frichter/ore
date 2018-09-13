@@ -28,7 +28,7 @@ vcf = (home_dir + '../wgs_pcgc_2018_01/wgs_' + tissue +
        '_ids.norm_smaller.vcf.gz')
 expr_f = ('/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm' +
           '_cutoff/ns_' + tissue + '/residual_expr_{}_SVs_hg19.bed.gz')
-out_class = 'rank'  # rank normal extrema
+out_class = 'extrema'  # rank normal extrema
 out_prefix = home_dir + tissue + '_ore'
 # format order: sv_list out_class max_outs_list
 # _outliers_5pct_max or just _outliers
@@ -48,6 +48,7 @@ rm_ids = '1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670'
 ######### GTEx #########
 """
 
+tissue = 'lv_gtex'
 home_dir = ('/sc/orga/projects/chdiTrios/Felix/dna_rna/' +
             'rare_var_outliers/gtex_2018_08/')
 vcf = ('/sc/orga/projects/chdiTrios/Felix/dna_rna/rare_var_outliers/' +
@@ -60,7 +61,7 @@ out_prefix = home_dir + 'lv_gtex'
 outlier_output = (home_dir + 'lv_gtex_outs/' +
                   'lv_ore_SV{}_outliers_{}_lt{}.txt')
 enrich_f = (home_dir + 'lv_gtex_enrich/' +
-            'lv_gtex_ens_ref_SV{}_{}_lt{}_{}_NOrmZ5pct.txt')
+            'lv_gtex_ens_ref_SV{}_{}_lt{}_{}_rmZ5pct.txt')
 
 
 # change directories here
@@ -102,7 +103,7 @@ for var_class_i in var_class_list:
     subprocess.call(ore_cmd_w_args, shell=True)
     # if possible use the same all_data.txt file for all variants
     # after running, move the data to a permanent home so it is not overwritten
-    var_class_i = 'allvars'
+    # var_class_i = 'allvars'
     new_data_f = (home_dir + tissue + '_data/' + tissue + '_ore_all_data_' +
                   'SV{}_{}_lt{}_{}_rmZ5pct.txt').format(
                   sv_i, out_class, max_outs_i, var_class_i)
