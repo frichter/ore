@@ -21,7 +21,7 @@
 # deactivate
 
 
-cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09
+cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08
 
 module purge
 module load bedtools/2.27.0 samtools/1.3 bcftools/1.6
@@ -36,6 +36,8 @@ TF_DIR="/sc/orga/projects/chdiTrios/Felix/wgs/bed_annotations/ucsc_2017_03"
 # ANNO_LIST="$TF_DIR/factorbookMotif/YY1.sorted.bed $TF_DIR/factorbookMotif/CTCF.sorted.bed $TF_DIR/TfbsClustered_split/CTCF.sorted.bed $TF_DIR/TfbsClustered_split/EP300.sorted.bed $TF_DIR/TfbsClustered_split/YY1.sorted.bed $TF_DIR/Conserved_TF_sites/NKX25.sorted.bed $TF_DIR/Conserved_TF_sites/P300.sorted.bed $TF_DIR/Conserved_TF_sites/YY1.sorted.bed"
 ANNO_LIST="$TF_DIR/factorbookMotif/*.sorted.bed"
  # $TF_DIR/TfbsClustered_split/*.sorted.bed $TF_DIR/Conserved_TF_sites/*.sorted.bed
+ANNO_DIR="/sc/orga/projects/chdiTrios/Felix/wgs/bed_annotations/"
+ANNO_LIST="$ANNO_DIR/ucsc_2017_03/factorbookMotif/CTCF.sorted.bed"
 ###
 
 ## for annotations:

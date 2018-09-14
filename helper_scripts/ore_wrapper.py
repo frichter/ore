@@ -64,6 +64,9 @@ class OREwrapper(object):
             max_outs_i = 'custom'
             max_outs_arg = ''
             rm_id_arg = '--exclude_ids ' + self.rm_ids + ' '
+        annotation_arg = ''
+        if self.annotations:
+            annotation_arg = '--annotations ' + self.annotations
         expr_f_i = self.expr_f.format(sv_i)
         outlier_output_i = self.outlier_output.format(
             sv_i, self.out_class, max_outs_i)
@@ -89,6 +92,7 @@ class OREwrapper(object):
                    '--threshold {expr_thresh} ' +
                    '{extrema_arg}{max_outs_arg}{rm_id_arg}' +
                    '--af_rare 0.05 1e-2 1e-3 1e-4 1e-5 --tss_dist 1e4 ' +
+                   '{annotation_arg}'
                    '--annovar {var_arg}{exon_arg}' +
                    '--humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/' +
                    'humandb" --processes 3')
@@ -98,6 +102,7 @@ class OREwrapper(object):
             dist=dist_arg, expr_thresh=expr_thresh,
             extrema_arg=extrema_arg,
             max_outs_arg=max_outs_arg, rm_id_arg=rm_id_arg,
+            annotation_arg=annotation_arg,
             var_arg=var_arg, exon_arg=exon_arg)
         return ore_cmd_w_args
 

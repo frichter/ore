@@ -1,6 +1,6 @@
 
 
-git add -u && git commit -m "output improved" && git push
+git add -u && git commit -m "Version update accepting covariates and additional annotations, and running permutation tests" && git push
 
 ## final commands run: 
 ## need to update version EVERYTIME in version.py

@@ -23,7 +23,8 @@ from helper_scripts.ore_wrapper import OREwrapper
 
 # atrial vent art_valve_da
 tissue = 'atrial'
-home_dir = '/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09/'
+# wgs_pcgc_2018_09 wgs_pcgc_2018_08
+home_dir = '/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08/'
 vcf = (home_dir + '../wgs_pcgc_2018_01/wgs_' + tissue +
        '_ids.norm_smaller.vcf.gz')
 expr_f = ('/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm' +
@@ -43,7 +44,20 @@ enrich_f = (home_dir + tissue + '_enrich_map300/' + tissue +
             '_ens_ref_SV{}_{}_lt{}_{}_rmZ5pct_wPerms.txt')
 
 rm_ids = '1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670'
-
+anno_dir = '/sc/orga/projects/chdiTrios/Felix/wgs/bed_annotations/'
+annos = ('{}/ucsc_2017_03/factorbookMotif/CTCF.sorted.bed ' +
+         '{}/hg19_all/Centipedehg19.bed ' +
+         '{}/hg19_all/DNaseMasterMajority.sorted.bed ' +
+         '{}/hg19_all/*_coreMarks_* ' +
+         '{}/hg19_all/*ata4* ' +
+         '{}/hg19_all/heart%252c*ctss* ' +
+         '{}/hg19_all/hg19.cage_peak_phase1and2combined_ann.bed ' +
+         '{}/hg19_all/*kx2* ' +
+         '{}/hg19_all/all_predictions.bed ' +
+         '{}/hg19_all/robust_enhancers.sorted.bed ' +
+         '{}/hg19_all/permissive_enhancers.sorted.bed ' +
+         '{}/hg19_all/*bx5* ' +
+         '{}/hg19_all/*.all_lncRNA.sorted.bed ')
 
 """
 ######### GTEx #########
