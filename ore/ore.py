@@ -26,7 +26,7 @@ from .version import __version__
 from .permute_enrichment import PermuteEnrich
 
 # Just comment/uncomment this line:
-# """# Profiling libraries:
+"""# Profiling libraries:
 import cProfile
 import pstats
 from memory_profiler import profile
@@ -38,7 +38,7 @@ from datetime import datetime
 # """
 
 
-@profile
+# @profile
 def associate_outliers(args):
     """Prepare and associate variants and outliers.
 
@@ -333,7 +333,7 @@ def main():
     parser._action_groups.append(optional)
     args = parser.parse_args()
     # uncomment this line only to switch between profiling and regular mode
-    # """Time (and memory?) profiling commands:
+    """Time (and memory?) profiling commands:
     cprof_cmd = ('associate_outliers(args)')
     ts = datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
     OUT_FILE = "_".join([args.output, ts, 'stats.out'])

@@ -21,7 +21,7 @@
 # deactivate
 
 
-cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08
+cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09
 
 module purge
 module load bedtools/2.27.0 samtools/1.3 bcftools/1.6
@@ -41,10 +41,10 @@ ANNO_LIST="$ANNO_DIR/ucsc_2017_03/factorbookMotif/CTCF.sorted.bed"
 ###
 
 ## for annotations:
-PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08"
+# PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08"
 
 ## for re-runs:
-# PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09"
+PARENT_DIR="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09"
 
 cd $PARENT_DIR
 VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_atrial_ids.norm_smaller.vcf.gz"
@@ -59,7 +59,7 @@ OUTLIER_OUT="$PARENT_DIR/atrial_small_vcf_profile/atrial_ore_SV${SV}_outliers_${
 # atrial_ore_SV5_outliers_extrema_customIDrm.txt
 # atrial_ore_SV5_outliers_rank_customIDrm.txt
 VAR_CLASS="UTR5"
-ENRICH_F="$PARENT_DIR/atrial_small_vcf_profile_enrich/atrial_ens_ref_${OUT_CLASS}_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}.txt"
+ENRICH_F="$PARENT_DIR/atrial_ore_small_vcf_profile/atrial_ens_ref_${OUT_CLASS}_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}.txt"
 
 RM_IDS="1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670"
 
@@ -90,7 +90,7 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --refgene \
     --ensgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 3
+    --processes 12
 
 
 deactivate
