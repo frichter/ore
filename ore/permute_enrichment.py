@@ -80,18 +80,16 @@ class PermuteEnrich(Enrich):
             'blinded_id').unique().tolist()
         # using permutation instead of shuffle:
         # https://stackoverflow.com/a/15474335
-        print(uniq_ids)
         perm_ids = np.random.permutation(uniq_ids).tolist()
-        print(perm_ids)
         self.id_dict = dict(zip(uniq_ids, perm_ids))
-        print(self.id_dict)
+        # print(self.id_dict)
         self.permute_expr_df = copy.deepcopy(self.expr_outlier_df)
         self.permute_expr_df.reset_index(inplace=True)
-        print(self.permute_expr_df.head())
+        # print(self.permute_expr_df.head())
         self.permute_expr_df = self.permute_expr_df.assign(
             blinded_id=self.permute_expr_df['blinded_id'].map(self.id_dict))
         self.permute_expr_df.set_index(['gene', 'blinded_id'], inplace=True)
-        print(self.permute_expr_df.head())
+        # print(self.permute_expr_df.head())
 
     def compare_observed_to_permuted(self):
         """Compare results from observed and permuted data to get p-values."""

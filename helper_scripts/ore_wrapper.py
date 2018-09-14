@@ -88,7 +88,7 @@ class OREwrapper(object):
                    '--enrich_file {enrich} --distribution {dist} ' +
                    '--threshold {expr_thresh} ' +
                    '{extrema_arg}{max_outs_arg}{rm_id_arg}' +
-                   '--af_rare 0.05 1e-2 1e-3 1e-4 1e-5 --tss_dist 5e3 1e4 ' +
+                   '--af_rare 0.05 1e-2 1e-3 1e-4 1e-5 --tss_dist 1e4 ' +
                    '--annovar {var_arg}{exon_arg}' +
                    '--humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/' +
                    'humandb" --processes 3')
