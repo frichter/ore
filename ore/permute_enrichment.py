@@ -80,7 +80,9 @@ class PermuteEnrich(Enrich):
             'blinded_id').unique()
         # using permutation instead of shuffle:
         # https://stackoverflow.com/a/15474335
+        print(uniq_ids)
         perm_ids = np.random.permutation(uniq_ids)
+        print(perm_ids)
         self.id_dict = dict(zip(uniq_ids, perm_ids))
         print(self.id_dict)
         self.permute_expr_df = copy.deepcopy(self.expr_outlier_df)
