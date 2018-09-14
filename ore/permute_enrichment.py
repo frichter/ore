@@ -26,7 +26,7 @@ class PermuteEnrich(Enrich):
 
     def __init__(self, joined_df, expr_outlier_df, output_prefix,
                  distribution, annotations, obs_enrich_loc,
-                 loop_enrich_args, n_perms=1):
+                 loop_enrich_args, write_rv_args, n_perms=1):
         """Initialize a permuted enrichment object."""
         self.joined_df = joined_df
         self.drop_relevant_expression_columns()
@@ -39,6 +39,7 @@ class PermuteEnrich(Enrich):
         prepare_directory(perm_dir)  # , clean_run=True
         self.generic_enrich_loc = perm_dir + '/perm_{}_{}.txt'
         self.loop_enrich_args = loop_enrich_args
+        self.write_rv_args = write_rv_args
         # loop over permutations
         for n_perm in range(n_perms):
             print('=========== Permutation {} ==========='.format(str(n_perm)))
@@ -62,8 +63,12 @@ class PermuteEnrich(Enrich):
         # declare enrichment output file name
         ts = datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
         self.enrich_loc = self.generic_enrich_loc.format(str(n_perm), ts)
+        self.rv_outlier_loc = re.sub('.txt$', '_rv_outs.txt', self.enrich_loc)
         # run loop_enrichment
         self.joined_df.reset_index(inplace=True)
+        print(self.joined_df.head())
+        super(PermuteEnrich, self).write_rvs_w_outs_to_file(
+            **self.write_rv_args)
         super(PermuteEnrich, self).loop_enrichment(**self.loop_enrich_args)
         # (possibly just a faster method to identify the number of
         #  outliers with rare variants)
@@ -77,11 +82,14 @@ class PermuteEnrich(Enrich):
         # https://stackoverflow.com/a/15474335
         perm_ids = np.random.permutation(uniq_ids)
         self.id_dict = dict(zip(uniq_ids, perm_ids))
+        print(self.id_dict)
         self.permute_expr_df = copy.deepcopy(self.expr_outlier_df)
         self.permute_expr_df.reset_index(inplace=True)
+        print(self.permute_expr_df.head())
         self.permute_expr_df = self.permute_expr_df.assign(
             blinded_id=self.permute_expr_df['blinded_id'].map(self.id_dict))
         self.permute_expr_df.set_index(['gene', 'blinded_id'], inplace=True)
+        print(self.permute_expr_df.head())
 
     def compare_observed_to_permuted(self):
         """Compare results from observed and permuted data to get p-values."""
