@@ -82,8 +82,8 @@ ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
 max_outs_i = ore_obj.max_outs_list[2]
 sv_i = '5'
 ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
-print(ore_cmd_w_args + ' --n_perms 10')
-subprocess.call(ore_cmd_w_args + ' --n_perms 10', shell=True)
+print(ore_cmd_w_args + ' --n_perms 1000')
+subprocess.call(ore_cmd_w_args + ' --n_perms 1000', shell=True)
 
 
 """
