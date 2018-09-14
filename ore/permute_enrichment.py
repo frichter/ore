@@ -35,7 +35,7 @@ class PermuteEnrich(Enrich):
         self.distribution = distribution
         self.annotations = annotations
         self.obs_enrich_loc = re.sub(".txt$", "_gene.txt", obs_enrich_loc)
-        perm_dir = output_prefix + '_per_chrom/perms'
+        perm_dir = output_prefix + '_per_chrom/perms2'
         prepare_directory(perm_dir)  # , clean_run=True
         self.generic_enrich_loc = perm_dir + '/perm_{}_{}.txt'
         self.loop_enrich_args = loop_enrich_args
@@ -82,7 +82,7 @@ class PermuteEnrich(Enrich):
         # https://stackoverflow.com/a/15474335
         perm_ids = np.random.permutation(uniq_ids).tolist()
         self.id_dict = dict(zip(uniq_ids, perm_ids))
-        # print(self.id_dict)
+        print(self.id_dict)
         self.permute_expr_df = copy.deepcopy(self.expr_outlier_df)
         self.permute_expr_df.reset_index(inplace=True)
         # print(self.permute_expr_df.head())
