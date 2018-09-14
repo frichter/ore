@@ -77,11 +77,11 @@ class PermuteEnrich(Enrich):
     def permute_ids(self):
         """Permute the RNAseq IDs."""
         uniq_ids = self.expr_outlier_df.index.get_level_values(
-            'blinded_id').unique()
+            'blinded_id').unique().tolist()
         # using permutation instead of shuffle:
         # https://stackoverflow.com/a/15474335
         print(uniq_ids)
-        perm_ids = np.random.permutation(uniq_ids)
+        perm_ids = np.random.permutation(uniq_ids).tolist()
         print(perm_ids)
         self.id_dict = dict(zip(uniq_ids, perm_ids))
         print(self.id_dict)
