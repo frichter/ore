@@ -34,30 +34,30 @@ out_prefix = home_dir + tissue + '_ore'
 # format order: sv_list out_class max_outs_list
 # _outliers_5pct_max or just _outliers
 outlier_output = (home_dir + tissue + '_outliers_5pct_max/' +
-                  tissue + '_ore_SV{}_outliers_{}_lt{}_wPerms.txt')
+                  tissue + '_ore_SV{}_outliers_{}_lt{}_forAnno.txt')
 var_class_list = ['intronic', 'intergenic', 'exonic', 'UTR5',
                   'UTR3', 'splicing', 'upstream', 'ncRNA']
-var_class = 'UTR5'
+var_class = 'allvars'  # 'UTR5'
 exon_class_list = ['synonymous', 'nonsynonymous', '"frameshift|stopgain"']
 # sv_list out_class max_outs_list var_class
 enrich_f = (home_dir + tissue + '_enrich_map300/' + tissue +
-            '_ens_ref_SV{}_{}_lt{}_{}_rmZ5pct_wPerms.txt')
+            '_ens_ref_SV{}_{}_lt{}_{}_rmZ5pct_forAnno.txt')
 
 rm_ids = '1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670'
 anno_dir = '/sc/orga/projects/chdiTrios/Felix/wgs/bed_annotations/'
-annos = ('{}/ucsc_2017_03/factorbookMotif/CTCF.sorted.bed ' +
-         '{}/hg19_all/Centipedehg19.bed ' +
-         '{}/hg19_all/DNaseMasterMajority.sorted.bed ' +
-         '{}/hg19_all/*_coreMarks_* ' +
-         '{}/hg19_all/*ata4* ' +
-         '{}/hg19_all/heart%252c*ctss* ' +
-         '{}/hg19_all/hg19.cage_peak_phase1and2combined_ann.bed ' +
-         '{}/hg19_all/*kx2* ' +
-         '{}/hg19_all/all_predictions.bed ' +
-         '{}/hg19_all/robust_enhancers.sorted.bed ' +
-         '{}/hg19_all/permissive_enhancers.sorted.bed ' +
-         '{}/hg19_all/*bx5* ' +
-         '{}/hg19_all/*.all_lncRNA.sorted.bed ')
+annos = ('{0}ucsc_2017_03/factorbookMotif/CTCF.sorted.bed ' +
+         '{0}hg19_all/Centipedehg19.bed ' +
+         '{0}hg19_all/DNaseMasterMajority.sorted.bed ' +
+         '{0}hg19_all/*_coreMarks_* ' +
+         '{0}hg19_all/*ata4* ' +
+         '{0}hg19_all/heart%252c*ctss* ' +
+         '{0}hg19_all/hg19.cage_peak_phase1and2combined_ann.bed ' +
+         '{0}hg19_all/*kx2* ' +
+         '{0}hg19_all/all_predictions.bed ' +
+         '{0}hg19_all/robust_enhancers.sorted.bed ' +
+         '{0}hg19_all/permissive_enhancers.sorted.bed ' +
+         '{0}hg19_all/*bx5* ' +
+         '{0}hg19_all/*.all_lncRNA.sorted.bed ').format(anno_dir)
 
 """
 ######### GTEx #########
@@ -92,12 +92,12 @@ os.chdir('/sc/orga/projects/chdiTrios/Felix/dna_rna/ore')
 
 ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
                      outlier_output, var_class, enrich_f, rm_ids,
-                     tissue)
+                     tissue, annos)
 max_outs_i = ore_obj.max_outs_list[2]
 sv_i = '5'
 ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
-print(ore_cmd_w_args + ' --n_perms 1000')
-subprocess.call(ore_cmd_w_args + ' --n_perms 1000', shell=True)
+print(ore_cmd_w_args)  # + ' --n_perms 1000'  + ' --n_perms 1000'
+subprocess.call(ore_cmd_w_args, shell=True)
 
 
 """

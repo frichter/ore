@@ -52,15 +52,14 @@ SV="5"
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_${SV}_SVs_hg19.bed.gz"
 MAX_OUTS="200"
 OUT_CLASS="extrema"
-OUT_PREFIX="$PARENT_DIR/atrial_ore"
-OUTLIER_OUT="$PARENT_DIR/atrial_outliers_5pct_max/atrial_ore_SV${SV}_outliers_${OUT_CLASS}_lt${MAX_OUTS}.txt"
+OUT_PREFIX="$PARENT_DIR/atrial_ore_small_vcf_profile"
+OUTLIER_OUT="$PARENT_DIR/atrial_small_vcf_profile/atrial_ore_SV${SV}_outliers_${OUT_CLASS}_lt${MAX_OUTS}.txt"
 # atrial_ore_SV5_outliers_norm_lt500.txt
 ## removes 7 IDs (below) that are also removed for direct comparisons
 # atrial_ore_SV5_outliers_extrema_customIDrm.txt
 # atrial_ore_SV5_outliers_rank_customIDrm.txt
-VAR_CLASS="TFvars"
-ENRICH_F="$PARENT_DIR/atrial_enrich_map300/atrial_ens_ref_${OUT_CLASS}_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}_rmZ5pct.txt"
-ENRICH_F="$PARENT_DIR/atrial_enrich/atrial_ens_ref_${OUT_CLASS}_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}_rmZ5pct_CLOSER.txt"
+VAR_CLASS="UTR5"
+ENRICH_F="$PARENT_DIR/atrial_small_vcf_profile_enrich/atrial_ens_ref_${OUT_CLASS}_${VAR_CLASS}_SV${SV}_lt${MAX_OUTS}.txt"
 
 RM_IDS="1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670"
 
@@ -74,8 +73,8 @@ cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
 # python -m ore.ore --version
 
 # upstream and downstream (together) all annovar or subset
-# time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
-time python -m ore.ore --vcf $VCF \
+# time python -m ore.ore --vcf $VCF \
+time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --bed $EXPR_F \
     --output $OUT_PREFIX \
     --outlier_output $OUTLIER_OUT \
@@ -86,8 +85,10 @@ time python -m ore.ore --vcf $VCF \
     --max_outliers_per_id "${MAX_OUTS}" \
     --af_rare 1e-2 1e-3 1e-4 1e-5 \
     --tss_dist 100 250 500 750 1e3 2e3 \
-    --annotations $ANNO_LIST \
     --annovar \
+    --variant_class "$VAR_CLASS" \
+    --refgene \
+    --ensgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
     --processes 3
 
