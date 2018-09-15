@@ -12,6 +12,7 @@
 import copy
 import glob
 import re
+import gc
 from datetime import datetime
 
 import pandas as pd
@@ -44,6 +45,7 @@ class PermuteEnrich(Enrich):
         for n_perm in range(n_perms):
             print('=========== Permutation {} ==========='.format(str(n_perm)))
             self.run_permutation(n_perm)
+            gc.collect()
         self.compare_observed_to_permuted()
 
     def drop_relevant_expression_columns(self):

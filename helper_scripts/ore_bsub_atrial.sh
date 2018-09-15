@@ -84,7 +84,7 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --extrema \
     --max_outliers_per_id "${MAX_OUTS}" \
     --af_rare 1e-2 1e-3 1e-4 1e-5 \
-    --tss_dist 100 250 500 750 1e3 2e3 \
+    --tss_dist 1e4 \
     --annovar \
     --variant_class "$VAR_CLASS" \
     --refgene \
