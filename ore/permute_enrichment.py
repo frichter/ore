@@ -36,7 +36,7 @@ class PermuteEnrich(Enrich):
         self.distribution = distribution
         self.annotations = annotations
         self.obs_enrich_loc = re.sub(".txt$", "_gene.txt", obs_enrich_loc)
-        perm_dir = output_prefix + '_per_chrom/perms'
+        perm_dir = output_prefix + '_per_chrom/perms4'
         prepare_directory(perm_dir)  # , clean_run=True
         self.generic_enrich_loc = perm_dir + '/perm_{}_{}.txt'
         self.loop_enrich_args = loop_enrich_args
