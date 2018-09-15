@@ -51,7 +51,7 @@ VCF="/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_01/wgs_atrial_ids.n
 SV="5"
 EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/ns_atrial/residual_expr_${SV}_SVs_hg19.bed.gz"
 MAX_OUTS="200"
-OUT_CLASS="extrema"
+OUT_CLASS="normal"
 OUT_PREFIX="$PARENT_DIR/atrial_ore_small_vcf_profile"
 OUTLIER_OUT="$PARENT_DIR/atrial_small_vcf_profile/atrial_ore_SV${SV}_outliers_${OUT_CLASS}_lt${MAX_OUTS}.txt"
 # atrial_ore_SV5_outliers_norm_lt500.txt
@@ -81,7 +81,6 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --enrich_file $ENRICH_F \
     --distribution "normal" \
     --threshold 2 \
-    --extrema \
     --max_outliers_per_id "${MAX_OUTS}" \
     --af_rare 1e-2 1e-3 1e-4 1e-5 \
     --tss_dist 1e4 \
@@ -90,10 +89,16 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
     --refgene \
     --ensgene \
     --humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/humandb" \
-    --processes 12
+    --processes 3
 
 
 deactivate
+
+# mprofile_20180914110717.dat mprofile_20180915114331.dat
+real    972m2.896s
+user    3716m11.949s
+sys     407m55.930s
+
 
 # normal:
 --threshold 2 \
