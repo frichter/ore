@@ -131,19 +131,18 @@ class PermuteEnrich(Enrich):
         # if total number of RV-outlier pairs more than observed. (Gabriel)
         # if number of nominally significant associations (P<0.05, OR>1)
         df = df[df.tss_cut_off == 1e4]
+        rv_outs = df[df.af_cut_off == 1e-5]['rare_out'].values[0]
         df_nom_sig = df[(df.p < 0.05) & (df['or'] > 1)]
         n_nom_sig = df_nom_sig.shape[0]
         if n_nom_sig == 0:
             max_or = 0
             min_p = 1
-            rv_outs = 0
         else:
             # if most extreme permutation is more than most extreme observed
             max_or = df_nom_sig['or'].max()
             min_p = df_nom_sig.p.min()
             # number of RV outs is more for most significant observed
-            max_or_line = df_nom_sig['or'] == max_or
-            rv_outs = df_nom_sig[max_or_line]['rare_out'].values[0]
+            # max_or_line = df_nom_sig['or'] == max_or
         return n_nom_sig, max_or, min_p, rv_outs
 
 
