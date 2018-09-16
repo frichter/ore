@@ -48,7 +48,9 @@ anno_dir = '/sc/orga/projects/chdiTrios/Felix/wgs/bed_annotations/'
 annos = ('{0}ucsc_2017_03/factorbookMotif/CTCF.sorted.bed ' +
          '{0}hg19_all/Centipedehg19.bed ' +
          '{0}hg19_all/DNaseMasterMajority.sorted.bed ' +
-         '{0}hg19_all/*_coreMarks_* ' +
+         '{0}hg19_all/E10*_coreMarks_* ' +
+         # '{0}hg19_all/E08*_coreMarks_* ' +
+         '{0}hg19_all/E09*_coreMarks_* ' +
          '{0}hg19_all/*ata4* ' +
          '{0}hg19_all/heart%252c*ctss* ' +
          '{0}hg19_all/hg19.cage_peak_phase1and2combined_ann.bed ' +

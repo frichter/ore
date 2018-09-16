@@ -99,6 +99,10 @@ real    972m2.896s
 user    3716m11.949s
 sys     407m55.930s
 
+real    73m53.755s
+user    204m48.932s
+sys     13m5.637s
+
 
 # normal:
 --threshold 2 \
