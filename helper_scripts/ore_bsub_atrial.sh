@@ -53,7 +53,7 @@ EXPR_F="/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm_cutoff/n
 MAX_OUTS="200"
 OUT_CLASS="normal"
 OUT_PREFIX="$PARENT_DIR/atrial_ore_small_vcf_profile"
-OUTLIER_OUT="$PARENT_DIR/atrial_small_vcf_profile/atrial_ore_SV${SV}_outliers_${OUT_CLASS}_lt${MAX_OUTS}.txt"
+OUTLIER_OUT="$PARENT_DIR/atrial_ore_small_vcf_profile/atrial_ore_SV${SV}_outliers_${OUT_CLASS}_lt${MAX_OUTS}.txt"
 # atrial_ore_SV5_outliers_norm_lt500.txt
 ## removes 7 IDs (below) that are also removed for direct comparisons
 # atrial_ore_SV5_outliers_extrema_customIDrm.txt
@@ -94,7 +94,7 @@ time mprof run --include-children --multiprocess python -m ore.ore --vcf $VCF \
 
 deactivate
 
-# mprofile_20180914110717.dat mprofile_20180915114331.dat
+# mprofile_20180914110717.dat mprofile_20180915114331.dat mprofile_20180915214559.dat mprofile_20180915231048.dat
 real    972m2.896s
 user    3716m11.949s
 sys     407m55.930s
@@ -102,6 +102,14 @@ sys     407m55.930s
 real    73m53.755s
 user    204m48.932s
 sys     13m5.637s
+
+real    64m55.949s
+user    179m57.447s
+sys     22m15.616s
+
+real    5m48.055s
+user    8m24.234s
+sys     1m51.303s
 
 
 # normal:
