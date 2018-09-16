@@ -15,6 +15,7 @@ import copy
 from functools import partial
 import re
 import os
+import gc
 # from multiprocessing import Pool, cpu_count
 
 from .enrich_utils import calculate_gene_enrichment, calculate_var_enrichment
@@ -157,6 +158,7 @@ class Enrich(object):
         # convert list to a string
         var_out_line = "\t".join([str(i) for i in var_out_list])
         gene_out_line = "\t".join([str(i) for i in gene_out_list])
+        gc.collect()
         return var_out_line, gene_out_line
 
     @staticmethod
