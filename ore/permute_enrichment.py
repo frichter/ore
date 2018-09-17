@@ -102,7 +102,7 @@ class PermuteEnrich(Enrich):
             rv_outs_obs) = self.get_sig_metrics(obs_df)
         print(n_nom_sig_obs, max_or_obs, min_p_obs, rv_outs_obs)
         # load permutation enrichments 1 at a time
-        perm_f_iter = glob.iglob(self.generic_enrich_loc.format('*', '*'))
+        perm_f_iter = glob.iglob(self.generic_enrich_loc.format('*', '*_gene'))
         (total_perms, total_nom_sig, total_max_or, total_min_p,
             total_rv_outs) = 0, 0, 0, 0, 0
         perm_dict = {'perm_ct': [], 'nom_sig_list': [],
