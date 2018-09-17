@@ -110,7 +110,7 @@ class PermuteEnrich(Enrich):
                      'rv_outs_list': []}
         print("Reviewing permutations:")
         for perm_f in perm_f_iter:
-            print(perm_f)
+            # print(perm_f)
             perm_df = pd.read_table(perm_f)
             n_nom_sig, max_or, min_p, rv_outs = self.get_sig_metrics(perm_df)
             total_nom_sig += int(n_nom_sig >= n_nom_sig_obs)
@@ -119,14 +119,14 @@ class PermuteEnrich(Enrich):
             total_rv_outs += int(rv_outs >= rv_outs_obs)
             total_perms += 1
             perm_dict['perm_ct'].append(total_perms)
-            perm_dict['nom_sig_list'].append(n_nom_sig_obs)
-            perm_dict['max_or_list'].append(max_or_obs)
-            perm_dict['min_p_list'].append(min_p_obs)
-            perm_dict['rv_outs_list'].append(rv_outs_obs)
+            perm_dict['nom_sig_list'].append(n_nom_sig)
+            perm_dict['max_or_list'].append(max_or)
+            perm_dict['min_p_list'].append(min_p)
+            perm_dict['rv_outs_list'].append(rv_outs)
             if total_perms % 10 == 0:
                 print(total_perms, total_nom_sig, total_max_or, total_min_p,
                       total_rv_outs)
-            if total_perms > 9:
+            if total_perms > 999:
                 break
         print("Permutation p-values are:")
         print("Nominally sig: " + str(total_nom_sig/total_perms))
@@ -134,7 +134,6 @@ class PermuteEnrich(Enrich):
         print("Min p: " + str(total_min_p/total_perms))
         print("RV out count: " + str(total_rv_outs/total_perms))
         perm_stats_f = self.generic_enrich_loc.format('summary', 'stats')
-        print(perm_dict)
         with open(perm_stats_f, 'w') as f:
             writer = csv.writer(f, delimiter='\t')
             writer.writerow(perm_dict.keys())
