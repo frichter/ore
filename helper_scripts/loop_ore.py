@@ -40,11 +40,18 @@ var_class_list = ['intronic', 'intergenic', 'exonic', 'UTR5',
 var_class = 'UTR5'  # 'UTR5'
 exon_class_list = ['synonymous', 'nonsynonymous', '"frameshift|stopgain"']
 # sv_list out_class max_outs_list var_class
+tss = '100 250 500 750 1000 2000 5000 1e4'
 enrich_f = (home_dir + tissue + '_enrich_map300/' + tissue +
-            '_ens_ref_SV{}_{}_lt{}_{}_rmZ5pct.txt')
+            '_ens_ref_SV{}_{}_lt{}_{}_rmZ5pct_CTCF_and_heart_TFs.txt')
 
 rm_ids = '1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670'
 anno_dir = '/sc/orga/projects/chdiTrios/Felix/wgs/bed_annotations/'
+annos = ('{0}ucsc_2017_03/factorbookMotif/CTCF.sorted.bed ' +
+         '{0}hg19_all/any_*.bed ' +
+         '{0}hg19_all/Centipedehg19.bed ' +
+         '{0}hg19_all/DNaseMasterMajority.sorted.bed ').format(anno_dir)
+
+
 annos = ('{0}ucsc_2017_03/factorbookMotif/CTCF.sorted.bed ' +
          '{0}hg19_all/Centipedehg19.bed ' +
          '{0}hg19_all/DNaseMasterMajority.sorted.bed ' +
@@ -94,12 +101,12 @@ os.chdir('/sc/orga/projects/chdiTrios/Felix/dna_rna/ore')
 
 ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
                      outlier_output, var_class, enrich_f, rm_ids,
-                     tissue)  # annos
+                     tissue, annotations=annos, tss=tss)
 max_outs_i = ore_obj.max_outs_list[2]
 sv_i = '5'
 ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
 print(ore_cmd_w_args)  # + ' --n_perms 1000'  + ' --n_perms 1000'
-subprocess.call(ore_cmd_w_args + ' --n_perms 1', shell=True)
+subprocess.call(ore_cmd_w_args, shell=True)
 
 
 """

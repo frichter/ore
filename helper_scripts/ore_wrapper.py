@@ -9,7 +9,7 @@ class OREwrapper(object):
 
     def __init__(self, home_dir, vcf, expr_f, out_class, out_prefix,
                  outlier_output, var_class, enrich_f, rm_ids, tissue,
-                 annotations=None, exon_class=None):
+                 annotations=None, tss_args=None, exon_class=None):
         """Initialize the ORE wrapper."""
         self.home_dir = home_dir
         self.vcf = vcf
@@ -23,6 +23,7 @@ class OREwrapper(object):
         self.tissue = tissue
         self.exon_class = exon_class
         self.annotations = annotations
+        self.tss = tss_args
         if out_class is 'normal':
             self.max_outs_list = [
                 '100', '250', '500', '750', '1000', '2500', '5000']
@@ -87,12 +88,17 @@ class OREwrapper(object):
             enrich_f_i = re.sub('exonic', 'exonic' + exon_sub, enrich_f_i)
         else:
             exon_arg = ''
+        if self.tss:
+            tss_args = self.tss
+        else:
+            tss_args = '1e4'
         ore_cmd = ('time python -m ore.ore --vcf {vcf} --bed {expr} ' +
                    '--output {out_pref} --outlier_output {outlier_pref} ' +
                    '--enrich_file {enrich} --distribution {dist} ' +
                    '--threshold {expr_thresh} ' +
                    '{extrema_arg}{max_outs_arg}{rm_id_arg}' +
-                   '--af_rare 0.05 1e-2 1e-3 1e-4 1e-5 --tss_dist 1e4 ' +
+                   '--af_rare 0.05 1e-2 1e-3 1e-4 1e-5' +
+                   '--tss_dist {tss_args} ' +
                    '{annotation_arg}'
                    '--annovar {var_arg}{exon_arg}' +
                    '--humandb_dir "/sc/orga/projects/chdiTrios/whole_genome/' +
@@ -103,6 +109,7 @@ class OREwrapper(object):
             dist=dist_arg, expr_thresh=expr_thresh,
             extrema_arg=extrema_arg,
             max_outs_arg=max_outs_arg, rm_id_arg=rm_id_arg,
+            tss_args=tss_args,
             annotation_arg=annotation_arg,
             var_arg=var_arg, exon_arg=exon_arg)
         return ore_cmd_w_args
