@@ -24,7 +24,7 @@ from helper_scripts.ore_wrapper import OREwrapper
 # atrial vent art_valve_da
 tissue = 'atrial'
 # wgs_pcgc_2018_09 wgs_pcgc_2018_08
-home_dir = '/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09/'
+home_dir = '/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08/'
 vcf = (home_dir + '../wgs_pcgc_2018_01/wgs_' + tissue +
        '_ids.norm_smaller.vcf.gz')
 expr_f = ('/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm' +

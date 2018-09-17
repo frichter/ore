@@ -31,7 +31,7 @@ class Enrich(object):
     """
 
     def __init__(self, joined_df, enrich_loc, rv_outlier_loc, distribution,
-                 annotations, expr_outlier_df):
+                 anno_list, expr_outlier_df):
         """Load and join variants and outliers.
 
         Args:
@@ -49,7 +49,7 @@ class Enrich(object):
         self.enrich_loc = enrich_loc
         self.distribution = distribution
         self.rv_outlier_loc = rv_outlier_loc
-        self.annotations = annotations
+        self.anno_list = anno_list
         self.expr_outlier_df = expr_outlier_df
 
     def loop_enrichment(self, n_processes, expr_cut_off_vec,
@@ -64,9 +64,10 @@ class Enrich(object):
         if os.path.exists(re.sub(".txt$", "_gene.txt", self.enrich_loc)):
             print("Enrichment already made for " + self.enrich_loc)
             return None
-        if self.annotations:
+        if self.anno_list:
             print("Anno column final index:", self.joined_df.shape[1] - 6)
-            anno_list = [i for i in range(16, self.joined_df.shape[1] - 5)]
+            # anno_list = [i for i in range(16, self.joined_df.shape[1] - 5)]
+            anno_list = self.anno_list
             # self.joined_df["all_vars"] = 1
             # anno_list.append(-1)
             print(self.joined_df.head())
@@ -79,7 +80,7 @@ class Enrich(object):
             tss_cut_off_vec = [tss_cut_off_vec]
         if isinstance(af_cut_off_vec, float):
             af_cut_off_vec = [af_cut_off_vec]
-        if self.annotations:
+        if self.anno_list:
             cartesian_iter = itertools.product(expr_cut_off_vec,
                                                tss_cut_off_vec,
                                                af_cut_off_vec,
@@ -119,7 +120,7 @@ class Enrich(object):
         enrich_df = copy.deepcopy(self.joined_df)
         expr_df = copy.deepcopy(self.expr_outlier_df)
         # Filtering for annotaiton here:
-        if self.annotations:
+        if self.anno_list:
             # only use if filtering by annotation:
             current_anno = list(enrich_df)[cut_off_tuple[3]]
             print("current column:", current_anno)
@@ -152,7 +153,7 @@ class Enrich(object):
         gene_list = calculate_gene_enrichment(enrich_df, expr_df)
         gene_out_list = list(cut_off_tuple)
         gene_out_list.extend(gene_list)
-        if self.annotations:
+        if self.anno_list:
             var_out_list.insert(0, current_anno)
             gene_out_list.insert(0, current_anno)
         # convert list to a string
@@ -254,7 +255,7 @@ class Enrich(object):
                            "neg_ci_hi",
                            "pos_or", "pos_p", "pos_ci_lo",
                            "pos_ci_hi"]
-            if self.annotations:
+            if self.anno_list:
                 header_list.insert(0, "annotation")
             enrich_f.write("\t".join(header_list) + "\n")
             for out_line in out_line_list:

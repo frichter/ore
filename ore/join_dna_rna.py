@@ -66,6 +66,19 @@ class JoinedVarExpr(object):
         """
         logger.info("Loading outliers...")
         self.load_outliers(expr_outs_loc)
+        if annotations:
+            anno_list = annotations
+            anno_list = [re.sub("Conserved_TF_sites/", "Conserved_TF_", i)
+                         for i in anno_list]
+            anno_list = [re.sub("TfbsClustered_split/", "TfbsClust_", i)
+                         for i in anno_list]
+            anno_list = [re.sub("factorbookMotif/", "factorbookMotif_", i)
+                         for i in anno_list]
+            rep_w_blank = ".*/|.merged.sorted|.sorted|.bed$|.bed.gz$|.txt$"
+            self.anno_list = [re.sub(rep_w_blank, "", i)
+                              for i in anno_list]
+        else:
+            self.anno_list = None
         if os.path.exists(dna_rna_df_loc):
             logger.info("Already joined data, now loading from " +
                         dna_rna_df_loc)
@@ -84,20 +97,6 @@ class JoinedVarExpr(object):
                             ", ".join(set(self.df.exon_func_ensgene)))
         else:
             logger.info("Loading variants...")
-            if annotations:
-                anno_list = annotations
-                anno_list = [re.sub("Conserved_TF_sites/", "Conserved_TF_", i)
-                             for i in anno_list]
-                anno_list = [re.sub("TfbsClustered_split/", "TfbsClust_", i)
-                             for i in anno_list]
-                anno_list = [re.sub("factorbookMotif/", "factorbookMotif_", i)
-                             for i in anno_list]
-                rep_w_blank = ".*/|.merged.sorted|.sorted|.bed$|.bed.gz$|.txt$"
-                self.anno_list = [re.sub(rep_w_blank, "", i)
-                                  for i in anno_list]
-                # self.anno_list = [i for i in self.anno_list if "factor" in i]
-            else:
-                self.anno_list = None
             self.load_vars(var_loc, contigs, variant_class, exon_class,
                            refgene, ensgene, max_tss_dist, logger)
             logger.info("joining outliers with variants...")
@@ -138,37 +137,6 @@ class JoinedVarExpr(object):
                         'popmax_af', 'VCF_af', 'var_id_count', 'var_id_freq']
         if self.anno_list:
             cols_to_keep.extend(self.anno_list)
-        # cols_to_keep.extend(['nkx2.5.mm9.hg19', 'regions_enh_E013'])
-        # cols_to_keep.extend(
-        #     ['any_gata4', 'any_nkx25', 'any_ep300', 'any_tbx', 'other_tf',
-        #      'any_polr2a', 'all_tf'])  # 'any_tbx5', 'any_tbx3',
-        # , 'cvdc_enh_OR_prom'
-        """Top 35 annotations:
-        cols_to_keep.extend(
-            ["any_gata4", "any_nkx25", "any_tbx5", "Centipedehg19",
-             "genome.All_hg19_RS", "DNaseMasterMajority",
-             "Fetal_dense_prom3",
-             "Fetal_dense_prom4", "E083_15_coreMarks_12", "Gata4_day15_100",
-             "Gata4_day6_14", "gata4.mm9.hg19", "H3K27ac_CM_Rep_1.hg19",
-             "H3K27ac_CM_Rep_2.hg19", "H3K27me3_ESC_Rep_2.hg19",
-             "H3K27me3_MES_Rep_2.hg19",
-             "heart%252c%2520adult%252c%2520diseased%252c%2520donor1" +
-             ".CNhs11758.10051-101G6.hg19.ctss",
-             "heart%252c%2520adult%252c%2520pool1.CNhs10621." +
-             "10016-101C7.hg19.ctss",
-             "heart%252c%2520adult%252c%2520diseased%2520post-infarction" +
-             "%252c%2520donor1.CNhs11757.10050-101G5.hg19.ctss",
-             "heart%252c%2520fetal%252c%2520pool1.CNhs10653.10046-101G1." +
-             "hg19.ctss", "all_tf", "E013_15_coreMarks_14",
-             "E013_15_coreMarks_2", "hg19.cage_peak_phase1and2combined_ann",
-             "E095_15_coreMarks_13", "E095_15_coreMarks_14",
-             "heart%2520-%2520mitral%2520valve%252c%2520adult.CNhs12855." +
-             "10205-103F7.hg19.ctss", "nkx2.5.mm9.hg19", "Nkx25_day15_100",
-             "Nkx25_day15_14", "permissive_enhancers",
-             "heart%2520-%2520pulmonic%2520valve%252c%2520adult." +
-             "CNhs12856.10206-103F8.hg19.ctss", "robust_enhancers",
-             "robust_enhancers.1", "tbx5.mm9.hg19"])
-        # """
         dtype_specs = {
             'dist_refgene': 'str', 'exon_func_refgene': 'str',
             'dist_ensgene': 'str', 'exon_func_ensgene': 'str'}
@@ -217,7 +185,7 @@ class JoinedVarExpr(object):
 
     @staticmethod
     def summarise_anno_cols(df):
-        """Keep a few prespecified summary columns."""
+        """Keep a few prespecified summary columns for DeepHeart annos."""
         any_gata4 = [col for col in df.columns if 'ATA4' in col]  # ata4
         any_nkx25 = [col for col in df.columns if 'KX2' in col]  # kx2
         # any_tbx5 = [col for col in df.columns if 'TBX5' in col]  # bx5

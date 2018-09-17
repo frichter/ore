@@ -27,7 +27,7 @@ class PermuteEnrich(Enrich):
     """Permute inputs to enrichment functions."""
 
     def __init__(self, joined_df, expr_outlier_df, output_prefix,
-                 distribution, annotations, obs_enrich_loc,
+                 distribution, anno_list, obs_enrich_loc,
                  loop_enrich_args, write_rv_args, n_perms=1):
         """Initialize a permuted enrichment object."""
         self.joined_df = joined_df
@@ -35,7 +35,7 @@ class PermuteEnrich(Enrich):
         self.expr_outlier_df = expr_outlier_df
         # other inputs
         self.distribution = distribution
-        self.annotations = annotations
+        self.anno_list = anno_list
         self.obs_enrich_loc = re.sub(".txt$", "_gene.txt", obs_enrich_loc)
         perm_dir = output_prefix + '_per_chrom/perms'
         prepare_directory(perm_dir)  # , clean_run=True
