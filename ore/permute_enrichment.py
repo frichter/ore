@@ -125,7 +125,7 @@ class PermuteEnrich(Enrich):
             if total_perms % 10 == 0:
                 print(total_perms, total_nom_sig, total_max_or, total_min_p,
                       total_rv_outs)
-            if total_perms > 999:
+            if total_perms > 9:
                 break
         print("Permutation p-values are:")
         print("Nominally sig: " + str(total_nom_sig/total_perms))
@@ -147,9 +147,9 @@ class PermuteEnrich(Enrich):
         # if total number of RV-outlier pairs more than observed. (Gabriel)
         # if number of nominally significant associations (P<0.05, OR>1)
         # print(df.head())
-        df = df[df.tss_cut_off == 1e4]
-        rv_outs = df[df.af_cut_off == 1e-5]['rare_out'].values[0]
-        df_nom_sig = df[(df.p < 0.05) & (df['or'] > 1)]
+        df = df[df['tss_cut_off'] == 1e4]
+        rv_outs = df[df['af_cut_off'] == 1e-5]['rare_out'].values[0]
+        df_nom_sig = df[(df['p'] < 0.05) & (df['or'] > 1)]
         n_nom_sig = df_nom_sig.shape[0]
         if n_nom_sig == 0:
             max_or = 0
