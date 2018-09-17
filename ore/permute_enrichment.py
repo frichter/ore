@@ -152,7 +152,9 @@ class PermuteEnrich(Enrich):
         # df_nom_sig = df[(df.p < 0.05) & (df['or'] > 1)]
         # just using those with OR>1 for 1-sided tests
         df_nom_sig = df[df['or'] > 1]
-        n_nom_sig = df_nom_sig.shape[0]
+        # 2-sided use:
+        # df_nom_sig = df
+        n_nom_sig = df_nom_sig[df_nom_sig.p < 0.05].shape[0]
         if n_nom_sig == 0:
             max_or = 0
             min_p = 1
