@@ -14,6 +14,7 @@ import glob
 import re
 import gc
 from datetime import datetime
+import csv
 
 import pandas as pd
 import numpy as np
@@ -104,6 +105,9 @@ class PermuteEnrich(Enrich):
         perm_f_iter = glob.iglob(self.generic_enrich_loc.format('*', '*'))
         (total_perms, total_nom_sig, total_max_or, total_min_p,
             total_rv_outs) = 0, 0, 0, 0, 0
+        perm_dict = {'perm_ct': [], 'nom_sig_list': [],
+                     'max_or_list': [], 'min_p_list': [],
+                     'rv_outs_list': []}
         print("Reviewing permutations:")
         for perm_f in perm_f_iter:
             perm_df = pd.read_table(perm_f)
@@ -113,14 +117,26 @@ class PermuteEnrich(Enrich):
             total_min_p += int(min_p <= min_p_obs)
             total_rv_outs += int(rv_outs >= rv_outs_obs)
             total_perms += 1
+            perm_dict['perm_ct'].extend(total_perms)
+            perm_dict['nom_sig_list'].extend(n_nom_sig_obs)
+            perm_dict['max_or_list'].extend(max_or_obs)
+            perm_dict['min_p_list'].extend(min_p_obs)
+            perm_dict['rv_outs_list'].extend(rv_outs_obs)
             if total_perms % 10 == 0:
                 print(total_perms, total_nom_sig, total_max_or, total_min_p,
                       total_rv_outs)
+            if total_perms > 999:
+                break
         print("Permutation p-values are:")
         print("Nominally sig: " + str(total_nom_sig/total_perms))
         print("Max OR: " + str(total_max_or/total_perms))
         print("Min p: " + str(total_min_p/total_perms))
         print("RV out count: " + str(total_rv_outs/total_perms))
+        perm_stats_f = self.generic_enrich_loc.format('summary', 'stats')
+        with open(perm_stats_f, 'wb') as f:
+            writer = csv.writer(f, delimiter='\t')
+            writer.writerow(perm_dict.keys())
+            writer.writerows(zip(*perm_dict.values()))
         # run check_permutation_significance
         # count number of examples as or more extreme
         # print a histogram of the results
@@ -130,6 +146,7 @@ class PermuteEnrich(Enrich):
         # identify if permutation is more extreme based on:
         # if total number of RV-outlier pairs more than observed. (Gabriel)
         # if number of nominally significant associations (P<0.05, OR>1)
+        print(df.head())
         df = df[df.tss_cut_off == 1e4]
         rv_outs = df[df.af_cut_off == 1e-5]['rare_out'].values[0]
         df_nom_sig = df[(df.p < 0.05) & (df['or'] > 1)]

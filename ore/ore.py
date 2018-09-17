@@ -160,11 +160,11 @@ def associate_outliers(args):
         'tss_cut_off_vec': args.tss_dist, 'af_cut_off_vec': args.af_rare,
         'af_vcf': args.af_vcf, 'intracohort_rare_ac': args.intracohort_rare_ac}
     enrich_obj.loop_enrichment(**loop_enrich_args)
-    if args.n_perms:
-        PermuteEnrich(joined_obj.df, joined_obj.expr_outlier_df,
-                      output_prefix, args.distribution, args.annotations,
-                      enrich_file, loop_enrich_args, write_rv_args,
-                      n_perms=args.n_perms)
+    # if args.n_perms:
+    PermuteEnrich(joined_obj.df, joined_obj.expr_outlier_df,
+                  output_prefix, args.distribution, args.annotations,
+                  enrich_file, loop_enrich_args, write_rv_args,
+                  n_perms=args.n_perms)
     logger.info("Completed outlier enrichment")
     logger.info("All done :)")
 
