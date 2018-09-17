@@ -9,7 +9,7 @@ class OREwrapper(object):
 
     def __init__(self, home_dir, vcf, expr_f, out_class, out_prefix,
                  outlier_output, var_class, enrich_f, rm_ids, tissue,
-                 annotations=None, tss_args=None, exon_class=None):
+                 annotations=None, tss=None, exon_class=None):
         """Initialize the ORE wrapper."""
         self.home_dir = home_dir
         self.vcf = vcf
@@ -23,7 +23,7 @@ class OREwrapper(object):
         self.tissue = tissue
         self.exon_class = exon_class
         self.annotations = annotations
-        self.tss = tss_args
+        self.tss = tss
         if out_class is 'normal':
             self.max_outs_list = [
                 '100', '250', '500', '750', '1000', '2500', '5000']
