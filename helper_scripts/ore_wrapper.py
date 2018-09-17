@@ -97,7 +97,7 @@ class OREwrapper(object):
                    '--enrich_file {enrich} --distribution {dist} ' +
                    '--threshold {expr_thresh} ' +
                    '{extrema_arg}{max_outs_arg}{rm_id_arg}' +
-                   '--af_rare 0.05 1e-2 1e-3 1e-4 1e-5' +
+                   '--af_rare 0.05 1e-2 1e-3 1e-4 1e-5 ' +
                    '--tss_dist {tss_args} ' +
                    '{annotation_arg}'
                    '--annovar {var_arg}{exon_arg}' +
