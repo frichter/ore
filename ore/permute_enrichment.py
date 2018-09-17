@@ -110,9 +110,8 @@ class PermuteEnrich(Enrich):
                      'rv_outs_list': []}
         print("Reviewing permutations:")
         for perm_f in perm_f_iter:
-            perm_df = pd.read_table(perm_f)
             print(perm_f)
-            print(perm_df)
+            perm_df = pd.read_table(perm_f)
             n_nom_sig, max_or, min_p, rv_outs = self.get_sig_metrics(perm_df)
             total_nom_sig += int(n_nom_sig >= n_nom_sig_obs)
             total_max_or += int(max_or >= max_or_obs)
@@ -148,10 +147,9 @@ class PermuteEnrich(Enrich):
         # identify if permutation is more extreme based on:
         # if total number of RV-outlier pairs more than observed. (Gabriel)
         # if number of nominally significant associations (P<0.05, OR>1)
-        print(df.head())
-        df = df[df['tss_cut_off'] == 1e4]
-        rv_outs = df[df['af_cut_off'] == 1e-5]['rare_out'].values[0]
-        df_nom_sig = df[(df['p'] < 0.05) & (df['or'] > 1)]
+        df = df[df.tss_cut_off == 1e4]
+        rv_outs = df[df.af_cut_off == 1e-5]['rare_out'].values[0]
+        df_nom_sig = df[(df.p < 0.05) & (df['or'] > 1)]
         n_nom_sig = df_nom_sig.shape[0]
         if n_nom_sig == 0:
             max_or = 0
