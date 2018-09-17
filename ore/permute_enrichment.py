@@ -126,8 +126,8 @@ class PermuteEnrich(Enrich):
             if total_perms % 10 == 0:
                 print(total_perms, total_nom_sig, total_max_or, total_min_p,
                       total_rv_outs)
-            if total_perms > 999:
-                break
+            # if total_perms > 999:
+            #     break
         print("Permutation p-values are:")
         print("Nominally sig: " + str(total_nom_sig/total_perms))
         print("Max OR: " + str(total_max_or/total_perms))
@@ -158,7 +158,7 @@ class PermuteEnrich(Enrich):
         # 2-sided use:
         # df_nom_sig = df
         n_nom_sig = df_nom_sig[df_nom_sig.p < 0.05].shape[0]
-        if n_nom_sig == 0:
+        if df_nom_sig.shape[0] == 0:
             max_or = 0
             min_p = 1
         else:
