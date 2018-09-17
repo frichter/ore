@@ -149,7 +149,9 @@ class PermuteEnrich(Enrich):
         # if number of nominally significant associations (P<0.05, OR>1)
         df = df[df.tss_cut_off == 1e4]
         rv_outs = df[df.af_cut_off == 1e-5]['rare_out'].values[0]
-        df_nom_sig = df[(df.p < 0.05) & (df['or'] > 1)]
+        # df_nom_sig = df[(df.p < 0.05) & (df['or'] > 1)]
+        # just using those with OR>1 for 1-sided tests
+        df_nom_sig = df[df['or'] > 1]
         n_nom_sig = df_nom_sig.shape[0]
         if n_nom_sig == 0:
             max_or = 0
