@@ -134,7 +134,8 @@ class PermuteEnrich(Enrich):
         print("Min p: " + str(total_min_p/total_perms))
         print("RV out count: " + str(total_rv_outs/total_perms))
         perm_stats_f = self.generic_enrich_loc.format('summary', 'stats')
-        with open(perm_stats_f, 'wb') as f:
+        print(perm_dict)
+        with open(perm_stats_f, 'w') as f:
             writer = csv.writer(f, delimiter='\t')
             writer.writerow(perm_dict.keys())
             writer.writerows(zip(*perm_dict.values()))
