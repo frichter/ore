@@ -125,7 +125,7 @@ class Enrich(object):
             current_anno = list(enrich_df)[cut_off_tuple[3]]
             print("current column:", current_anno)
             if current_anno is not "all_vars":
-                in_anno = enrich_df.loc[:, current_anno] == 1
+                in_anno = enrich_df.loc[:, current_anno] > 0
                 # keep only rows/variants in a specific annotation
                 enrich_df = enrich_df.loc[in_anno]
             # remove annotation column index number from tuple

@@ -106,7 +106,7 @@ max_outs_i = ore_obj.max_outs_list[2]
 sv_i = '5'
 ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
 print(ore_cmd_w_args)  # + ' --n_perms 1000'  + ' --n_perms 1000'
-subprocess.call(ore_cmd_w_args, shell=True)
+subprocess.call(ore_cmd_w_args + ' --n_perms 1', shell=True)
 
 
 """
@@ -280,6 +280,68 @@ for perm_dir in perm_dir_list:
         else:
             print(new_f + ' already exists')
 
+# cd /sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08
+
+## cross checking the factorbook results
+
+anno_f = 'atrial_ore_all_data_extrema.txt'
+tf_anno_f = 'atrial_ore_all_data_extrema_CTCF_heartTF.txt'
+count = 0
+with open(anno_f, 'r') as in_f, open(tf_anno_f, 'w') as out_f:
+    header = next(in_f).strip().split('\t')
+    for line in in_f:
+        line_dict = dict(zip(header, line.strip().split('\t')))
+        tf_list = [line_dict['factorbookMotif_CTCF'], line_dict['any_nkx25'],
+                   line_dict['any_tbx5'], line_dict['any_gata4'],
+                   line_dict['Centipedehg19'],
+                   line_dict['DNaseMasterMajority']]
+        if '1' in tf_list:
+            _ = out_f.write(line)
+        count += 1
+        if count % 5000 == 0:
+            print(count/20555356)
+
+
+import pandas as pd
+out_loc = ('atrial_outliers_5pct_max/' +
+           'atrial_ore_SV5_outliers_extrema_lt200_forAnno.txt')
+out_df = pd.read_table(out_loc)
+out_genes = out_df[out_df.expr_outlier]['gene']
+
+anno_df = pd.read_table(tf_anno_f)
+anno_df.head()
+anno_df.shape
+min_intra_af = anno_df.intra_cohort_af.min()
+
+af_cut_off = 1e-5
+rv = (anno_df.popmax_af <= af_cut_off) & (
+    anno_df.intra_cohort_af <= min_intra_af)
+rv_df = anno_df[rv]
+
+rv_df.head()
+rv_df.shape
+
+rv_outs_df = rv_df[rv_df.gene.isin(out_genes)]
+rv_outs_df.head()
+rv_outs_df.shape
+
+fb_ctcf_rv = rv_outs_df.factorbookMotif_CTCF > 0
+rv_outs_df[fb_ctcf_rv & rv_outs_df.expr_outlier]
+fb_ctcf_rv.sum()
+# cbind(c(2, 54), c(1717-2, (1717*81) - 54))
+
+anno_rv = rv_outs_df.DNaseMasterMajority > 0
+rv_outs_df[anno_rv & rv_outs_df.expr_outlier]
+rv_outs_df[anno_rv][['gene', 'blinded_id']].drop_duplicates().shape
+
+# gata4:
+cbind(c(4, 110), c(1717-4, (1717*81) - 110))
+
+# tbx5:
+cbind(c(6, 150-6), c(1717-6, (1717*81) - 144))
+
+# DNaseMasterMajority:
+cbind(c(5, 140-5), c(1717-6, (1717*81) - 135))
 
 """
 
