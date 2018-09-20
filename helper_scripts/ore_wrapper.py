@@ -39,7 +39,7 @@ class OREwrapper(object):
         if self.out_class is 'extrema':
             extrema_arg = '--extrema '
             dist_arg = 'normal'
-            expr_thresh = '2'
+            expr_thresh = '2 2.5 3'
             # if self.tissue is not 'atrial':
             max_outs_arg = '--max_outliers_per_id ' + max_outs_i + ' '
             rm_id_arg = ''

@@ -21,6 +21,10 @@ import re
 from helper_scripts.ore_wrapper import OREwrapper
 
 
+# change directories here
+# cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
+os.chdir('/sc/orga/projects/chdiTrios/Felix/dna_rna/ore')
+
 # atrial vent art_valve_da
 tissue = 'atrial'
 # wgs_pcgc_2018_09 wgs_pcgc_2018_08
@@ -37,7 +41,8 @@ outlier_output = (home_dir + tissue + '_outliers_5pct_max/' +
                   tissue + '_ore_SV{}_outliers_{}_lt{}.txt')
 var_class_list = ['intronic', 'intergenic', 'exonic', 'UTR5',
                   'UTR3', 'splicing', 'upstream', 'ncRNA']
-var_class = 'UTR5'  # 'UTR5'
+# allvars to ignore
+var_class = 'allvars'  # 'UTR5'
 exon_class_list = ['synonymous', 'nonsynonymous', '"frameshift|stopgain"']
 # sv_list out_class max_outs_list var_class
 tss = '100 250 500 750 1000 2000 5000 1e4'
@@ -88,11 +93,6 @@ enrich_f = (home_dir + 'lv_gtex_enrich/' +
             'lv_gtex_ens_ref_SV{}_{}_lt{}_{}_rmZ5pct.txt')
 
 
-# change directories here
-# cd /sc/orga/projects/chdiTrios/Felix/dna_rna/ore
-os.chdir('/sc/orga/projects/chdiTrios/Felix/dna_rna/ore')
-
-
 """
 ########################################################################
 # Running just a single example (e.g., rank-based)
@@ -106,6 +106,7 @@ max_outs_i = ore_obj.max_outs_list[2]
 sv_i = '5'
 ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
 print(ore_cmd_w_args)  # + ' --n_perms 1000'  + ' --n_perms 1000'
+subprocess.call(ore_cmd_w_args, shell=True)
 subprocess.call(ore_cmd_w_args + ' --n_perms 1', shell=True)
 
 
@@ -234,6 +235,64 @@ subprocess.call(
 subprocess.call(
     'rm ' + re.sub('.txt', '_variant.txt', ore_obj.enrich_f_i), shell=True)
 subprocess.call('rm ' + home_dir + ore_obj.full_data_f, shell=True)
+
+
+"""
+######### Alzheimer's Disease #########
+cd /sc/orga/projects/chdiTrios/Felix/alzheimers/ore_2018_05
+"""
+
+tissue_dict = {'10': '19', '22': '20', '36': '17', '44': '17'}
+tissue = '10'
+sv_i = tissue_dict[tissue]
+home_dir = ('/sc/orga/projects/chdiTrios/Felix/alzheimers/' +
+            'ore_2018_05/')
+vcf = home_dir + '../wgs/ad_wgs_cp.vcf.gz'
+expr_f = (home_dir + '../expression/residuals_AMPAD_MSSM_GE_SV_{}' +
+          '_tissue_' + tissue + '_with_disease_in_model_europeans_only_' +
+          'wgs_ids_new_z.bed.gz')
+out_class = 'extrema'  # rank normal extrema
+var_class_list = ['intronic', 'intergenic', 'exonic',
+                  'UTR3', 'splicing', 'upstream', 'ncRNA']
+# allvars to ignore
+var_class = 'UTR5'  # 'allvars'
+# exon_class_list = ['synonymous', 'nonsynonymous', '"frameshift|stopgain"']
+out_prefix = home_dir + 'ad_ore'
+# format order: sv_list out_class max_outs_list
+outlier_output = (home_dir + 'tissue_' + tissue + '_outs/' +
+                  'SV{}_outliers_{}_lt{}.txt')
+enrich_f = (home_dir + 'tissue_' + tissue + '_enrich/' +
+            'ens_ref_SV{}_{}_lt{}_{}_rmZ5pct.txt')
+rm_ids = None
+
+# Single run
+ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
+                     outlier_output, var_class, enrich_f, rm_ids,
+                     tissue)
+max_outs_i = '500'  # ore_obj.max_outs_list[2]
+ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
+print(ore_cmd_w_args)  # + ' --n_perms 1000'  + ' --n_perms 1000'
+subprocess.call(ore_cmd_w_args, shell=True)
+
+"""
+######### AD variant loop #########
+"""
+
+for var_class_i in var_class_list:
+    print(var_class_i)
+    ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
+                         outlier_output, var_class, enrich_f, rm_ids,
+                         tissue)
+    max_outs_i = '500'  # ore_obj.max_outs_list[2]
+    ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
+    print(ore_cmd_w_args)
+    subprocess.call(ore_cmd_w_args, shell=True)
+    new_data_f = (home_dir + 'tissue_' + tissue + '_data/' + tissue +
+                  '_ore_all_data_SV{}_{}_lt{}_{}_rmZ5pct.txt').format(
+                  sv_i, out_class, max_outs_i, var_class_i)
+    mv_cmd = ore_obj.clean_files_after_run(new_data_f)
+    print(mv_cmd)
+    subprocess.call(mv_cmd, shell=True)
 
 
 """
