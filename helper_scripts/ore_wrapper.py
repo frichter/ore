@@ -51,7 +51,7 @@ class OREwrapper(object):
         elif self.out_class is 'normal':
             extrema_arg = ''
             dist_arg = self.out_class
-            expr_thresh = '2'
+            expr_thresh = '2 2.5 3'
             # max_outs_i = max_outs_list[2]
             max_outs_arg = '--max_outliers_per_id ' + max_outs_i + ' '
             rm_id_arg = ''
