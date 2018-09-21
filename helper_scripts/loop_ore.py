@@ -243,7 +243,7 @@ cd /sc/orga/projects/chdiTrios/Felix/alzheimers/ore_2018_05
 """
 
 tissue_dict = {'10': '19', '22': '20', '36': '17', '44': '17'}
-tissue = '10'
+tissue = '22'  # 10 22 36 44
 sv_i = tissue_dict[tissue]
 home_dir = ('/sc/orga/projects/chdiTrios/Felix/alzheimers/' +
             'ore_2018_05/')
@@ -251,9 +251,14 @@ vcf = home_dir + '../wgs/ad_wgs_cp.vcf.gz'
 expr_f = (home_dir + '../expression/residuals_AMPAD_MSSM_GE_SV_{}' +
           '_tissue_' + tissue + '_with_disease_in_model_europeans_only_' +
           'wgs_ids_new_z.bed.gz')
-out_class = 'normal'  # rank normal extrema
+# expr_f = (home_dir + '../expression/rnaseq_w_wgs_ids/residuals_AMPAD_' +
+#           'MSSM_GE_SV_{}_tissue_' + tissue + '_with_disease_in_model_' +
+#           'europeans_only_wgs_ids.bed.gz')
+
+out_class = 'extrema'  # rank normal extrema
 var_class_list = ['exonic',
                   'UTR3', 'splicing', 'upstream', 'ncRNA',
+                  'UTR5',
                   'intronic', 'intergenic']
 # allvars to ignore
 var_class = 'UTR5'  # 'allvars'
@@ -261,9 +266,9 @@ var_class = 'UTR5'  # 'allvars'
 out_prefix = home_dir + 'ad_ore'
 # format order: sv_list out_class max_outs_list
 outlier_output = (home_dir + 'tissue_' + tissue + '_outs/' +
-                  'SV{}_outliers_{}_lt{}.txt')
+                  'no_renorm_SV{}_outliers_{}_lt{}.txt')
 enrich_f = (home_dir + 'tissue_' + tissue + '_enrich/' +
-            'ens_ref_SV{}_{}_lt{}_{}_rmZ5pct.txt')
+            'ens_ref_SV{}_{}_lt{}_{}_rmZ5pct_NOrenorm.txt')
 rm_ids = None
 
 # Single run
