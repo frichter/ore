@@ -290,7 +290,7 @@ subprocess.call(mv_cmd, shell=True)
 ######### AD variant loop #########
 """
 
-for var_class_i in var_class_list:
+for var_class_i in var_class_list[1:]:
     print(var_class_i)
     ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
                          outlier_output, var_class_i, enrich_f, rm_ids,
