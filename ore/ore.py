@@ -124,7 +124,7 @@ def associate_outliers(args):
     dna_rna_df_loc = rename_output_file_endings(
         dna_rna_df_loc, args.distribution, args.extrema)
     if args.enrich_file:
-        dna_rna_df_loc = re.sub('.txt$', '_all_data.txt')
+        dna_rna_df_loc = re.sub('.txt$', '_all_data.txt', args.enrich_file)
     print(dna_rna_df_loc)
     joined_obj = JoinedVarExpr(variants_obj.anno_obj.final_var_loc,
                                outlier_obj.expr_outs_loc,
@@ -142,7 +142,8 @@ def associate_outliers(args):
     rv_outlier_loc = rename_output_file_endings(
         rv_outlier_loc, args.distribution, args.extrema)
     if args.enrich_file:
-        rv_outlier_loc = re.sub('.txt$', '_rv_w_outliers.txt')
+        rv_outlier_loc = re.sub(
+            '.txt$', '_rv_w_outliers.txt', args.enrich_file)
     print(rv_outlier_loc)
     # joined_df, enrich_loc, rv_outlier_loc, distribution
     enrich_file = args.enrich_file
