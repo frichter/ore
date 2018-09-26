@@ -254,7 +254,6 @@ expr_f = (home_dir + '../expression/residuals_AMPAD_MSSM_GE_SV_{}' +
 # expr_f = (home_dir + '../expression/rnaseq_w_wgs_ids/residuals_AMPAD_' +
 #           'MSSM_GE_SV_{}_tissue_' + tissue + '_with_disease_in_model_' +
 #           'europeans_only_wgs_ids.bed.gz')
-
 out_class = 'extrema'  # rank normal extrema
 var_class_list = ['exonic',
                   'UTR3', 'splicing', 'upstream', 'ncRNA',
@@ -266,9 +265,10 @@ var_class = 'UTR5'  # 'allvars'
 out_prefix = home_dir + 'ad_ore'
 # format order: sv_list out_class max_outs_list
 outlier_output = (home_dir + 'tissue_' + tissue + '_outs/' +
-                  'no_renorm_SV{}_outliers_{}_lt{}.txt')
+                  'SV{}_outliers_{}_lt{}.txt')
 enrich_f = (home_dir + 'tissue_' + tissue + '_enrich/' +
-            'ens_ref_SV{}_{}_lt{}_{}_rmZ5pct_NOrenorm.txt')
+            'ens_ref_SV{}_{}_lt{}_{}_rmZ5pct.txt')
+
 rm_ids = None
 
 # Single run
@@ -279,32 +279,65 @@ max_outs_i = '500'  # ore_obj.max_outs_list[2]
 ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
 print(ore_cmd_w_args)  # + ' --n_perms 1000'  + ' --n_perms 1000'
 subprocess.call(ore_cmd_w_args, shell=True)
-new_data_f = (home_dir + 'tissue_' + tissue + '_data/' + tissue +
-              '_ore_all_data_SV{}_{}_lt{}_{}_rmZ5pct.txt').format(
-              sv_i, out_class, max_outs_i, var_class)
-mv_cmd = ore_obj.clean_files_after_run(new_data_f)
-print(mv_cmd)
-subprocess.call(mv_cmd, shell=True)
+
+
+"""
+######### AD multitissue #########
+cd /sc/orga/projects/chdiTrios/Felix/alzheimers/ore_2018_05
+"""
+
+home_dir = ('/sc/orga/projects/chdiTrios/Felix/alzheimers/' +
+            'ore_2018_05/')
+vcf = home_dir + '../wgs/ad_wgs_cp.vcf.gz'
+
+tissue = 'min4'
+sv_i = tissue
+expr_f = (home_dir + '../expression/multitissue/' +
+          'residuals_multitissue_' + tissue + 'tis_newZ_sorted.bed.gz')
+out_class = 'extrema'  # rank normal extrema
+var_class_list = ['exonic', 'UTR3', 'splicing', 'upstream', 'ncRNA',
+                  'UTR5', 'intronic', 'intergenic']
+# allvars to ignore
+var_class = 'exonic'  # 'allvars'
+# exon_class_list = ['synonymous', 'nonsynonymous', '"frameshift|stopgain"']
+out_prefix = home_dir + 'ad_ore'
+# format order: sv_list out_class max_outs_list
+outlier_output = (home_dir + tissue + 'tissue_outs/' +
+                  'SV{}_outliers_{}_lt{}.txt')
+enrich_f = (home_dir + tissue + 'tissue_enrich/' +
+            'ens_ref_SV{}_{}_lt{}_{}_rmZ5pct.txt')
+
+rm_ids = None
+
+# Single run
+ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
+                     outlier_output, var_class, enrich_f, rm_ids,
+                     tissue)
+max_outs_i = '500'  # ore_obj.max_outs_list[2]
+ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
+print(ore_cmd_w_args)  # + ' --n_perms 1000'  + ' --n_perms 1000'
+subprocess.call(ore_cmd_w_args, shell=True)
 
 """
 ######### AD variant loop #########
 """
 
-for var_class_i in var_class_list[1:]:
+for var_class_i in var_class_list:
     print(var_class_i)
     ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
                          outlier_output, var_class_i, enrich_f, rm_ids,
                          tissue)
     max_outs_i = '500'  # ore_obj.max_outs_list[2]
     ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
-    print(ore_cmd_w_args)
-    subprocess.call(ore_cmd_w_args, shell=True)
-    new_data_f = (home_dir + 'tissue_' + tissue + '_data/' + tissue +
-                  '_ore_all_data_SV{}_{}_lt{}_{}_rmZ5pct.txt').format(
-                  sv_i, out_class, max_outs_i, var_class_i)
-    mv_cmd = ore_obj.clean_files_after_run(new_data_f)
-    print(mv_cmd)
-    subprocess.call(mv_cmd, shell=True)
+    if not os.path.exists(ore_obj.enrich_f_i):
+        print(ore_cmd_w_args)
+        # subprocess.call(ore_cmd_w_args, shell=True)
+    # new_data_f = (home_dir + 'tissue_' + tissue + '_data/' + tissue +
+    #               '_ore_all_data_SV{}_{}_lt{}_{}_rmZ5pct.txt').format(
+    #               sv_i, out_class, max_outs_i, var_class_i)
+    # mv_cmd = ore_obj.clean_files_after_run(new_data_f)
+    # print(mv_cmd)
+    # subprocess.call(mv_cmd, shell=True)
 
 
 """

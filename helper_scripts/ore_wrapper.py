@@ -88,6 +88,7 @@ class OREwrapper(object):
             enrich_f_i = re.sub('exonic', 'exonic' + exon_sub, enrich_f_i)
         else:
             exon_arg = ''
+        self.enrich_f_i = enrich_f_i
         if self.tss:
             tss_args = self.tss
         else:
