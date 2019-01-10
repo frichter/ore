@@ -54,7 +54,7 @@ class Enrich(object):
 
     def loop_enrichment(self, n_processes, expr_cut_off_vec,
                         tss_cut_off_vec, af_cut_off_vec,
-                        af_vcf, intracohort_rare_ac):
+                        af_vcf, intracohort_rare_ac, af_min_vec):
         """Loop over enrichment.
 
         Args:
@@ -74,22 +74,23 @@ class Enrich(object):
             print(anno_list)
             print(list(self.joined_df)[anno_list[0]])
             print(list(self.joined_df)[anno_list[-1]])
+        # if user only provided one input, convert to list
         if isinstance(expr_cut_off_vec, float):
             expr_cut_off_vec = [expr_cut_off_vec]
         if isinstance(tss_cut_off_vec, float):
             tss_cut_off_vec = [tss_cut_off_vec]
         if isinstance(af_cut_off_vec, float):
             af_cut_off_vec = [af_cut_off_vec]
+        cart_in_list = [expr_cut_off_vec, tss_cut_off_vec, af_cut_off_vec]
         if self.anno_list:
-            cartesian_iter = itertools.product(expr_cut_off_vec,
-                                               tss_cut_off_vec,
-                                               af_cut_off_vec,
-                                               anno_list)
-        else:
-            cartesian_iter = itertools.product(expr_cut_off_vec,
-                                               tss_cut_off_vec,
-                                               af_cut_off_vec)
+            cart_in_list.append(anno_list)
+        # expand the list with * https://stackoverflow.com/a/3034027/10688049
+        cartesian_iter = itertools.product(*cart_in_list)
         # https://stackoverflow.com/questions/533905/get-the-cartesian-product-of-a-series-of-lists
+        if af_min_vec is None:
+            af_min_vec = [0.0] * len(af_cut_off_vec)
+        self.af_cut_off_vec = af_cut_off_vec
+        self.af_min_vec = af_min_vec
         enrichment_per_tuple_partial = partial(
             self.enrichment_per_tuple,
             af_vcf=af_vcf, intracohort_rare_ac=intracohort_rare_ac)
@@ -140,9 +141,13 @@ class Enrich(object):
         max_intrapop_af = self.get_max_intra_pop_af(
             enrich_df, cut_off_tuple[2])
         max_vcf_af = self.get_max_vcf_af(enrich_df, cut_off_tuple[2])
+        min_af = self.get_af_min(
+            self.af_min_vec, self.af_cut_off_vec, cut_off_tuple[2])
+        min_af_pm_adj = self.get_min_af_from_popmax_af(min_af, enrich_df)
         enrich_df = self.redefine_rare(
             enrich_df, max_intrapop_af, max_vcf_af,
-            af_vcf, intracohort_rare_ac, cut_off_tuple)
+            af_vcf, intracohort_rare_ac, cut_off_tuple, min_af,
+            min_af_pm_adj)
         # variant-centric enrichment
         print("Variant-centric enrichment")
         var_list = calculate_var_enrichment(enrich_df, expr_df)
@@ -213,7 +218,7 @@ class Enrich(object):
     @staticmethod
     def redefine_rare(joined_df, max_intrapop_af, max_vcf_af,
                       af_vcf, intracohort_rare_ac,
-                      cut_off_tuple):
+                      cut_off_tuple, min_af, min_af_pm_adj):
         """Reclassify rare variants and outliers and identify rows to keep.
 
         Keep only rows for genes with at least 1 outlier
@@ -226,15 +231,20 @@ class Enrich(object):
         # print("filtered by TSS:", joined_df.shape)
         # classify as rare/common
         rare_variant_status = joined_df.popmax_af <= af_cut_off
+        # classify variants below min_af as "common"
+        rare_variant_status = rare_variant_status & (
+            joined_df.popmax_af >= min_af_pm_adj)
         if af_vcf:
             rare_variant_status = rare_variant_status & (
-                joined_df.VCF_af <= max_vcf_af)
+                joined_df.VCF_af <= max_vcf_af) & (
+                joined_df.VCF_af >= min_af)
         if intracohort_rare_ac:
             rare_variant_status = rare_variant_status & (
                 joined_df.intra_cohort_ac <= intracohort_rare_ac)
         else:
             rare_variant_status = rare_variant_status & (
-                joined_df.intra_cohort_af <= max_intrapop_af)
+                joined_df.intra_cohort_af <= max_intrapop_af) & (
+                joined_df.intra_cohort_af >= min_af)
         joined_df = joined_df.assign(rare_variant_status=rare_variant_status)
         # joined_df.loc[:, "rare_variant_status"] = rare_variant_status
         return joined_df
@@ -294,6 +304,41 @@ class Enrich(object):
             max_vcf_af = af_cut_off
         return max_vcf_af
 
+    @staticmethod
+    def get_af_min(af_min_vec, af_cut_off_vec, af_cut_off):
+        """Identify the minimum AF corresponding to the current max AF.
+
+        Args:
+            `af_min_vec` (:obj:`list`): list of minimum bounds for
+                allele frequency cut-offs
+            `af_cut_off_vec` (:obj:`list`): list of allele frequency cut-offs
+            `af_cut_off` (:obj:`float`): current allele frequency cut-off
+
+        """
+        af_min = af_min_vec[af_cut_off_vec.index(af_cut_off)]
+        # index only returns index of first item that matches
+        if af_min >= af_cut_off:
+            err_msg = ("All --af_min arguments must be less than their" +
+                       "corresponding --af_rare, but {} >= {}").format(
+                af_min, af_cut_off)
+            raise ValueError(err_msg)
+        return af_min
+
+    @staticmethod
+    def get_min_af_from_popmax_af(min_af, joined_df):
+        """Set the minimum (lower bound) AF as max popmax AF.
+
+        Args:
+            `joined_df` (:obj:`DataFrame`): DF with a popmax_af column
+            `min_af` (:obj:`float`): current lower bound AF cut-off
+
+        """
+        if min_af > max(joined_df.popmax_af):
+            min_af_pm = max(joined_df.popmax_af)
+        else:
+            min_af_pm = min_af
+        return min_af_pm
+
     def write_rvs_w_outs_to_file(self, out_cut_off, tss_cut_off, af_cut_off,
                                  af_vcf, intracohort_rare_ac):
         """Write outliers with specified cut-offs to a file.
@@ -319,7 +364,8 @@ class Enrich(object):
         outlier_df = self.redefine_rare(
             enrich_df, max_intrapop_af, max_vcf_af,
             af_vcf, intracohort_rare_ac,
-            cut_off_tuple=cut_off_tuple)
+            cut_off_tuple=cut_off_tuple,
+            min_af=0, min_af_pm_adj=0)
         # only keep outliers with rare variants
         outlier_df = outlier_df.loc[
             outlier_df.rare_variant_status & outlier_df.expr_outlier]

@@ -123,12 +123,12 @@ def quantify_gene_outs(out_class, enrich_df, expr_df):
     enrich_df = enrich_df[enrich_df.gene.isin(out_genes)]
     rare_out = enrich_df[enrich_df.gene_has_rare_var & enrich_df[out_class]
                          ].shape[0]
-    print("All genes:")
-    print(enrich_df.shape)
+    # print("All genes:")
+    # print(enrich_df.shape)
     enrich_df_w_outs = enrich_df[enrich_df.gene.isin(out_genes)]
-    print("Only genes with " + out_class + ":")
-    print(enrich_df_w_outs.shape)
-    print("Unique outlier genes: " + str(len(out_genes)))
+    # print("Only genes with " + out_class + ":")
+    # print(enrich_df_w_outs.shape)
+    # print("Unique outlier genes: " + str(len(out_genes)))
     rare_not_out = enrich_df_w_outs[enrich_df_w_outs.gene_has_rare_var &
                                     (~enrich_df_w_outs[out_class])].shape[0]
     not_rare_out = expr_df[out_class].sum() - rare_out

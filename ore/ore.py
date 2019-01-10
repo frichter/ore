@@ -167,7 +167,8 @@ def associate_outliers(args):
     loop_enrich_args = {
         'n_processes': n_processes, 'expr_cut_off_vec': args.threshold,
         'tss_cut_off_vec': args.tss_dist, 'af_cut_off_vec': args.af_rare,
-        'af_vcf': args.af_vcf, 'intracohort_rare_ac': args.intracohort_rare_ac}
+        'af_vcf': args.af_vcf, 'intracohort_rare_ac': args.intracohort_rare_ac,
+        'af_min_vec': args.af_min}
     enrich_obj.loop_enrichment(**loop_enrich_args)
     if args.n_perms:
         PermuteEnrich(joined_obj.df, joined_obj.expr_outlier_df,
@@ -244,11 +245,18 @@ def main():
                          default=[0.01])
     opt_var.add_argument("--af_vcf", default=False, action="store_true",
                          help="Use the VCF AF field to define an " +
-                         "allele as rare.")
+                         "allele as rare (instead of default intracohort AF).")
     opt_var.add_argument("--intracohort_rare_ac", type=int, default=None,
                          help="Allele COUNT to be used instead of intra-" +
                          "cohort allele frequency. (still uses af_rare for " +
                          "population level AF cut-off)")
+    opt_var.add_argument("--af_min", help="Lower bound on AF " +
+                         "cut-offs for --af_rare, must be same length " +
+                         "as --af_rare (e.g., with --af_rare 0.01 " +
+                         "0.5 and --af_min 0 0.05 ORE will compare variants " +
+                         "within [0,0.01] and [0.05,0.5] to other variants).",
+                         type=float, nargs="*",
+                         default=None)
     opt_var.add_argument("--gq", help="Minimum genotype quality each " +
                          "variant in each individual",
                          type=float, default=30)

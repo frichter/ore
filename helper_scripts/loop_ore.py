@@ -290,7 +290,8 @@ home_dir = ('/sc/orga/projects/chdiTrios/Felix/alzheimers/' +
             'ore_2018_05/')
 vcf = home_dir + '../wgs/ad_wgs_cp.vcf.gz'
 
-tissue = 'min4'
+# min2 min3 min4
+tissue = 'min3'
 sv_i = tissue
 expr_f = (home_dir + '../expression/multitissue/' +
           'residuals_multitissue_' + tissue + 'tis_newZ_sorted.bed.gz')
@@ -319,7 +320,7 @@ print(ore_cmd_w_args)  # + ' --n_perms 1000'  + ' --n_perms 1000'
 subprocess.call(ore_cmd_w_args, shell=True)
 
 """
-######### AD variant loop #########
+######### AD variant loop (single and multi tissue) #########
 """
 
 for var_class_i in var_class_list:
@@ -329,9 +330,9 @@ for var_class_i in var_class_list:
                          tissue)
     max_outs_i = '500'  # ore_obj.max_outs_list[2]
     ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
-    if not os.path.exists(ore_obj.enrich_f_i):
+    if not os.path.exists(ore_obj.enrich_f_i[:-4] + '_gene.txt'):
         print(ore_cmd_w_args)
-        # subprocess.call(ore_cmd_w_args, shell=True)
+        subprocess.call(ore_cmd_w_args, shell=True)
     # new_data_f = (home_dir + 'tissue_' + tissue + '_data/' + tissue +
     #               '_ore_all_data_SV{}_{}_lt{}_{}_rmZ5pct.txt').format(
     #               sv_i, out_class, max_outs_i, var_class_i)
