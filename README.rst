@@ -81,6 +81,11 @@ Optional variant-related arguments:
                         Allele COUNT to be used instead of intra-cohort allele
                         frequency. (still uses af_rare for population level AF
                         cut-off)
+  --af_min AF_MIN
+                        Lower bound on AF cut-offs for --af_rare, must be same
+                        length as --af_rare (e.g., with --af_rare 0.01 0.5 and
+                        --af_min 0 0.05 ORE will compare variants within
+                        [0,0.01] and [0.05,0.5] to other variants).
   --gq GQ
                         Minimum genotype quality each variant in each individual
   --dp DP
