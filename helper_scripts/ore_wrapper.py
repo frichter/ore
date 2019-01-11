@@ -8,7 +8,7 @@ class OREwrapper(object):
     """Wrapper around ORE."""
 
     def __init__(self, home_dir, vcf, expr_f, out_class, out_prefix,
-                 outlier_output, var_class, enrich_f, rm_ids, tissue,
+                 outlier_output, var_class, enrich_f, rm_ids=None, tissue=None,
                  annotations=None, tss=None, exon_class=None):
         """Initialize the ORE wrapper."""
         self.home_dir = home_dir
@@ -56,9 +56,10 @@ class OREwrapper(object):
             max_outs_arg = '--max_outliers_per_id ' + max_outs_i + ' '
             rm_id_arg = ''
             """ Alternatively preset which IDs to remove:"""
-            # max_outs_i = 'custom'
-            # max_outs_arg = ''
-            # rm_id_arg = '--exclude_ids ' + rm_ids + ' '
+            if self.rm_ids:
+                max_outs_i = 'custom'
+                max_outs_arg = ''
+                rm_id_arg = '--exclude_ids ' + self.rm_ids + ' '
         elif self.out_class is 'rank':
             extrema_arg = ''
             dist_arg = self.out_class
