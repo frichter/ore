@@ -8,8 +8,10 @@ class OREwrapper(object):
     """Wrapper around ORE."""
 
     def __init__(self, home_dir, vcf, expr_f, out_class, out_prefix,
-                 outlier_output, var_class, enrich_f, rm_ids=None, tissue=None,
-                 annotations=None, tss=None, exon_class=None):
+                 outlier_output, var_class, enrich_f,
+                 rm_ids=None, tissue=None,
+                 annotations=None, tss=None, exon_class=None,
+                 af_rare=None, af_min=None):
         """Initialize the ORE wrapper."""
         self.home_dir = home_dir
         self.vcf = vcf
@@ -24,6 +26,14 @@ class OREwrapper(object):
         self.exon_class = exon_class
         self.annotations = annotations
         self.tss = tss
+        if af_rare:
+            self.af_rare = af_rare
+        else:
+            self.af_rare = '0.05 1e-2 1e-3 1e-4 1e-5 0.5'
+        if af_min:
+            self.af_min = af_min
+        else:
+            self.af_min = '0 0 0 0 0 0.05'
         if out_class is 'normal':
             self.max_outs_list = [
                 '100', '250', '500', '750', '1000', '2500', '5000']
@@ -99,8 +109,8 @@ class OREwrapper(object):
                    '--enrich_file {enrich} --distribution {dist} ' +
                    '--threshold {expr_thresh} ' +
                    '{extrema_arg}{max_outs_arg}{rm_id_arg}' +
-                   '--af_rare 0.05 1e-2 1e-3 1e-4 1e-5 0.5 ' +
-                   '--af_min 0 0 0 0 0 0.05 ' +
+                   '--af_rare {af_rare_arg} ' +
+                   '--af_min {af_min_arg} ' +
                    '--tss_dist {tss_args} ' +
                    '{annotation_arg}'
                    '--annovar {var_arg}{exon_arg}' +
@@ -112,6 +122,7 @@ class OREwrapper(object):
             dist=dist_arg, expr_thresh=expr_thresh,
             extrema_arg=extrema_arg,
             max_outs_arg=max_outs_arg, rm_id_arg=rm_id_arg,
+            af_rare_arg=self.af_rare, af_min_arg=self.af_min,
             tss_args=tss_args,
             annotation_arg=annotation_arg,
             var_arg=var_arg, exon_arg=exon_arg)

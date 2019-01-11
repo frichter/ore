@@ -33,7 +33,7 @@ vcf = (home_dir + '../wgs_pcgc_2018_01/wgs_' + tissue +
        '_ids.norm_smaller.vcf.gz')
 expr_f = ('/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm' +
           '_cutoff/ns_' + tissue + '/residual_expr_{}_SVs_hg19.bed.gz')
-out_class = 'normal'  # rank normal extrema
+out_class = 'rank'  # rank normal extrema
 out_prefix = home_dir + tissue + '_ore'
 # format order: sv_list out_class max_outs_list
 # _outliers_5pct_max or just _outliers
@@ -50,6 +50,8 @@ tss = '1e4'
 enrich_f = (home_dir + tissue + '_enrich_map300/' + tissue +
             '_ens_ref_SV{}_{}_lt{}_{}_rmZ5pct_wCommonVars.txt')
 # _rmZ5pct_CTCF_and_heart_TFs
+af_rare = '0.05 1e-2 1e-3 1e-4 1e-5 0.5'
+af_min = '0 0 0 0 0 0.05'
 
 rm_ids = '1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670'
 anno_dir = '/sc/orga/projects/chdiTrios/Felix/wgs/bed_annotations/'
@@ -104,8 +106,11 @@ enrich_f = (home_dir + 'lv_gtex_enrich/' +
 ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
                      outlier_output, var_class, enrich_f,
                      rm_ids=rm_ids,  # None rm_ids
-                     # tissue, annotations=annos, tss=tss)
-                     tissue=tissue, tss=tss)
+                     tissue=tissue,
+                     annotations=None,  # none annos
+                     tss=tss,
+                     exon_class=None,
+                     af_rare=af_rare, af_min=af_min)
 max_outs_i = ore_obj.max_outs_list[2]
 sv_i = '5'
 ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
