@@ -76,7 +76,9 @@ class OREwrapper(object):
             expr_thresh = '0.025'
             max_outs_i = 'custom'
             max_outs_arg = ''
-            rm_id_arg = '--exclude_ids ' + self.rm_ids + ' '
+            rm_id_arg = ''
+            if self.rm_ids:
+                rm_id_arg = '--exclude_ids ' + self.rm_ids + ' '
         annotation_arg = ''
         if self.annotations:
             annotation_arg = '--annotations ' + self.annotations

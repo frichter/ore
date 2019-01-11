@@ -48,10 +48,11 @@ exon_class_list = ['synonymous', 'nonsynonymous', '"frameshift|stopgain"']
 tss = '100 250 500 750 1000 2000 5000 1e4'
 tss = '1e4'
 enrich_f = (home_dir + tissue + '_enrich_map300/' + tissue +
-            '_ens_ref_SV{}_{}_lt{}_{}_rmZ5pct_wCommonVars.txt')
+            '_ens_ref_SV{}_{}_lt{}_{}_rmZ5pct_wComVar2.txt')
 # _rmZ5pct_CTCF_and_heart_TFs
-af_rare = '0.05 1e-2 1e-3 1e-4 1e-5 0.5'
-af_min = '0 0 0 0 0 0.05'
+
+af_rare = '0.05 0.1 0.5'  # '0.05 1e-2 1e-3 1e-4 1e-5 0.5'
+af_min = '0 0 0.1'  # '0 0 0 0 0 0.05'
 
 rm_ids = '1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670'
 anno_dir = '/sc/orga/projects/chdiTrios/Felix/wgs/bed_annotations/'
@@ -94,8 +95,8 @@ out_prefix = home_dir + 'lv_gtex'
 outlier_output = (home_dir + 'lv_gtex_outs/' +
                   'lv_ore_SV{}_outliers_{}_lt{}.txt')
 enrich_f = (home_dir + 'lv_gtex_enrich/' +
-            'lv_gtex_ens_ref_SV{}_{}_lt{}_{}_rmZ5pct_wCommonVars.txt')
-
+            'lv_gtex_ens_ref_SV{}_{}_lt{}_{}_rmZ5pct_wComVar2.txt')
+# wComVar2 wCommonVars
 
 """
 ########################################################################
@@ -105,7 +106,8 @@ enrich_f = (home_dir + 'lv_gtex_enrich/' +
 
 ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
                      outlier_output, var_class, enrich_f,
-                     rm_ids=rm_ids,  # None rm_ids
+                     # rm_ids: None for gtex, rm_ids for pcgc atrial
+                     rm_ids=None,
                      tissue=tissue,
                      annotations=None,  # none annos
                      tss=tss,
