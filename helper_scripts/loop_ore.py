@@ -17,6 +17,7 @@ python
 import os
 import subprocess
 import re
+import glob
 
 from helper_scripts.ore_wrapper import OREwrapper
 
@@ -27,14 +28,19 @@ os.chdir('/sc/orga/projects/chdiTrios/Felix/dna_rna/ore')
 
 # atrial vent art_valve_da
 tissue = 'atrial'
-# wgs_pcgc_2018_09 wgs_pcgc_2018_08
-home_dir = '/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08/'
+# wgs_pcgc_2018_09 for vent and art_valve_da, wgs_pcgc_2018_08 for atrial
+if tissue in ['vent', 'art_valve_da']:
+    home_dir = '/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_09/'
+else:
+    home_dir = '/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08/'
+
+
 vcf = (home_dir + '../wgs_pcgc_2018_01/wgs_' + tissue +
        '_ids.norm_smaller.vcf.gz')
 expr_f = ('/sc/orga/projects/chdiTrios/Felix/rna/pcgc/expression_data_rpkm' +
           '_cutoff/ns_' + tissue + '/residual_expr_{}_SVs_hg19.bed.gz')
-out_class = 'rank'  # rank normal extrema
-out_prefix = home_dir + tissue + '_ore'
+out_class = 'extrema'  # rank normal extrema
+out_prefix = home_dir + tissue + '_ore_100kb'  # _ore_100kb
 # format order: sv_list out_class max_outs_list
 # _outliers_5pct_max or just _outliers
 outlier_output = (home_dir + tissue + '_outliers_5pct_max/' +
@@ -42,26 +48,31 @@ outlier_output = (home_dir + tissue + '_outliers_5pct_max/' +
 var_class_list = ['intronic', 'intergenic', 'exonic', 'UTR5',
                   'UTR3', 'splicing', 'upstream', 'ncRNA']
 # allvars to ignore
-var_class = 'UTR5'  # 'allvars'  #
+var_class = 'intergenic'  # 'allvars'  #
 exon_class_list = ['synonymous', 'nonsynonymous', '"frameshift|stopgain"']
 # sv_list out_class max_outs_list var_class
-tss = '100 250 500 750 1000 2000 5000 1e4'
-tss = '1e4'
-enrich_f = (home_dir + tissue + '_enrich_map300/' + tissue +
-            '_ens_ref_SV{}_{}_lt{}_{}_rmZ5pct_wComVar2.txt')
-# _rmZ5pct_CTCF_and_heart_TFs
+# tss = '100 250 500 750 1000 2000 5000 1e4'
+tss = '1e4 1e5'
+enrich_f = (home_dir + tissue + '_enrich_heartenn_1e5/' + tissue +
+            '_ens_ref_SV{}_{}_lt{}_{}_rmZ5pct_heartenn_hiAF.txt')
+# _rmZ5pct_CTCF_and_heart_TFs _enrich_map300
+# atrial_enrich_map300_tss1e5
 
-af_rare = '0.05 0.1 0.5'  # '0.05 1e-2 1e-3 1e-4 1e-5 0.5'
-af_min = '0 0 0.1'  # '0 0 0 0 0 0.05'
+af_rare = '0.05 1e-2 1e-3'  # ' 1e-4 1e-5 0.5'  #
+af_min = '0 0 0'  # ' 0 0 0.05'  #
 
 rm_ids = '1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670'
+
 anno_dir = '/sc/orga/projects/chdiTrios/Felix/wgs/bed_annotations/'
 annos = ('{0}ucsc_2017_03/factorbookMotif/CTCF.sorted.bed ' +
          '{0}hg19_all/any_*.bed ' +
          '{0}hg19_all/Centipedehg19.bed ' +
          '{0}hg19_all/DNaseMasterMajority.sorted.bed ').format(anno_dir)
 
-
+# moving to atrial_ore_per_chrom subdirectory:
+# mv var_* anno_high_prior_heart/
+# mv *anno.bed anno_high_prior_heart/
+# mv *anno_list.txt anno_high_prior_heart/
 annos = ('{0}ucsc_2017_03/factorbookMotif/CTCF.sorted.bed ' +
          '{0}hg19_all/Centipedehg19.bed ' +
          '{0}hg19_all/DNaseMasterMajority.sorted.bed ' +
@@ -77,6 +88,19 @@ annos = ('{0}ucsc_2017_03/factorbookMotif/CTCF.sorted.bed ' +
          '{0}hg19_all/permissive_enhancers.sorted.bed ' +
          '{0}hg19_all/*bx5* ' +
          '{0}hg19_all/*.all_lncRNA.sorted.bed ').format(anno_dir)
+
+
+heartenn_dir = ('/sc/orga/projects/chdiTrios/Felix/wgs/' +
+                'pathogenicity_scores/deepheart_rare_var_scores/')
+f_list = [i for i in glob.iglob(
+    heartenn_dir + 'wgs_atrial_ids_max_score_filtered/*')]
+f_list.sort()
+# anno_str = ' '.join([i for i in glob.iglob(
+#     heartenn_dir + 'wgs_atrial_ids_max_score_filtered/*')])
+annos = ('{0}wgs_atrial_ids_max_score.bed ' +
+         ' '.join(f_list[1:14]) + ' ').format(heartenn_dir)
+annos = (' '.join(f_list[1:14]) + ' ').format(heartenn_dir)
+
 
 """
 ######### GTEx #########
@@ -95,7 +119,7 @@ out_prefix = home_dir + 'lv_gtex'
 outlier_output = (home_dir + 'lv_gtex_outs/' +
                   'lv_ore_SV{}_outliers_{}_lt{}.txt')
 enrich_f = (home_dir + 'lv_gtex_enrich/' +
-            'lv_gtex_ens_ref_SV{}_{}_lt{}_{}_rmZ5pct_wComVar2.txt')
+            'lv_gtex_ens_ref_SV{}_{}_lt{}_{}_rmZ5pct_wCommonVars.txt')
 # wComVar2 wCommonVars
 
 """
@@ -107,9 +131,9 @@ enrich_f = (home_dir + 'lv_gtex_enrich/' +
 ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
                      outlier_output, var_class, enrich_f,
                      # rm_ids: None for gtex, rm_ids for pcgc atrial
-                     rm_ids=None,
+                     rm_ids=rm_ids,
                      tissue=tissue,
-                     annotations=None,  # none annos
+                     annotations=annos,  # None annos
                      tss=tss,
                      exon_class=None,
                      af_rare=af_rare, af_min=af_min)
@@ -117,9 +141,16 @@ max_outs_i = ore_obj.max_outs_list[2]
 sv_i = '5'
 ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
 ore_cmd_w_args = re.sub(' 2 2.5 3', ' 2', ore_cmd_w_args)
+# ore_cmd_w_args = re.sub('--processes 3', '--processes 1', ore_cmd_w_args)
 print(ore_cmd_w_args)  # + ' --n_perms 1000'  + ' --n_perms 1000'
 subprocess.call(ore_cmd_w_args, shell=True)
 # subprocess.call(ore_cmd_w_args + ' --n_perms 1', shell=True)
+
+# change the name for rapid iterations
+new_data_f = re.sub('wCommonVars', 'wCommonVars1', ore_obj.enrich_f_i)
+mv_cmd = 'mv {} {}'.format(ore_obj.enrich_f_i, new_data_f)
+subprocess.call(re.sub('.txt', '_variant.txt', mv_cmd), shell=True)
+subprocess.call(re.sub('.txt', '_gene.txt', mv_cmd), shell=True)
 
 
 """
@@ -131,8 +162,13 @@ subprocess.call(ore_cmd_w_args, shell=True)
 for var_class_i in var_class_list:
     print(var_class_i)
     ore_obj = OREwrapper(home_dir, vcf, expr_f, out_class, out_prefix,
-                         outlier_output, var_class_i, enrich_f, rm_ids,
-                         tissue)
+                         outlier_output, var_class_i, enrich_f,
+                         rm_ids=rm_ids,
+                         tissue=tissue,
+                         annotations=annos,  # None annos
+                         tss=tss,
+                         exon_class=None,
+                         af_rare=af_rare, af_min=af_min)
     max_outs_i = ore_obj.max_outs_list[2]
     sv_i = '5'
     ore_cmd_w_args = ore_obj.run_ORE(sv_i, max_outs_i)
@@ -140,13 +176,30 @@ for var_class_i in var_class_list:
     subprocess.call(ore_cmd_w_args, shell=True)
     # if possible use the same all_data.txt file for all variants
     # after running, move the data to a permanent home so it is not overwritten
+    # not necessary since you now put all data in the enrich directory
     # var_class_i = 'allvars'
-    new_data_f = (home_dir + tissue + '_data/' + tissue + '_ore_all_data_' +
-                  'SV{}_{}_lt{}_{}_rmZ5pct.txt').format(
-                  sv_i, out_class, max_outs_i, var_class_i)
-    mv_cmd = ore_obj.clean_files_after_run(new_data_f)
-    print(mv_cmd)
-    subprocess.call(mv_cmd, shell=True)
+    # new_data_f = (home_dir + tissue + '_data/' + tissue + '_ore_all_data_' +
+    #               'SV{}_{}_lt{}_{}_rmZ5pct.txt').format(
+    #               sv_i, out_class, max_outs_i, var_class_i)
+    # mv_cmd = ore_obj.clean_files_after_run(new_data_f)
+    # print(mv_cmd)
+    # subprocess.call(mv_cmd, shell=True)
+
+# loop over empty dataframes
+anno_f_loc = out_prefix + '_per_chrom/tmp_bed_*.anno.bed'
+for anno_f in glob.iglob(anno_f_loc):
+    # only delete the zero-length overlap files
+    if os.stat(anno_f).st_size != 0:
+        continue
+    print('deleting', anno_f)
+    os.remove(anno_f)
+    f_for_del = re.sub('anno.bed$', 'anno_list.txt', anno_f)
+    print('deleting', f_for_del)
+    os.remove(f_for_del)
+    f_for_del = re.sub('anno.bed$', 'txt', anno_f)
+    f_for_del = re.sub('tmp_bed_', 'var_', f_for_del)
+    print('deleting', f_for_del)
+    os.remove(f_for_del)
 
 
 """
@@ -459,6 +512,29 @@ cbind(c(6, 150-6), c(1717-6, (1717*81) - 144))
 
 # DNaseMasterMajority:
 cbind(c(5, 140-5), c(1717-6, (1717*81) - 135))
+
+# trouble shooting
+import pandas as pd
+f_loc = ('/sc/orga/projects/chdiTrios/Felix/dna_rna/wgs_pcgc_2018_08/' +
+         'atrial_enrich_heartenn/all_data/atrial_ens_ref_SV5_extrema_' +
+         'lt200_allvars_rmZ5pct_heartenn_all_data.txt')
+
+df = pd.read_table(f_loc)
+df.head()
+
+sum(df.expr_outlier)
+gt25neg1_vars = df.wgs_atrial_ids_max_score_gt25neg2 == 1
+df_gt25neg1 = df[gt25neg1_vars]
+rare_vars = df_gt25neg1.popmax_af <= 1e-5
+df_gt25neg1[rare_vars].head()
+df_gt25neg1.columns.values
+df_gt25neg1[rare_vars].intra_cohort_af.min
+sum(df_gt25neg1[rare_vars].intra_cohort_af <= 0.005618)
+sum(rare_vars)  # should be 112+5
+
+df.shape
+df_not_scored = df[df.wgs_atrial_ids_max_score == 0]
+df_not_scored.shape
 
 """
 
