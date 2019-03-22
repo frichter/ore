@@ -1,7 +1,7 @@
 #BSUB -W 10:00
 #BSUB -q alloc
 #BUSB -n 4
-#BSUB -R "rusage[mem=30000]"
+#BSUB -R "rusage[mem=50000]"
 #BSUB -P acc_chdiTrios
 #BSUB -J atrial_intergenic
 #BSUB -m mothra
