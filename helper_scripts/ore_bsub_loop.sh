@@ -1,12 +1,12 @@
 #BSUB -W 10:00
-#BSUB -q alloc
+#BSUB -q premium
 #BUSB -n 4
 #BSUB -R "rusage[mem=50000]"
 #BSUB -P acc_chdiTrios
-#BSUB -J atrial_intergenic
+#BSUB -J atrial_norm
 #BSUB -m mothra
-#BSUB -o atrial_intergenic.stdout
-#BSUB -e atrial_intergenic.stderr
+#BSUB -o atrial_norm.stdout
+#BSUB -e atrial_norm.stderr
 
 module purge
 module load bedtools/2.27.0 samtools/1.3 bcftools/1.6
