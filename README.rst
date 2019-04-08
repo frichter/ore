@@ -1,6 +1,8 @@
 ORE: Outlier-RV enrichment
 --------------------------
 
+ORE identifies outlier genes with more rare variants than expected by chance (and vice-versa). Paper in `Bioinformatics`_.
+
 Cursory use of ORE (outlier-RV enrichment) is provided here, visit the `latest ORE documentation`_ for more details. Confirm the following are installed:
 
     - `Python >=3.5.0`_
@@ -133,4 +135,5 @@ Felix Richter <felix.richter@icahn.mssm.edu>
 .. _Python >=3.5.0: https://www.python.org/downloads/release/python-350/
 .. _bedtools >=2.27.0: http://bedtools.readthedocs.io/en/latest/
 .. _samtools >=1.3 and bcftools >=1.6: http://www.htslib.org/download/
-.. _latest ORE documentation: http://ore.readthedocs.io/en/latest/ 
+.. _latest ORE documentation: http://ore.readthedocs.io/en/latest/
+.. _Bioinformatics: https://doi.org/10.1093/bioinformatics/btz202

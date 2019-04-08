@@ -62,6 +62,9 @@ af_rare = '0.05 1e-2 1e-3'  # ' 1e-4 1e-5 0.5'  #
 af_min = '0 0 0'  # ' 0 0 0.05'  #
 
 rm_ids = '1-01013 1-01019 1-01094 1-02618 1-02702 1-04537 1-13670'
+# This does not include the IDs excluded for arterial and valve analyses..
+'1-00543 1-01399 1-06239 1-06552'  # vascular/valve
+'1-00070 1-00713 1-01553 1-03547 1-04947 1-05433 1-06181 1-08783'  # vent
 
 anno_dir = '/sc/orga/projects/chdiTrios/Felix/wgs/bed_annotations/'
 annos = ('{0}ucsc_2017_03/factorbookMotif/CTCF.sorted.bed ' +

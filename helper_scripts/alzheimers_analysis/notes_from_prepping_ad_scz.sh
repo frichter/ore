@@ -267,7 +267,7 @@ cp --verbose /sc/orga/projects/AMPADWGS/RawDataSinai/SCH_11923_06_16_2017/Projec
 ## so copy and paste files to current directory, recreate tabix
 for F in *_variants.vcf.gz; do time tabix -f -p vcf ${F}; done
 # for loop from https://www.biostars.org/p/259000/
-# ls *variants.vcf.gz
+# ls *variants.vcf.gz > vcf_files_by_chrom_cp.txt
 time bcftools concat -f vcf_files_by_chrom_cp.txt -Ou  --threads 5 | time bcftools view -f PASS -i "F_MISSING <= 0.3 && QUAL >= 30" -o ad_wgs_cp.vcf.gz -Oz --threads 5
 # user 773m9.340s
 
@@ -275,6 +275,38 @@ cd /sc/orga/projects/chdiTrios/Felix/alzheimers/expression
 for F in *.bed.gz; do time tabix -f -p bed ${F}; done
 
 time tabix -p vcf ad_wgs_cp.vcf.gz
+
+
+####################
+##### find all the other WGS data
+####################
+
+
+module load bedtools/2.27.0
+module load samtools/1.3
+module load bcftools/1.6
+module load python/3.5.0
+module load py_packages/3.5
+
+cd /sc/orga/projects/AMPADWGS/
+
+# option:
+# loop through all the RawData/Project_DEJ_11898_B01_GRM_WGS.20* files
+cd /sc/orga/projects/chdiTrios/Felix/alzheimers/wgs_mayo
+time cp --verbose /sc/orga/projects/AMPADWGS/RawDataMayo/Project_SCH_11923_B01_GRM_WGS.2017-05-03/jgwd/joint_vcf/*variants.vcf.gz .
+
+for F in *_variants.vcf.gz; do time tabix -f -p vcf ${F}; done
+ls *variants.vcf.gz > vcf_files_by_chrom_cp.txt
+time bcftools concat -f vcf_files_by_chrom_cp.txt -Ou  --threads 5 | time bcftools view -f PASS -i "F_MISSING <= 0.3 && QUAL >= 30" -o ad_wgs_mayo.vcf.gz -Oz --threads 5
+
+
+cd /sc/orga/projects/chdiTrios/Felix/alzheimers/wgs_rosmap
+time cp --verbose /sc/orga/projects/AMPADWGS/RawData/DEJ11898_06_16_2017/Project_DEJ_11898_B01_GRM_WGS.JGvariants.2017-06-06/jgwd/joint_vcf/*variants.vcf.gz .
+for F in *_variants.vcf.gz; do time tabix -f -p vcf ${F}; done
+ls *variants.vcf.gz > vcf_files_by_chrom_cp.txt
+time bcftools concat -f vcf_files_by_chrom_cp.txt -Ou  --threads 5 | time bcftools view -f PASS -i "F_MISSING <= 0.3 && QUAL >= 30" -o ad_wgs_rosmap.vcf.gz -Oz --threads 5
+
+
 
 ####################
 ##### AD RUN
